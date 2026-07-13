@@ -24,7 +24,7 @@ def check_seats():
         print("goto...", flush=True)
         page.goto(URL, wait_until="domcontentloaded", timeout=45000)
         print("waiting for episode list...", flush=True)
-        page.wait_for_selector("#booking .episode_select ul li", timeout=30000)
+        page.wait_for_selector("#booking .episode_select ul li", state="attached", timeout=30000)
         print("episode list found, reading...", flush=True)
 
         results = []
