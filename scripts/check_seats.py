@@ -21,8 +21,11 @@ def check_seats():
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-        page.goto(URL, wait_until="networkidle", timeout=30000)
-        page.wait_for_selector("#booking .episode_select ul li", timeout=15000)
+        print("goto...", flush=True)
+        page.goto(URL, wait_until="domcontentloaded", timeout=45000)
+        print("waiting for episode list...", flush=True)
+        page.wait_for_selector("#booking .episode_select ul li", timeout=30000)
+        print("episode list found, reading...", flush=True)
 
         results = []
         for ep in page.query_selector_all("#booking .episode_select ul li"):
@@ -35,6 +38,7 @@ def check_seats():
             results.append((label, available, status_text))
 
         browser.close()
+        print(f"results: {results}", flush=True)
         return results
 
 
@@ -42,7 +46,8 @@ def main():
     try:
         results = check_seats()
     except Exception as e:
-        send_telegram(f"⚠️ 한로로 좌석확인 실패: {e}")
+        print(f"ERROR: {type(e).__name__}: {e}", flush=True)
+        send_telegram(f"⚠️ 한로로 좌석확인 실패: {type(e).__name__}: {e}")
         sys.exit(1)
 
     if not results:
