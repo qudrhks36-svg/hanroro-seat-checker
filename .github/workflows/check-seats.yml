@@ -5,6 +5,9 @@ on:
     - cron: '4,34 * * * *'
   workflow_dispatch: {}
 
+permissions:
+  actions: write
+
 jobs:
   check-seats:
     runs-on: ubuntu-latest
@@ -30,4 +33,6 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: python scripts/check_seats.py

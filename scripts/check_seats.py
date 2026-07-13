@@ -10,14 +10,33 @@ from playwright.sync_api import sync_playwright
 
 URL = "https://www.lotteconcerthall.com/product/ko/performance/261129?q=YTcyY2ZkNDVlMDFlNGNjN2EwOTg2YzBhYzRkMzM0MmY%3d"
 
+# 마지막 공연(2026-08-07)이 끝난 다음 날 자정 이후로는 확인이 무의미하므로 자동 종료한다.
+CUTOFF = datetime.datetime(2026, 8, 8, 0, 0, tzinfo=KST)
+
 TELEGRAM_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+GH_TOKEN = os.environ.get("GITHUB_TOKEN")
+GH_REPOSITORY = os.environ.get("GITHUB_REPOSITORY")
+WORKFLOW_FILE = "check-seats.yml"
 
 
 def send_telegram(message: str) -> None:
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     resp = requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID, "text": message}, timeout=15)
     resp.raise_for_status()
+
+
+def disable_workflow() -> None:
+    url = f"https://api.github.com/repos/{GH_REPOSITORY}/actions/workflows/{WORKFLOW_FILE}/disable"
+    resp = requests.put(
+        url,
+        headers={
+            "Authorization": f"Bearer {GH_TOKEN}",
+            "Accept": "application/vnd.github+json",
+        },
+        timeout=15,
+    )
+    print(f"disable_workflow: {resp.status_code}", flush=True)
 
 
 def check_seats():
@@ -46,6 +65,12 @@ def check_seats():
 
 
 def main():
+    if datetime.datetime.now(KST) >= CUTOFF:
+        print("past cutoff, disabling workflow and sending final notice", flush=True)
+        send_telegram("🛑 한로로 콘서트 공연 일정이 모두 지나서 좌석확인 자동화를 종료합니다. (GitHub Actions 워크플로우 자동 비활성화)")
+        disable_workflow()
+        return
+
     try:
         results = check_seats()
     except Exception as e:
