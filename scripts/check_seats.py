@@ -1,6 +1,9 @@
 import datetime
 import os
 import sys
+from zoneinfo import ZoneInfo
+
+KST = ZoneInfo("Asia/Seoul")
 
 import requests
 from playwright.sync_api import sync_playwright
@@ -55,7 +58,7 @@ def main():
         return
 
     any_available = any(available for _, available, _ in results)
-    now = datetime.datetime.now().strftime("%m/%d %H:%M")
+    now = datetime.datetime.now(KST).strftime("%m/%d %H:%M")
 
     lines = [f"{label}: {'있음' if available else '없음'}" for label, available, _ in results]
     prefix = "🚨 좌석 발생! " if any_available else ""
