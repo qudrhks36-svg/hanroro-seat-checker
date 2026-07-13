@@ -32,8 +32,8 @@ def check_seats():
             classes = ep.get_attribute("class") or ""
             label_el = ep.query_selector(".btn_episode span")
             status_el = ep.query_selector(".btn_remain span")
-            label = label_el.inner_text().strip() if label_el else "알 수 없음"
-            status_text = status_el.inner_text().strip() if status_el else ""
+            label = (label_el.text_content() or "").strip() if label_el else "알 수 없음"
+            status_text = (status_el.text_content() or "").strip() if status_el else ""
             available = "soldOut" not in classes
             results.append((label, available, status_text))
 
