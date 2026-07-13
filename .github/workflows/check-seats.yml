@@ -2,7 +2,7 @@ name: Check Hanroro Concert Seats
 
 on:
   schedule:
-    - cron: '7,37 * * * *'
+    - cron: '4,34 * * * *'
   workflow_dispatch: {}
 
 jobs:
