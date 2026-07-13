@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(find \"/c/Users/qudrh\" -iname \"*한로로*\" -o -iname \"*콘서트*\" -o -iname \"*seat*\" 2>/dev/null | grep -v -E \"AppData|OneDrive.*Recycle\" | head -50)",
-      "Bash(where winget *)",
-      "Bash(where choco *)"
-    ]
-  }
-}
