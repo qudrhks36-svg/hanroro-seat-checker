@@ -23,6 +23,7 @@ KST = datetime.timezone(datetime.timedelta(hours=9))
 def send_telegram(message: str) -> None:
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     resp = requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID, "text": message}, timeout=15)
+    print(f"[telegram] status={resp.status_code} body={resp.text}")
     resp.raise_for_status()
 
 
