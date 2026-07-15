@@ -1,8 +1,6 @@
 name: Check Hanroro Concert Seats
 
 on:
-  schedule:
-    - cron: '*/5 * * * *'
   workflow_dispatch: {}
 
 concurrency:
