@@ -8,6 +8,13 @@ from playwright.sync_api import sync_playwright
 
 URL = "https://www.lotteconcerthall.com/product/ko/performance/261129?q=YTcyY2ZkNDVlMDFlNGNjN2EwOTg2YzBhYzRkMzM0MmY%3d"
 
+PERFORMANCE_ID = 261129
+SCHEDULE_API_URL = f"https://www.lotteconcerthall.com/product/ko/performance/{PERFORMANCE_ID}/schedule"
+SEAT_URL_TEMPLATE = (
+    "https://www.lotteconcerthall.com/Pages/ko/Perf/Sale/SeatPreviewProcess.aspx"
+    f"?spv=1&IdPerf={PERFORMANCE_ID}&SelDate={{date}}&IdTime={{time_id}}"
+)
+
 TELEGRAM_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
@@ -55,6 +62,22 @@ def check_seats():
         return results
 
 
+def get_seat_urls() -> dict:
+    """PlayTime 라벨(예: '2026-08-06 (목) 07:30 PM') -> 좌석선택 화면 URL 매핑.
+    실패해도 좌석 발생 알림 자체는 막지 않도록 조용히 빈 dict를 반환한다."""
+    try:
+        resp = requests.get(SCHEDULE_API_URL, timeout=15)
+        resp.raise_for_status()
+        data = resp.json()
+        mapping = {}
+        for pt in data["PlayTimes"]:
+            date_only = pt["PlayTime"][:10]  # "2026-08-06"
+            mapping[pt["PlayTime"]] = SEAT_URL_TEMPLATE.format(date=date_only, time_id=pt["TimeID"])
+        return mapping
+    except Exception:
+        return {}
+
+
 def main():
     state = load_state()
 
@@ -68,13 +91,20 @@ def main():
         send_telegram("⚠️ 한로로 좌석확인: 회차 정보를 찾지 못했습니다. 페이지 구조가 변경됐을 수 있습니다.")
         return
 
+    seat_urls = get_seat_urls()
+
     any_available = any(available for _, available, _ in results)
     now = datetime.datetime.now(KST)
     now_str = now.strftime("%m/%d %H:%M")
-    lines = [
-        f"{i}회차 {label} 공연 {'있음' if available else '없음'}"
-        for i, (label, available, _) in enumerate(results, start=1)
-    ]
+
+    lines = []
+    for i, (label, available, _) in enumerate(results, start=1):
+        line = f"{i}회차 {label} 공연 {'있음' if available else '없음'}"
+        if available:
+            seat_url = seat_urls.get(label)
+            if seat_url:
+                line += f"\n👉 {seat_url}"
+        lines.append(line)
 
     if any_available:
         message = "🚨 좌석 발생! [한로로 콘서트 좌석확인]\n" + "\n".join(lines) + f"\n확인시각: {now_str}"
