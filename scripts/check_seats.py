@@ -38,7 +38,7 @@ def check_seats():
         browser = p.chromium.launch()
         page = browser.new_page()
         page.goto(URL, wait_until="networkidle", timeout=30000)
-        page.wait_for_selector("#booking .episode_select ul li", timeout=15000)
+        page.wait_for_selector("#booking .episode_select ul li", state="attached", timeout=15000)
 
         results = []
         for ep in page.query_selector_all("#booking .episode_select ul li"):
