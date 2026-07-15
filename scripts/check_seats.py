@@ -71,7 +71,10 @@ def main():
     any_available = any(available for _, available, _ in results)
     now = datetime.datetime.now(KST)
     now_str = now.strftime("%m/%d %H:%M")
-    lines = [f"{label}차 공연 {'있음' if available else '없음'}" for label, available, _ in results]
+    lines = [
+        f"{i}회차 {label} 공연 {'있음' if available else '없음'}"
+        for i, (label, available, _) in enumerate(results, start=1)
+    ]
 
     if any_available:
         message = "🚨 좌석 발생! [한로로 콘서트 좌석확인]\n" + "\n".join(lines) + f"\n확인시각: {now_str}"
