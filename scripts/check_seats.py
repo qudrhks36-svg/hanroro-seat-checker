@@ -13,6 +13,7 @@ TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 STATE_FILE = "state.json"
 NO_SEAT_NOTIFY_INTERVAL = datetime.timedelta(minutes=30)
+KST = datetime.timezone(datetime.timedelta(hours=9))
 
 
 def send_telegram(message: str) -> None:
@@ -68,9 +69,9 @@ def main():
         return
 
     any_available = any(available for _, available, _ in results)
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now(KST)
     now_str = now.strftime("%m/%d %H:%M")
-    lines = [f"{label}: {'있음' if available else '없음'}" for label, available, _ in results]
+    lines = [f"{label}차 공연 {'있음' if available else '없음'}" for label, available, _ in results]
 
     if any_available:
         message = "🚨 좌석 발생! [한로로 콘서트 좌석확인]\n" + "\n".join(lines) + f"\n확인시각: {now_str}"
