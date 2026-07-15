@@ -2,6 +2,9 @@ name: Check Hanroro Concert Seats
 
 on:
   workflow_dispatch: {}
+  schedule:
+    - cron: '*/5 0-8 * * 1-5'   # 평일 09:00~17:55 KST, 5분 간격
+    - cron: '0 9 * * 1-5'       # 평일 18:00 KST 취소마감 정각 체크
 
 concurrency:
   group: hanroro-seat-check
@@ -21,16 +24,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('requirements.txt') }}
-
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          playwright install --with-deps chromium
+        run: pip install -r requirements.txt
 
       - name: Run seat check
         env:
