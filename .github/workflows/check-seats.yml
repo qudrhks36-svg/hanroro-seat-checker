@@ -1,10 +1,7 @@
 name: Check Hanroro Concert Seats
 
 on:
-  workflow_dispatch: {}
-  schedule:
-    - cron: '*/5 0-8 * * 1-5'   # 평일 09:00~17:55 KST, 5분 간격
-    - cron: '0 9 * * 1-5'       # 평일 18:00 KST 취소마감 정각 체크
+  workflow_dispatch: {}   # 스케줄은 cron-job.org가 외부에서 담당 (중복 실행 방지를 위해 native schedule 미사용)
 
 concurrency:
   group: hanroro-seat-check
