@@ -7,9 +7,11 @@ import requests
 
 PERFORMANCE_ID = 261129
 SCHEDULE_API_URL = f"https://www.lotteconcerthall.com/product/ko/performance/{PERFORMANCE_ID}/schedule"
-SEAT_URL_TEMPLATE = (
-    "https://www.lotteconcerthall.com/Pages/ko/Perf/Sale/SeatPreviewProcess.aspx"
-    f"?spv=1&IdPerf={PERFORMANCE_ID}&SelDate={{date}}&IdTime={{time_id}}"
+# 좌석 "미리보기"(SeatPreviewProcess.aspx)는 실제로 클릭이 안 되는 열람 전용 화면이라
+# 실제 예매하기 버튼이 이동하는 공연 상세(회차 선택) 페이지로 대신 연결한다.
+PERFORMANCE_URL = (
+    f"https://www.lotteconcerthall.com/product/ko/performance/{PERFORMANCE_ID}"
+    "?q=YTcyY2ZkNDVlMDFlNGNjN2EwOTg2YzBhYzRkMzM0MmY%3d"
 )
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
@@ -62,7 +64,8 @@ def save_state(state: dict) -> None:
 
 
 def check_seats():
-    """(회차 라벨, 예매가능여부, 좌석선택URL) 리스트 반환"""
+    """(회차 라벨, 예매가능여부, 공연 상세 URL) 리스트 반환.
+    URL은 회차와 무관하게 동일한 상세 페이지 — 알림 받으면 그 화면에서 직접 회차를 선택해 예매한다."""
     resp = requests.get(SCHEDULE_API_URL, timeout=15)
     resp.raise_for_status()
     data = resp.json()
@@ -71,9 +74,7 @@ def check_seats():
     for pt in data["PlayTimes"]:
         label = pt["PlayTime"]
         available = not pt["IsSoldOut"]
-        date_only = label[:10]  # "2026-08-06"
-        seat_url = SEAT_URL_TEMPLATE.format(date=date_only, time_id=pt["TimeID"])
-        results.append((label, available, seat_url))
+        results.append((label, available, PERFORMANCE_URL))
     return results
 
 
@@ -109,7 +110,7 @@ def main():
     for i, (label, available, seat_url) in enumerate(results, start=1):
         line = f"{i}회차 {label} 공연 {'있음' if available else '없음'}"
         if available:
-            line += f"\n👉 {seat_url}"
+            line += f"\n👉 회차 선택 후 예매: {seat_url}"
         lines.append(line)
 
     if any_available:
