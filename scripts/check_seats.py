@@ -30,6 +30,34 @@ CUTOFF = datetime.datetime(2026, 8, 8, 0, 0, tzinfo=KST)
 ACTIVE_HOUR_START = 9   # KST 9시부터
 ACTIVE_HOUR_END = 18    # KST 18시 전까지
 
+# 공연 날짜. 롯데콘서트홀 정책상 이 날짜들의 자정 직후, 그리고 이 날짜 전 마지막 평일
+# 18시 직후에는 9-18시 가드를 예외적으로 풀어서 집중 확인한다 (아래 IN_BURST_WINDOW 참고).
+SHOW_DATES = [datetime.date(2026, 8, 6), datetime.date(2026, 8, 7)]
+# 무통장입금 미결제 취소표: 공연일 00:00 이후 순차 반영, 보통 00:05~00:10 사이 (버퍼 포함 00:20까지 감시)
+RELEASE_BURST_END_MINUTE = 20
+# 인터넷 취소 마감(공연일 전 마지막 평일 18시) 직후 반영분 감시 (18:00~18:20)
+DEADLINE_BURST_END_MINUTE = 20
+
+
+def _last_weekday_before(d: datetime.date) -> datetime.date:
+    """d 기준 하루 전부터 거슬러 올라가며 토/일을 건너뛴 첫 평일을 반환."""
+    prev = d - datetime.timedelta(days=1)
+    while prev.weekday() >= 5:  # 5=토, 6=일
+        prev -= datetime.timedelta(days=1)
+    return prev
+
+
+def in_burst_window(now_dt: datetime.datetime) -> bool:
+    """무통장입금 취소표 반영 시각(공연일 00:00~) / 인터넷 취소 마감 직후(공연일 전
+    마지막 평일 18:00~)에는 9-18시 가드와 무관하게 조회를 허용한다."""
+    for show_date in SHOW_DATES:
+        if now_dt.date() == show_date and now_dt.hour == 0 and now_dt.minute < RELEASE_BURST_END_MINUTE:
+            return True
+        deadline_day = _last_weekday_before(show_date)
+        if now_dt.date() == deadline_day and now_dt.hour == 18 and now_dt.minute < DEADLINE_BURST_END_MINUTE:
+            return True
+    return False
+
 
 def send_telegram(message: str) -> None:
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -87,8 +115,8 @@ def main():
         disable_workflow()
         return
 
-    if not (ACTIVE_HOUR_START <= now_dt.hour < ACTIVE_HOUR_END):
-        print(f"outside active window ({ACTIVE_HOUR_START}-{ACTIVE_HOUR_END}h KST), skipping run", flush=True)
+    if not (ACTIVE_HOUR_START <= now_dt.hour < ACTIVE_HOUR_END) and not in_burst_window(now_dt):
+        print(f"outside active window ({ACTIVE_HOUR_START}-{ACTIVE_HOUR_END}h KST) and not in a burst window, skipping run", flush=True)
         return
 
     state = load_state()
