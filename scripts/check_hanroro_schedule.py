@@ -25,18 +25,13 @@ FREE_MODELS = [
     "nvidia/nemotron-nano-9b-v2:free",
 ]
 
-# 이미 확정된 공연은 뉴스 검색 결과에 의존하지 않고 직접 명시한다 (검색으로는 예매
-# 링크를 못 찾는 경우가 잦아서). hanroro-seat-checker의 check_seats.py와 같은 공연.
-# last_date가 지나면 자동으로 목록에서 빠진다 — 수동으로 지울 필요 없음.
-KNOWN_SHOWS = [
+# 이 공연은 check_seats.py가 이미 별도로 실시간 좌석 알림을 보내고 있어서, 이 일정
+# 알리미에서는 중복으로 안내하지 않고 제외만 한다 (검색 결과에 걸려도 무시).
+# last_date가 지나면 자동으로 제외 목록에서도 빠진다 — 수동으로 지울 필요 없음.
+EXCLUDED_SHOWS = [
     {
-        "label": "8월 6일·7일 '시리즈L : 한로로' (롯데콘서트홀)",
+        "label": "8월 6일·7일 '시리즈L : 한로로' (롯데콘서트홀) — 좌석알리미 봇이 별도로 안내 중이라 제외",
         "last_date": datetime.date(2026, 8, 7),
-        "booking_link": (
-            "https://www.lotteconcerthall.com/product/ko/performance/261129"
-            "?q=YTcyY2ZkNDVlMDFlNGNjN2EwOTg2YzBhYzRkMzM0MmY%3d"
-        ),
-        "note": "예매 이미 오픈됨. 실시간 취소표는 별도 좌석알리미 봇이 2분 간격으로 감시 중.",
     },
 ]
 
@@ -169,19 +164,12 @@ def call_llm(prompt: str) -> str:
 
 def main():
     today = datetime.datetime.now(KST).date()
-    active_known_shows = [s for s in KNOWN_SHOWS if s["last_date"] >= today]
-    known_block = "\n\n".join(
-        f"✅ {s['label']}\n👉 {s['booking_link']}\n({s['note']})" for s in active_known_shows
-    )
-    known_labels = ", ".join(s["label"] for s in active_known_shows) or "없음"
+    excluded_labels = ", ".join(s["label"] for s in EXCLUDED_SHOWS if s["last_date"] >= today) or "없음"
 
     candidates = collect_candidates()
 
     if not candidates:
-        if known_block:
-            send_telegram(f"🎤 [한로로 일정 알리미]\n{known_block}")
-        else:
-            send_telegram("🎤 [한로로 일정 알리미]\n오늘은 관련 뉴스를 찾지 못했습니다.")
+        send_telegram("🎤 [한로로 일정 알리미]\n오늘은 관련 뉴스를 찾지 못했습니다.")
         return
 
     blocks = []
@@ -203,12 +191,12 @@ def main():
 언급된 공연 날짜(8월)를 기준으로 판단해야 하며, 절대 지난 일정으로 착각해서 빼면 안 된다.
 반대로 뉴스 발행일이 최근이어도 기사 내용 자체가 이미 끝난 과거 행사를 회고하는 기사라면 제외해라.
 
-다음 공연들은 이미 확정되어 별도로 안내되므로 절대 다시 언급하지 마라: {known_labels}
+다음 공연은 이미 다른 채널에서 안내되고 있으므로 절대 언급하지 마라: {excluded_labels}
 
 {listing}
 
 이 정보만 근거로, 확대해석하거나 추측하지 말고 아래 형식으로 정리해라:
-1. 위에서 이미 안내된 공연을 제외하고, 기사 내용에서 언급된 공연/행사 날짜가 오늘({today_str}) 이후인 것만 골라라. 정확한 일자가 없고 "8월"처럼 월만 나와 있어도, 그 달이 아직 지나지 않았다면 포함하고 아는 만큼("8월 중")이라도 적어라. 실제 행사 날짜 기준으로 이미 지난 것만 제외해라. 앞으로의 새 일정이 하나도 없을 때만 "새로운 일정 없음"이라고 써라.
+1. 위에서 제외하라고 한 공연을 빼고, 기사 내용에서 언급된 공연/행사 날짜가 오늘({today_str}) 이후인 것만 골라라. 정확한 일자가 없고 "8월"처럼 월만 나와 있어도, 그 달이 아직 지나지 않았다면 포함하고 아는 만큼("8월 중")이라도 적어라. 실제 행사 날짜 기준으로 이미 지난 것만 제외해라. 앞으로의 새 일정이 하나도 없을 때만 "새로운 일정 없음"이라고 써라.
 2. 위에서 고른 각 일정마다, 본문 일부에서 예매 링크·예매처(인터파크/멜론티켓/예스24 등)·예매 시작일 중 언급된 게 있으면 최대한 찾아서 포함해라. 링크가 없어도 예매일이나 예매처만 나와 있으면 그것도 반드시 적어라. 정말 아무 단서도 없을 때만 "예매 정보 확인 안 됨"이라고 써라.
 3. 뉴스가 전부 무관한 내용(공연과 상관없는 기사 등)이거나 전부 지난 일정이면 "새로운 일정 없음"이라고만 답해라.
 4. 존댓말로, 텔레그램 메시지에 어울리게 불릿 기호 없이 줄바꿈으로 간결하게 작성해라. 400자 이내로."""
@@ -218,8 +206,7 @@ def main():
     except Exception as e:
         summary = f"(자동 요약 실패: {e})\n\n원본 뉴스 제목:\n{listing}"
 
-    parts = [p for p in [known_block, summary] if p]
-    message = "🎤 [한로로 일정 알리미]\n" + "\n\n".join(parts)
+    message = f"🎤 [한로로 일정 알리미]\n{summary}"
     send_telegram(message)
 
 
