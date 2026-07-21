@@ -24,6 +24,10 @@ STATE_FILE = "state.json"
 NO_SEAT_NOTIFY_INTERVAL = datetime.timedelta(minutes=30)
 KST = datetime.timezone(datetime.timedelta(hours=9))
 
+# R/S석 취소표를 별도로 강조 알림하기 위한 등급 구분.
+# 시야방해R/시야방해S는 제외(할인가·시야 제한석이라 사용자가 원하는 "진짜 R/S"가 아님).
+RS_CLASSES = {"R석", "S석"}
+
 # 마지막 공연(2026-08-07) 다음 날 자정 이후로는 확인이 무의미하므로 자동 종료한다.
 CUTOFF = datetime.datetime(2026, 8, 8, 0, 0, tzinfo=KST)
 # cron-job.org 외부 스케줄이 오작동해도 이 시간대 밖이면 조회/알림을 하지 않는다.
@@ -92,8 +96,10 @@ def save_state(state: dict) -> None:
 
 
 def check_seats():
-    """(회차 라벨, 예매가능여부, 공연 상세 URL) 리스트 반환.
-    URL은 회차와 무관하게 동일한 상세 페이지 — 알림 받으면 그 화면에서 직접 회차를 선택해 예매한다."""
+    """(회차 라벨, 예매가능여부, 공연 상세 URL, {등급명: 잔여석수}) 리스트 반환.
+    URL은 회차와 무관하게 동일한 상세 페이지 — 알림 받으면 그 화면에서 직접 회차를 선택해 예매한다.
+    등급별 잔여석수(BookableCount)는 같은 스케줄 API 응답의 Seats 배열에 이미 포함되어 있어
+    별도 API 호출 없이 R석/S석 취소표만 골라 강조 알림할 수 있다."""
     resp = requests.get(SCHEDULE_API_URL, timeout=15)
     resp.raise_for_status()
     data = resp.json()
@@ -102,7 +108,12 @@ def check_seats():
     for pt in data["PlayTimes"]:
         label = pt["PlayTime"]
         available = not pt["IsSoldOut"]
-        results.append((label, available, PERFORMANCE_URL))
+        seat_counts = {
+            seat["ClassName"]: seat["BookableCount"]
+            for seat in pt.get("Seats", [])
+            if seat["BookableCount"] > 0
+        }
+        results.append((label, available, PERFORMANCE_URL, seat_counts))
     return results
 
 
@@ -131,18 +142,25 @@ def main():
         send_telegram("⚠️ 한로로 좌석확인: 회차 정보를 찾지 못했습니다. API 응답이 비어있습니다.")
         return
 
-    any_available = any(available for _, available, _ in results)
+    any_available = any(available for _, available, _, _ in results)
+    rs_available = any(
+        seat_counts.get(cls, 0) > 0 for _, _, _, seat_counts in results for cls in RS_CLASSES
+    )
     now_str = now_dt.strftime("%m/%d %H:%M")
 
     lines = []
-    for i, (label, available, seat_url) in enumerate(results, start=1):
+    for i, (label, available, seat_url, seat_counts) in enumerate(results, start=1):
         line = f"{i}회차 {label} 공연 {'있음' if available else '없음'}"
         if available:
+            grade_breakdown = ", ".join(f"{cls} {cnt}석" for cls, cnt in seat_counts.items())
+            if grade_breakdown:
+                line += f"\n   ({grade_breakdown})"
             line += f"\n👉 회차 선택 후 예매: {seat_url}"
         lines.append(line)
 
     if any_available:
-        message = "🚨 좌석 발생! [한로로 콘서트 좌석확인]\n" + "\n".join(lines) + f"\n확인시각: {now_str}"
+        header = "🌟🚨 R/S석 취소표 발생!! 🚨🌟" if rs_available else "🚨 좌석 발생!"
+        message = f"{header} [한로로 콘서트 좌석확인]\n" + "\n".join(lines) + f"\n확인시각: {now_str}"
         send_telegram(message)
         state["last_no_seat_notify"] = None
     else:
