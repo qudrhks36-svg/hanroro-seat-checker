@@ -37,5 +37,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add state.json
-          git diff --cached --quiet || git commit -m "chore: update seat check state [skip ci]"
-          git push
+          if git diff --cached --quiet; then
+            echo "no state change, nothing to commit"
+            exit 0
+          fi
+          git commit -m "chore: update seat check state [skip ci]"
+          for i in 1 2 3 4 5; do
+            if git push; then
+              echo "push succeeded on attempt $i"
+              exit 0
+            fi
+            echo "push rejected (attempt $i), rebasing onto latest main and retrying"
+            git pull --rebase origin main
+          done
+          echo "::error::state.json push failed after 5 retries — seat check itself already ran fine above, only state persistence failed"
+          exit 1
