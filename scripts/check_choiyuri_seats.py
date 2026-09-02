@@ -22,7 +22,8 @@ GH_REPOSITORY = os.environ.get("GITHUB_REPOSITORY")
 WORKFLOW_FILE = "check-choiyuri-seats.yml"
 
 STATE_FILE = "choiyuri_state.json"
-NO_SEAT_NOTIFY_INTERVAL = datetime.timedelta(minutes=30)
+# 빈자리가 없을 때 "감시 중" 알림은 하루 1번, 이 시각(KST)대에만 보낸다.
+NO_SEAT_NOTIFY_HOUR = 17
 KST = datetime.timezone(datetime.timedelta(hours=9))
 
 # 인터파크 예매 마감(10.03 공연 전일 17:00) 이후로는 온라인 예매가 불가하므로 자동 종료한다.
@@ -64,7 +65,7 @@ def disable_workflow() -> None:
 
 def load_state() -> dict:
     if not os.path.exists(STATE_FILE):
-        return {"last_no_seat_notify": None}
+        return {"last_no_seat_notify_date": None}
     with open(STATE_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -144,11 +145,12 @@ def main():
 
     if any(c > 0 for c in avail.values()):
         send_telegram(build_seat_message(avail, now_str))
-        state["last_no_seat_notify"] = None
     else:
-        last_notify = state.get("last_no_seat_notify")
-        should_notify = last_notify is None or (
-            now_dt - datetime.datetime.fromisoformat(last_notify) >= NO_SEAT_NOTIFY_INTERVAL
+        # 빈자리 없음 알림은 하루 1번(NO_SEAT_NOTIFY_HOUR 시각대)만. 첫 실행 때는 한 번 보내 가동을 확인시킨다.
+        today_str = now_dt.strftime("%Y-%m-%d")
+        last_date = state.get("last_no_seat_notify_date")
+        should_notify = last_date is None or (
+            now_dt.hour == NO_SEAT_NOTIFY_HOUR and last_date != today_str
         )
         if should_notify:
             send_telegram(
@@ -156,7 +158,7 @@ def main():
                 "감시 중 · 현재 빈자리 없음 (가~차 전 구역)\n"
                 f"확인시각: {now_str}"
             )
-            state["last_no_seat_notify"] = now_dt.isoformat()
+            state["last_no_seat_notify_date"] = today_str
 
     save_state(state)
 
