@@ -1,0 +1,54 @@
+name: Check Choiyuri Concert Seats (10/3)
+
+on:
+  workflow_dispatch: {}   # 스케줄은 cron-job.org가 외부에서 1분마다 담당 (중복 실행 방지를 위해 native schedule 미사용)
+
+concurrency:
+  group: choiyuri-seat-check
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  check-seats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run seat check
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHOIYURI_CHAT_ID: ${{ secrets.CHOIYURI_CHAT_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/check_choiyuri_seats.py
+
+      - name: Commit updated state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add choiyuri_state.json
+          if git diff --cached --quiet; then
+            echo "no state change, nothing to commit"
+            exit 0
+          fi
+          git commit -m "chore: update choiyuri seat check state [skip ci]"
+          for i in 1 2 3 4 5; do
+            if git push; then
+              echo "push succeeded on attempt $i"
+              exit 0
+            fi
+            echo "push rejected (attempt $i), rebasing onto latest main and retrying"
+            git pull --rebase origin main
+          done
+          echo "::error::choiyuri_state.json push failed after 5 retries — seat check itself already ran fine above, only state persistence failed"
+          exit 1
