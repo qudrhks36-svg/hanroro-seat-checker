@@ -1,7 +1,6 @@
 import datetime
 import json
 import os
-import sys
 import time
 
 import requests
@@ -42,6 +41,12 @@ PRIORITY_1 = {"나", "라", "사", "자"}
 # seatStatus API는 호출당 blockKeys 2개까지만 허용한다.
 CHUNK_SIZE = 2
 
+# 인터파크 API 일시 오류(502/타임아웃 등) 관대 처리.
+FETCH_RETRIES = 3                 # run 안에서 재시도 횟수
+FETCH_RETRY_BACKOFF = 0.5        # 재시도 간격(초) × 시도 횟수
+FAIL_ALERT_AFTER = 5             # 연속 실패가 이 횟수 이상일 때만 ⚠️ 알림
+FAIL_ALERT_COOLDOWN = datetime.timedelta(hours=2)  # ⚠️ 알림 재발송 최소 간격
+
 
 def send_telegram(message: str) -> None:
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -64,10 +69,11 @@ def disable_workflow() -> None:
 
 
 def load_state() -> dict:
+    default = {"last_no_seat_notify_date": None, "consecutive_failures": 0, "last_fail_alert": None}
     if not os.path.exists(STATE_FILE):
-        return {"last_no_seat_notify_date": None}
+        return default
     with open(STATE_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+        return {**default, **json.load(f)}
 
 
 def save_state(state: dict) -> None:
@@ -78,6 +84,24 @@ def save_state(state: dict) -> None:
 def count_available(seat_str: str) -> int:
     """seatStatus 문자열은 좌석 1개당 글자 1개. '0'이 아니면 예매 가능한 빈자리."""
     return sum(1 for ch in seat_str if ch != "0")
+
+
+def _get_seat_status(params) -> list:
+    """seatStatus GET 1건. 네트워크/HTTP/JSON 오류는 몇 차례 재시도한다."""
+    last_err = None
+    for attempt in range(1, FETCH_RETRIES + 1):
+        try:
+            resp = requests.get(
+                SEAT_STATUS_URL, params=params, timeout=15,
+                headers={"User-Agent": "Mozilla/5.0"},
+            )
+            resp.raise_for_status()
+            return resp.json()["data"]
+        except Exception as e:  # 502/타임아웃/JSON 파싱 등 모두 재시도 대상
+            last_err = e
+            if attempt < FETCH_RETRIES:
+                time.sleep(FETCH_RETRY_BACKOFF * attempt)
+    raise last_err
 
 
 def fetch_section_availability() -> dict:
@@ -92,12 +116,7 @@ def fetch_section_availability() -> dict:
             ("bizCode", BIZ_CODE),
         ]
         params += [("blockKeys", bk) for bk in chunk]
-        resp = requests.get(
-            SEAT_STATUS_URL, params=params, timeout=15,
-            headers={"User-Agent": "Mozilla/5.0"},
-        )
-        resp.raise_for_status()
-        seat_strings = resp.json()["data"]
+        seat_strings = _get_seat_status(params)
         for bk, seat_str in zip(chunk, seat_strings):
             result[SECTION_BY_BLOCK[bk]] = count_available(seat_str)
         time.sleep(0.3)
@@ -121,6 +140,26 @@ def build_seat_message(avail: dict, now_str: str) -> str:
     )
 
 
+def handle_fetch_failure(state: dict, err: Exception, now_dt: datetime.datetime) -> None:
+    """일시적 실패는 조용히 삼키고, 연속으로 오래 실패할 때만 ⚠️ 알림(2시간 쿨다운)."""
+    fails = min(state.get("consecutive_failures", 0) + 1, FAIL_ALERT_AFTER)
+    state["consecutive_failures"] = fails
+    print(f"fetch 실패 ({fails}회 연속): {err}", flush=True)
+    if fails < FAIL_ALERT_AFTER:
+        return
+    last_alert = state.get("last_fail_alert")
+    if last_alert is not None and (
+        now_dt - datetime.datetime.fromisoformat(last_alert) < FAIL_ALERT_COOLDOWN
+    ):
+        return
+    send_telegram(
+        f"⚠️ 최유리 좌석확인이 {FAIL_ALERT_AFTER}회 이상 연속 실패 중입니다.\n"
+        f"인터파크 API 오류: {err}\n"
+        "일시적이면 자동 복구되며, 복구되면 이 알림은 멈춥니다."
+    )
+    state["last_fail_alert"] = now_dt.isoformat()
+
+
 def main():
     now_dt = datetime.datetime.now(KST)
 
@@ -138,8 +177,14 @@ def main():
     try:
         avail = fetch_section_availability()
     except Exception as e:
-        send_telegram(f"⚠️ 최유리 좌석확인 실패: {e}")
-        sys.exit(1)
+        handle_fetch_failure(state, e, now_dt)
+        save_state(state)
+        return
+
+    # 조회 성공 → 실패 카운터 리셋
+    if state.get("consecutive_failures") or state.get("last_fail_alert"):
+        state["consecutive_failures"] = 0
+        state["last_fail_alert"] = None
 
     now_str = now_dt.strftime("%m/%d %H:%M")
 
