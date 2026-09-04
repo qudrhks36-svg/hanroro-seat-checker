@@ -38,6 +38,9 @@ BLOCK_KEYS = list(SECTION_BY_BLOCK)
 SECTION_ORDER = "가나다라마바사아자차"
 # 1순위 구역 — 빈자리 발생 시 별도 강조.
 PRIORITY_1 = {"나", "라", "사", "자"}
+# 매수제한 1인 2매 → "연속으로 붙은 빈자리 N개 이상"일 때만 알림한다.
+# seatStatus 문자열의 연속 위치 = 대체로 같은 열 옆자리(줄 끝↔다음 줄, 통로는 오탐 가능).
+MIN_RUN = 2
 # seatStatus API는 호출당 blockKeys 2개까지만 허용한다.
 CHUNK_SIZE = 2
 
@@ -86,6 +89,15 @@ def count_available(seat_str: str) -> int:
     return sum(1 for ch in seat_str if ch != "0")
 
 
+def longest_run(seat_str: str) -> int:
+    """연속으로 붙어 있는 빈자리('0'이 아닌 글자)의 최대 길이."""
+    best = run = 0
+    for ch in seat_str:
+        run = run + 1 if ch != "0" else 0
+        best = max(best, run)
+    return best
+
+
 def _get_seat_status(params) -> list:
     """seatStatus GET 1건. 네트워크/HTTP/JSON 오류는 몇 차례 재시도한다."""
     last_err = None
@@ -105,7 +117,7 @@ def _get_seat_status(params) -> list:
 
 
 def fetch_section_availability() -> dict:
-    """{구역명: 빈자리수}. blockKeys를 2개씩 끊어 seatStatus를 호출한다."""
+    """{구역명: {"open": 빈자리수, "run": 최대 연속 빈자리}}. blockKeys를 2개씩 끊어 호출한다."""
     result = {}
     for i in range(0, len(BLOCK_KEYS), CHUNK_SIZE):
         chunk = BLOCK_KEYS[i:i + CHUNK_SIZE]
@@ -118,7 +130,10 @@ def fetch_section_availability() -> dict:
         params += [("blockKeys", bk) for bk in chunk]
         seat_strings = _get_seat_status(params)
         for bk, seat_str in zip(chunk, seat_strings):
-            result[SECTION_BY_BLOCK[bk]] = count_available(seat_str)
+            result[SECTION_BY_BLOCK[bk]] = {
+                "open": count_available(seat_str),
+                "run": longest_run(seat_str),
+            }
         time.sleep(0.3)
     return result
 
@@ -128,13 +143,17 @@ def _sort_key(section: str):
 
 
 def build_seat_message(avail: dict, now_str: str) -> str:
-    open_sections = {s: c for s, c in avail.items() if c > 0}
-    has_priority = any(s in PRIORITY_1 for s in open_sections)
-    header = "🌟🚨 1순위(나·라·사·자) 빈자리!! 🚨🌟" if has_priority else "🚨 빈자리 발생!"
-    lines = [f"{s}석 {open_sections[s]}자리" for s in sorted(open_sections, key=_sort_key)]
+    hit = {s: v for s, v in avail.items() if v["run"] >= MIN_RUN}
+    has_priority = any(s in PRIORITY_1 for s in hit)
+    header = "🌟🚨 1순위(나·라·사·자) 연석 발생!! 🚨🌟" if has_priority else "🚨 연석 발생!"
+    lines = [
+        f"{s} 구역: 연속 {v['run']}자리 (빈자리 총 {v['open']})"
+        for s, v in sorted(hit.items(), key=lambda kv: _sort_key(kv[0]))
+    ]
     return (
         f"{header} [최유리 콘서트 10/3 좌석확인]\n"
         + "\n".join(lines)
+        + "\n※ 줄 끝·통로면 실제로 안 붙었을 수 있음 → 좌석맵 확인"
         + f"\n👉 예매(로그인·대기열은 직접): {BOOKING_URL}"
         + f"\n확인시각: {now_str}"
     )
@@ -188,19 +207,21 @@ def main():
 
     now_str = now_dt.strftime("%m/%d %H:%M")
 
-    if any(c > 0 for c in avail.values()):
+    if any(v["run"] >= MIN_RUN for v in avail.values()):
         send_telegram(build_seat_message(avail, now_str))
     else:
-        # 빈자리 없음 알림은 하루 1번(NO_SEAT_NOTIFY_HOUR 시각대)만. 첫 실행 때는 한 번 보내 가동을 확인시킨다.
+        # 연석 없음 알림은 하루 1번(NO_SEAT_NOTIFY_HOUR 시각대)만. 첫 실행 때는 한 번 보내 가동을 확인시킨다.
         today_str = now_dt.strftime("%Y-%m-%d")
         last_date = state.get("last_no_seat_notify_date")
         should_notify = last_date is None or (
             now_dt.hour == NO_SEAT_NOTIFY_HOUR and last_date != today_str
         )
         if should_notify:
+            singles = sum(1 for v in avail.values() if v["open"] > 0)
+            tail = f" (낱자리만 {singles}개 구역)" if singles else ""
             send_telegram(
                 "[최유리 콘서트 10/3 좌석확인]\n"
-                "감시 중 · 현재 빈자리 없음 (가~차 전 구역)\n"
+                f"감시 중 · 현재 연속 2자리 없음 (가~차 전 구역){tail}\n"
                 f"확인시각: {now_str}"
             )
             state["last_no_seat_notify_date"] = today_str
