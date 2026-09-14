@@ -1,0 +1,17 @@
+name: YES24 Reminder (9/30)
+
+on:
+  workflow_dispatch: {}   # 클라우드 루틴이 9/30 09:00 KST에 1회 트리거
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Telegram reminder
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHOIYURI_CHAT_ID: ${{ secrets.CHOIYURI_CHAT_ID }}
+        run: |
+          curl -sf -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${CHOIYURI_CHAT_ID}" \
+            --data-urlencode text="YES24 예매확인(노들섬)"
