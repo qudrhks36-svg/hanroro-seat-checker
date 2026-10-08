@@ -4,6 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ShareCard } from '@/components/ShareCard'
 import { ReadingSections } from '@/components/ReadingSections'
 import { YearFortuneCard } from '@/components/YearFortuneCard'
+import { PartnerRecommend } from '@/components/PartnerRecommend'
+import { CompatPanel } from '@/components/CompatPanel'
 import { interpret, yearFortune } from '@/lib/interpret'
 import { savePng, sharePng } from '@/lib/exportCard'
 import type { Person } from '@/lib/person'
@@ -47,7 +49,10 @@ export function Result({ me, onReset }: { me: Person; onReset: () => void }) {
           <YearFortuneCard y={year} />
         </TabsContent>
 
-        <TabsContent value="compat"><p className="text-sm text-muted-foreground">준비 중</p></TabsContent>
+        <TabsContent value="compat" className="space-y-3">
+          <PartnerRecommend me={me} />
+          <CompatPanel me={me} />
+        </TabsContent>
       </Tabs>
       <Button variant="ghost" className="w-full" onClick={onReset}>다시 입력</Button>
     </div>
