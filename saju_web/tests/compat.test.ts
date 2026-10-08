@@ -41,6 +41,9 @@ describe('compatibility', () => {
     expect(c.score).toBeGreaterThanOrEqual(80)
     expect(c.level).toBe('매우 좋음')
     expect(c.reasons.join(' ')).toContain('일간 천간합')
+    // 오행 라벨 뒤에 받침 여부에 따라 틀리는 조사(을/를)를 붙이지 않는다
+    expect(c.reasons.join(' ')).not.toMatch(/\([木火土金水]\)[을를]/)
+    expect(c.reasons.join(' ')).toMatch(/용신 오행은 [목화토금수]\([木火土金水]\)이고/)
   })
   it('일지·띠 충이면 낮다', () => {
     const p3 = P('庚子', '辛酉', '丙酉')
