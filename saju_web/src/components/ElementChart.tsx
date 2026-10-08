@@ -2,7 +2,7 @@ import { Progress } from '@/components/ui/progress'
 import { ELEMENTS, ELEMENT_KO, type Element } from '@/lib/tables'
 
 export function ElementChart({ elements }: { elements: Record<Element, number> }) {
-  const total = ELEMENTS.reduce((s, e) => s + elements[e], 0)
+  const total = ELEMENTS.reduce((s, e) => s + elements[e], 0) || 1
   return (
     <div className="space-y-2">
       {ELEMENTS.map((e) => (

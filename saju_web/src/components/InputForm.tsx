@@ -35,8 +35,8 @@ export function InputForm({ submitLabel, onSubmit, error }: Props) {
   return (
     <form onSubmit={submit} className="space-y-5">
       <div className="space-y-2">
-        <Label>달력</Label>
-        <RadioGroup value={calendar} onValueChange={(v) => setCalendar(v as 'solar' | 'lunar')} className="flex gap-4">
+        <Label id="cal-label">달력</Label>
+        <RadioGroup aria-labelledby="cal-label" value={calendar} onValueChange={(v) => setCalendar(v as 'solar' | 'lunar')} className="flex gap-4">
           <div className="flex items-center gap-2"><RadioGroupItem value="solar" id="cal-solar" /><Label htmlFor="cal-solar">양력</Label></div>
           <div className="flex items-center gap-2"><RadioGroupItem value="lunar" id="cal-lunar" /><Label htmlFor="cal-lunar">음력</Label></div>
         </RadioGroup>
@@ -64,8 +64,8 @@ export function InputForm({ submitLabel, onSubmit, error }: Props) {
       </div>
 
       <div className="space-y-2">
-        <Label>성별</Label>
-        <RadioGroup value={gender} onValueChange={(v) => setGender(v as 'male' | 'female')} className="flex gap-4">
+        <Label id="gender-label">성별</Label>
+        <RadioGroup aria-labelledby="gender-label" value={gender} onValueChange={(v) => setGender(v as 'male' | 'female')} className="flex gap-4">
           <div className="flex items-center gap-2"><RadioGroupItem value="female" id="g-f" /><Label htmlFor="g-f">여성</Label></div>
           <div className="flex items-center gap-2"><RadioGroupItem value="male" id="g-m" /><Label htmlFor="g-m">남성</Label></div>
         </RadioGroup>
