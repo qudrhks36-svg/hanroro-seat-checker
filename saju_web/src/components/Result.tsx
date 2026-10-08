@@ -11,13 +11,21 @@ import type { Person } from '@/lib/person'
 export function Result({ me, onReset }: { me: Person; onReset: () => void }) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState(false)
   const year = useMemo(() => yearFortune(me.analysis, new Date().getFullYear()), [me])
   const sections = useMemo(() => interpret(me.pillars, me.analysis), [me])
 
   const run = async (fn: (n: HTMLElement) => Promise<void>) => {
     if (!cardRef.current) return
     setBusy(true)
-    try { await fn(cardRef.current) } finally { setBusy(false) }
+    setError(false)
+    try {
+      await fn(cardRef.current)
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') setError(true)
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
@@ -34,6 +42,7 @@ export function Result({ me, onReset }: { me: Person; onReset: () => void }) {
             <Button className="flex-1" disabled={busy} onClick={() => run(savePng)}>이미지 저장</Button>
             <Button className="flex-1" variant="outline" disabled={busy} onClick={() => run(sharePng)}>공유</Button>
           </div>
+          {error && <p className="text-sm text-destructive">이미지를 만들지 못했습니다. 다시 시도해 주세요.</p>}
           <ReadingSections sections={sections} />
           <YearFortuneCard y={year} />
         </TabsContent>
