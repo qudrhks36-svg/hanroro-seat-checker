@@ -3,7 +3,7 @@ import type { Pillars, Gender } from './saju'
 import { MIN_YEAR, MAX_YEAR } from './saju'
 import type { Analysis } from './analysis'
 import { ZHI, ZODIAC, ganEl, zhiEl, ganHe, zhiRelation, type ZhiRel } from './tables'
-import { readings, spouseStarText } from './interpret'
+import { readings, spouseStarText, elementLabel } from './interpret'
 
 export type PartnerRec = {
   zodiac: { good: string[]; caution: string[] }
@@ -75,8 +75,8 @@ export function compatibility(p1: Pillars, a1: Analysis, p2: Pillars, a2: Analys
 
   const fill = (from: Analysis, to: Analysis, who: string) => {
     const n = to.elements[from.yongshin]
-    if (n >= 2) { score += 10; reasons.push(`${who}의 용신 오행(${from.yongshin})을 상대 사주가 풍부하게 채워 줍니다.`) }
-    else if (n === 1) { score += 5; reasons.push(`${who}의 용신 오행(${from.yongshin})을 상대 사주가 일부 채워 줍니다.`) }
+    if (n >= 2) { score += 10; reasons.push(`${who}의 용신 오행 ${elementLabel(from.yongshin)}을 상대 사주가 풍부하게 채워 줍니다.`) }
+    else if (n === 1) { score += 5; reasons.push(`${who}의 용신 오행 ${elementLabel(from.yongshin)}을 상대 사주가 일부 채워 줍니다.`) }
   }
   fill(a1, a2, '나')
   fill(a2, a1, '상대')

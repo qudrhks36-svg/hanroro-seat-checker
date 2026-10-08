@@ -15,7 +15,7 @@ export function ShareCard({ innerRef, person, year }: Props) {
       </div>
       <PillarsTable pillars={pillars} />
       <ElementChart elements={a.elements} />
-      <div className="text-sm text-muted-foreground">{year.year}년 {year.ganzhi} · {year.god} · {year.body[0].split('에 해당하며, ')[1]}</div>
+      <div className="text-sm text-muted-foreground">{year.year}년 {year.ganzhi} · {year.god} · {year.summary}</div>
     </div>
   )
 }

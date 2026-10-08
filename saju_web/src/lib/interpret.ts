@@ -53,6 +53,7 @@ export type YearFortune = {
   god: TenGod
   group: TenGodGroup
   matchesYongshin: boolean
+  summary: string
   body: string[]
 }
 
@@ -64,7 +65,7 @@ export function yearFortune(a: Analysis, year: number): YearFortune {
   const matchesYongshin = ganEl(gan) === a.yongshin || zhiEl(zhi) === a.yongshin
   const match = (matchesYongshin ? D.sewoonMatch.yes : D.sewoonMatch.no).replace('{el}', elementLabel(a.yongshin))
   return {
-    year, ganzhi, god, group, matchesYongshin,
+    year, ganzhi, god, group, matchesYongshin, summary: D.sewoon[group],
     body: [`${year}년(${ganzhi})의 천간은 일간 기준 ${god}에 해당하며, ${D.sewoon[group]}`, match],
   }
 }

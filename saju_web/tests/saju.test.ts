@@ -17,6 +17,14 @@ describe('사주 4주', () => {
     expect(str(solar(2024, 2, 4, 17, 0))).toBe('癸卯 乙丑 戊戌 辛酉')
     expect(str(solar(2024, 2, 4, 17, 40))).toBe('甲辰 丙寅 戊戌 辛酉')
   })
+  it('입춘 당일 자정 직후 (KST-1h 보정이 자정을 넘어 되돌아감)', () => {
+    expect(str(solar(2024, 2, 4, 0, 30))).toBe('癸卯 乙丑 戊戌 壬子')
+  })
+  it('경칩 경계 (2024-03-05 경칩 11:23 KST = 10:23 CST)', () => {
+    const two = (b: BirthInput) => str(b).split(' ').slice(0, 2).join(' ')
+    expect(two(solar(2024, 3, 5, 11, 0))).toBe('甲辰 丙寅')
+    expect(two(solar(2024, 3, 5, 12, 0))).toBe('甲辰 丁卯')
+  })
   it('자시(야자시): 일주는 당일 유지', () => {
     expect(str(solar(1990, 3, 15, 23, 30))).toBe('庚午 己卯 己卯 丙子')
   })

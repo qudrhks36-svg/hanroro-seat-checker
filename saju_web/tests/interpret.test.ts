@@ -38,6 +38,7 @@ describe('yearFortune', () => {
     expect(y.god).toBe('정인')
     expect(y.group).toBe('인성')
     expect(y.matchesYongshin).toBe(false)
+    expect(y.summary).toBe('배움과 준비, 주변의 도움이 힘이 되는 안정적인 정비의 흐름입니다.')
     expect(JSON.stringify(y.body)).not.toContain('{el}')
   })
 })
