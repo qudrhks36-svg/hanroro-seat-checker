@@ -22,7 +22,7 @@ export function ReadingCard({ section: s }: { section: Section }) {
             {s.meter.map((m) => (
               <div key={m.label} className="flex items-center gap-3">
                 <span className="w-16 shrink-0 text-xs">{m.label}</span>
-                <Progress value={m.value} className="h-2 flex-1" />
+                <Progress value={m.value} aria-label={m.label} className="h-2 flex-1" />
                 <span className="w-10 text-right text-xs tabular-nums">{m.value}%</span>
               </div>
             ))}

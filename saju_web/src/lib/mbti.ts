@@ -4,6 +4,9 @@ import { ELEMENTS, ELEMENT_KO, GROUPS, isYang, type Element, type TenGodGroup } 
 
 // ponytail: 가중치(0.5, 보너스 0.15/0.10)와 배율은 우리가 정한 해석 규칙이다. 검증된 사주-MBTI 대응표는 없다.
 // 배율은 분포 검증(tests/mbti.test.ts)으로 정한다. 바꾸면 스펙의 샘플 표 값도 갱신한다.
+// 통과 구간은 좁다(대략 40 < g < 60). 실측: g=40 은 균형 구간 조건 실패(S/N 62.0%, T/F 55.3%, J/P 51.5%),
+// g=60 은 EI 15/85 포화 실패(10.3%). g=50 은 S/N 균형 47.4%(한계 50% 미만), EI 포화 4.6%.
+// analysis.ts 가중치나 아래 공식을 바꾸면 분포 테스트를 다시 돌리고 배율을 재조정해야 할 수 있다.
 export const MBTI_GAIN = 50
 const MIN_PCT = 15
 const MAX_PCT = 85

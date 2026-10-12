@@ -7,6 +7,7 @@ function column(items: string[], x: number) {
       x={x}
       y={108 + (i - (items.length - 1) / 2) * 24}
       textAnchor="middle"
+      dominantBaseline="middle"
       fontSize="20"
       fontWeight="600"
       className="fill-foreground"

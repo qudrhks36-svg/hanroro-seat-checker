@@ -22,6 +22,11 @@ describe('predictMbti 샘플 (庚午 己卯 己卯 己巳)', () => {
     expect(p.axes.map((x) => x.axis)).toEqual(['EI', 'SN', 'TF', 'JP'])
     expect(p.axes.map((x) => x.letters.join(''))).toEqual(['EI', 'SN', 'TF', 'JP'])
   })
+  it('채택 배율 50 에서 샘플 값을 고정한다', () => {
+    expect(MBTI_GAIN).toBe(50)
+    expect(p.axes.map((x) => x.pctFirst)).toEqual([46, 61, 36, 60])
+    expect(p.axes[0].reasons[1]).toEqual({ label: '인성', points: 6 })
+  })
   it('pctFirst는 손계산 d 와 MBTI_GAIN 으로 정해진다', () => {
     expect(p.axes.map((x) => x.pctFirst)).toEqual(expectPct)
   })

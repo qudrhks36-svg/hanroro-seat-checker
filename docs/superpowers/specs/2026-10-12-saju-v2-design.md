@@ -51,7 +51,7 @@ type AxisResult = {
   pctFirst: number                  // 15~85
   lean: string                      // pctFirst >= 50 이면 첫 글자, 아니면 둘째 글자
   balanced: boolean                 // |pctFirst − 50| < 10 이면 "비슷해요"로 표시
-  reasons: { label: string; points: number }[]   // lean 쪽을 가장 크게 민 요소 2개, points = 기여 × 40 (반올림)
+  reasons: { label: string; points: number }[]   // lean 쪽을 가장 크게 민 요소 2개, points = 기여 × MBTI_GAIN (반올림)
 }
 type MbtiPrediction = { axes: AxisResult[4]; type: string }   // type = 각 축 lean 글자 4개
 ```
@@ -63,7 +63,7 @@ type MbtiPrediction = { axes: AxisResult[4]; type: string }   // type = 각 축 
 1930~2029년 사이를 13일 간격, 정오 기준으로 돌린 표본에서 다음을 만족해야 한다. 어긋나면 `gain`(50) 또는 보너스 값을 조정하고 변경 이력에 기록한다.
 - 축별 `pctFirst` 평균이 42~58
 - 15 또는 85에 붙는 비율이 축별 10% 미만
-- 40~60 구간(균형) 비율이 축별 50% 미만 (대부분 "비슷해요"면 재미가 없다)
+- `|pctFirst−50| < 10` (41~59)인 비율이 축별 50% 미만 (실측 S/N 47.4%. 40~60 포함 구간으로 읽으면 53.0%로 실패하므로 엄격한 정의를 쓴다. 대부분 "비슷해요"면 재미가 없다)
 - 16유형 중 12가지 이상이 표본에 등장
 
 ### 샘플 손계산 (테스트 기대값, gain 50 기준)
@@ -93,7 +93,7 @@ type MbtiPrediction = { axes: AxisResult[4]; type: string }   // type = 각 축 
 
 ## 3. 사주 캐릭터 (`src/lib/character.ts`, `src/data/character.json`)
 
-`buildCharacter(pillars, analysis)` → `{ emoji, prop, propName, nickname, job, animal, tone, accent, bubbles }`.
+`buildCharacter(pillars, analysis)` → `{ emoji, propEmoji, propName, nickname, job, animal, tone, accent, bubbles }`.
 
 | 요소 | 규칙 |
 |---|---|
@@ -116,7 +116,8 @@ type Section = { title: string; summary: string; chips: string[]; bullets: strin
 
 - 기존 `body` 줄글은 `more`로 이동한다(내용 그대로 재사용).
 - 새로 쓰는 문구: 항목마다 `summary` 1 + `chips` 3 + `bullets` 3. 대상 키: 일간 10, 일지 12, 십성 그룹 5(성향·직업 각각), 오행 부족 5, 신강/신약 3, 용신 5.
-- `meter`: 오행 균형 카드는 오행 5개 막대(기존 `ElementChart` 재사용), 사주 구조 카드는 신강/신약 비율 막대.
+- 예외: 일지(dayZhi)와 십성 그룹의 성향(group.trait)은 한 줄 `summary`만 있고 칩·불릿이 없다. 일간(dayGan)과 신강/신약(strength) 카드는 불릿 3개를 쓰지만, 기본 성향·사주 구조 섹션은 그중 앞의 2개와 일지·성향의 `summary` 한 줄을 합쳐 불릿 3개를 만든다.
+- `meter`: 오행 균형 카드는 오행 5개 막대(범용 `Progress` meter. v1 `ElementChart.tsx`는 삭제됨), 사주 구조 카드는 신강/신약 비율 막대.
 - 섹션 제목과 순서(기본 성향, 사주 구조, 오행 균형, 직업·활동 경향, 조언)는 v1과 같다.
 - `ReadingCard`는 요약(굵게) → 칩 → 불릿 → 막대(있을 때) → "더 보기" 접기 순서로 그린다. 접기는 새 라이브러리 없이 `<details>` 요소를 쓴다.
 
@@ -136,7 +137,7 @@ type Section = { title: string; summary: string; chips: string[]; bullets: strin
 
 ## 파일 구성
 
-신규: `src/lib/mbti.ts`, `src/lib/character.ts`, `src/lib/compare.ts`, `src/data/mbti.json`, `src/data/character.json`, `src/components/MbtiAxes.tsx`, `VennCompare.tsx`, `CharacterCard.tsx`, `ReadingCard.tsx`, `SituationBubbles.tsx`.
+신규: `src/lib/mbti.ts`, `src/lib/character.ts`, `src/lib/compare.ts`, `src/data/mbti.json`, `src/data/character.json`, `src/components/MbtiCard.tsx`, `VennCompare.tsx`, `CharacterCard.tsx`, `ReadingCard.tsx`, `SituationBubbles.tsx`.
 수정: `src/data/readings.json`, `src/lib/interpret.ts`(`Section` 형태), `ShareCard.tsx`, `Result.tsx`(순서·MBTI 카드). 삭제: `ReadingSections.tsx`(`ReadingCard`로 대체).
 
 ## 테스트
@@ -156,7 +157,7 @@ type Section = { title: string; summary: string; chips: string[]; bullets: strin
 1. MBTI 예측: `mbti.ts`, `mbti.json`, 분포 검증, 테스트. 수학이라 먼저 단독으로 리뷰.
 2. 캐릭터: `character.ts`, `character.json`, 테스트.
 3. 카드형 데이터와 `interpret` 개편, `ReadingCard`.
-4. `MbtiAxes`, `compare.ts`, `VennCompare` UI.
+4. `MbtiCard`, `compare.ts`, `VennCompare` UI.
 5. `CharacterCard`, `SituationBubbles`, `ShareCard` 개편, `Result` 순서 변경.
 6. 최종 점검, 모바일 폭 확인, 재배포(커밋 지정 수동 배포, 배포 전 사용자 확인).
 
@@ -174,3 +175,4 @@ type Section = { title: string; summary: string; chips: string[]; bullets: strin
 - 2026-10-12: 최초 작성. 가중치(0.5 · 보너스 0.15/0.10 · gain 40)는 초기값이며 분포 검증 결과로 조정할 수 있다.
 - 2026-10-12 (구현 계획 작성 시): `reasons`는 2개가 아니라 1~2개. `buildCharacter`는 `(pillars, analysis)` 대신 명시적 입력 객체 `{dayGan, dayZhi, group, strength, dayElement}`를 받는다. 결과 화면 3번 "사주표와 오행 막대"는 별도 카드 없이 공유 카드의 사주표와 "오행 균형" 풀이 카드의 막대로 충족한다. 카드 문구(약 220개)는 규칙·예시·완결성 테스트로 정의하고 구현자가 작성한다. 근거: `docs/superpowers/plans/2026-10-12-saju-v2.md`.
 - 2026-10-12 (Task 1 구현 시): 분포 검증에서 gain 40은 균형 구간 비율이 S/N 62.0%, T/F 55.3%, J/P 51.5%로 50%를 넘어 실패, gain 50은 전부 통과하여 `MBTI_GAIN = 50` 채택. 샘플 손계산 표의 pctFirst 열을 gain 50 기준으로 갱신(유형은 ISFJ 그대로).
+- 2026-10-12 (최종 리뷰 수정): 공유 카드에 "MBTI 축으로 번역한 경향" 고지 문구와 캐릭터 요약 한 줄(헤드라인, 용신 노출)을 추가. 균형 구간 정의를 `|pctFirst−50| < 10`으로 확정하고, gain 50의 여유(S/N 균형 47.4%, EI 포화 4.6%; gain 40은 균형 조건, gain 60은 EI 포화 10.3%로 실패)를 기록.

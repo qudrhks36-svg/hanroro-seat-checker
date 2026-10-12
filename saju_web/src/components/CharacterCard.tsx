@@ -10,16 +10,17 @@ const ACCENT: Record<Element, string> = {
   水: 'bg-sky-100',
 }
 
-export function CharacterCard({ character: c, chips }: { character: Character; chips: string[] }) {
+export function CharacterCard({ character: c, chips, summary }: { character: Character; chips: string[]; summary: string }) {
   return (
-    <div className={`flex items-center gap-4 rounded-2xl p-4 ${ACCENT[c.accent]}`}>
+    <div className={`flex items-center gap-4 rounded-2xl p-4 text-slate-800 ${ACCENT[c.accent]}`}>
       <div className="relative flex size-20 shrink-0 items-center justify-center rounded-full bg-white/70 text-5xl" aria-hidden="true">
         {c.emoji}
         <span className="absolute -bottom-1 -right-1 flex size-8 items-center justify-center rounded-full bg-white text-xl shadow">{c.propEmoji}</span>
       </div>
       <div className="min-w-0 space-y-1.5">
-        <div className="text-xs text-muted-foreground">{c.tone} · 소품 {c.propName}</div>
+        <div className="text-xs text-slate-600">말투: {c.tone} · 소품 {c.propName}</div>
         <div className="text-lg font-bold leading-snug">{c.nickname}</div>
+        <div className="text-sm font-medium">{summary}</div>
         <div className="flex flex-wrap gap-1">
           {chips.map((t) => <Badge key={t} variant="secondary">{t}</Badge>)}
         </div>

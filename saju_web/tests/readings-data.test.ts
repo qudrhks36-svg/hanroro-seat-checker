@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import raw from '../src/data/readings.json'
+import mbti from '../src/data/mbti.json'
+import character from '../src/data/character.json'
 import { GAN, ZHI, ELEMENTS, GROUPS } from '../src/lib/tables'
 
 type Card = { summary: string; chips: string[]; bullets: string[] }
@@ -38,6 +40,13 @@ function line(name: string, s: { summary: string }) {
     clean(s)
   })
 }
+
+describe('mbti.json·character bubbles 금지어', () => {
+  it('금지어가 없다', () => {
+    clean(mbti)
+    clean(character.bubbles)
+  })
+})
 
 describe('readings.cards 완결성', () => {
   it('키 집합', () => {

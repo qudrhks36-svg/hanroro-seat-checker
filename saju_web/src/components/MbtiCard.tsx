@@ -34,17 +34,19 @@ export function MbtiCard({ prediction }: { prediction: MbtiPrediction }) {
                   </span>
                   <span className="font-medium">{pctSecond}% {second}</span>
                 </div>
-                <div className="flex h-2 overflow-hidden rounded-full bg-muted" role="img" aria-label={`${first} ${x.pctFirst}% ${second} ${pctSecond}%`}>
+                <div className="flex h-2 overflow-hidden rounded-full bg-muted" aria-hidden="true">
                   <div className="bg-sky-500" style={{ width: `${x.pctFirst}%` }} />
                   <div className="bg-amber-500" style={{ width: `${pctSecond}%` }} />
                 </div>
+                <p className="text-sm leading-relaxed">{t.advice}</p>
                 <details className="text-sm">
                   <summary className="cursor-pointer text-xs text-muted-foreground">근거 보기</summary>
-                  <ul className="mt-2 list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
-                    {x.reasons.map((r) => <li key={r.label}>{r.label}: {x.lean} 쪽 +{r.points}</li>)}
-                  </ul>
-                  <p className="mt-2 leading-relaxed">{t.advice}</p>
-                  <p className="mt-1 leading-relaxed text-muted-foreground">{t.minor}</p>
+                  {x.reasons.length > 0 && (
+                    <ul className="mt-2 list-disc space-y-0.5 pl-5 text-xs text-muted-foreground">
+                      {x.reasons.map((r) => <li key={r.label}>{r.label}: {x.lean} 쪽 +{r.points}%p</li>)}
+                    </ul>
+                  )}
+                  <p className="mt-2 leading-relaxed text-muted-foreground">{t.minor}</p>
                 </details>
               </div>
             )
@@ -55,7 +57,7 @@ export function MbtiCard({ prediction }: { prediction: MbtiPrediction }) {
           <p className="text-sm font-medium">내 MBTI와 비교해 보기</p>
           <div className="grid grid-cols-4 gap-2">
             {prediction.axes.map((x, i) => (
-              <div key={x.axis} className="flex flex-col gap-1">
+              <div key={x.axis} role="group" aria-label={`${x.letters[0]} 또는 ${x.letters[1]} 선택`} className="flex flex-col gap-1">
                 {x.letters.map((l) => (
                   <Button
                     key={l}

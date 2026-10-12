@@ -78,7 +78,7 @@ export function interpret(p: Pillars, a: Analysis): Section[] {
     ? C.balanced.summary
     : lackCards.length === 1
       ? lackCards[0].summary
-      : `${a.lacking.map(elementLabel).join('·')} 기운이 비어 있어요`
+      : `${a.lacking.map(elementLabel).join('·')} 기운을 보충하면 좋은 구조`
 
   return [
     {

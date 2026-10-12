@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { analyze } from '../src/lib/analysis'
 import { interpret, headline, yearFortune } from '../src/lib/interpret'
+import R from '../src/data/readings.json'
 import type { Pillars } from '../src/lib/saju'
 
 const sample: Pillars = {
@@ -41,6 +42,12 @@ describe('interpret', () => {
       expect(s.chips).toHaveLength(3)
       expect(s.bullets).toHaveLength(3)
     }
+  })
+  it('오행 균형 요약 문구', () => {
+    const sum = (lacking: string[]) => interpret(sample, { ...a, lacking: lacking as unknown as typeof a.lacking })[2].summary
+    expect(sum([])).toBe(R.cards.balanced.summary)
+    expect(sum(['水'])).toBe(R.cards.lacking['水'].summary)
+    expect(sum(['木', '火'])).toBe('목(木)·화(火) 기운을 보충하면 좋은 구조')
   })
   it('오행 균형 카드의 막대는 5개이고 합이 100 근처다', () => {
     const m = interpret(sample, a)[2].meter!

@@ -39,6 +39,14 @@ describe('compareMbti', () => {
     expect(c.matched).toEqual(['S', 'F', 'J'])
     expect(c.notes).toEqual(['E 쪽은 사주 경향과 다른 축입니다'])
   })
+  it('35% 경계: 정확히 35 는 꽤 있는 편, 34 는 다른 축', () => {
+    const at = (pct: number, actual: string) =>
+      compareMbti({ ...pred, axes: [ax('EI', ['E', 'I'], pct), ...pred.axes.slice(1)] }, `${actual}SFJ`).notes
+    expect(at(35, 'E')).toEqual(['사주에서도 E 쪽이 35%로 꽤 있는 편입니다'])
+    expect(at(34, 'E')).toEqual(['E 쪽은 사주 경향과 다른 축입니다'])
+    expect(at(65, 'I')).toEqual(['사주에서도 I 쪽이 35%로 꽤 있는 편입니다'])
+    expect(at(66, 'I')).toEqual(['I 쪽은 사주 경향과 다른 축입니다'])
+  })
   it('형식이 틀리면 Error', () => {
     expect(() => compareMbti(pred, 'XXXX')).toThrow()
     expect(() => compareMbti(pred, 'ISF')).toThrow()
