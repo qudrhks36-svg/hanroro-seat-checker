@@ -8,7 +8,7 @@ export function ReadingSections({ sections }: { sections: Section[] }) {
         <Card key={s.title}>
           <CardHeader className="pb-2"><CardTitle className="text-base">{s.title}</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-sm leading-relaxed">
-            {s.body.map((t, i) => <p key={i}>{t}</p>)}
+            {s.more.map((t, i) => <p key={i}>{t}</p>)}
           </CardContent>
         </Card>
       ))}

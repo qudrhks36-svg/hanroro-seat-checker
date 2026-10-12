@@ -3,11 +3,13 @@ import raw from '../data/readings.json'
 import type { Pillars } from './saju'
 import type { Analysis } from './analysis'
 import {
-  ELEMENT_KO, ganEl, zhiEl, groupBetween, groupElement, tenGod, GAN, GAN_KO,
+  ELEMENT_KO, ELEMENTS, ganEl, zhiEl, groupBetween, groupElement, tenGod, GAN, GAN_KO,
   type Element, type TenGod, type TenGodGroup,
 } from './tables'
 
 type Pair = { trait: string; work: string }
+export type Card = { summary: string; chips: string[]; bullets: string[] }
+export type Meter = { label: string; value: number }
 const D = raw as unknown as {
   dayGan: Record<string, string>
   dayZhi: Record<string, string>
@@ -20,10 +22,26 @@ const D = raw as unknown as {
   sewoonMatch: { yes: string; no: string }
   partnerType: Record<Element, string>
   spouseStar: { male: string; female: string }
+  cards: {
+    dayGan: Record<string, Card>
+    dayZhi: Record<string, { summary: string }>
+    group: Record<TenGodGroup, { trait: { summary: string }; work: Card }>
+    lacking: Record<Element, Card>
+    balanced: Card
+    strength: Record<string, Card>
+    yongshin: Record<Element, Card>
+  }
 }
 export const readings = D
 
-export type Section = { title: string; body: string[] }
+export type Section = {
+  title: string
+  summary: string
+  chips: string[]
+  bullets: string[]
+  more: string[]
+  meter?: Meter[]
+}
 
 export const elementLabel = (e: Element) => `${ELEMENT_KO[e]}(${e})`
 
@@ -35,15 +53,71 @@ export function dayGanName(gan: string): string {
 export const headline = (a: Analysis) =>
   `${dayGanName(a.dayGan)} 일간 · ${a.strength} · 용신 ${elementLabel(a.yongshin)}`
 
+// 오행이 여러 개 비어도 칩·불릿이 3개씩 나오도록 카드마다 ceil(3/n)개씩 가져온다
+function mergeLacking(cards: Card[]): Pick<Card, 'chips' | 'bullets'> {
+  const per = Math.ceil(3 / cards.length)
+  return {
+    chips: [...new Set(cards.flatMap((c) => c.chips.slice(0, per)))].slice(0, 3),
+    bullets: cards.flatMap((c) => c.bullets.slice(0, per)).slice(0, 3),
+  }
+}
+
 export function interpret(p: Pillars, a: Analysis): Section[] {
   const s = D.strength[a.strength]
   const g = D.group[a.dominantGroup]
+  const C = D.cards
+  const gan = C.dayGan[a.dayGan]
+  const str = C.strength[a.strength]
+  const work = C.group[a.dominantGroup].work
+  const yong = C.yongshin[a.yongshin]
+  const elTotal = ELEMENTS.reduce((t, e) => t + a.elements[e], 0) || 1
+
+  const lackCards = a.lacking.map((e) => C.lacking[e])
+  const balance = lackCards.length ? mergeLacking(lackCards) : C.balanced
+  const balanceSummary = !lackCards.length
+    ? C.balanced.summary
+    : lackCards.length === 1
+      ? lackCards[0].summary
+      : `${a.lacking.map(elementLabel).join('·')} 기운이 비어 있어요`
+
   return [
-    { title: '기본 성향', body: [D.dayGan[a.dayGan], D.dayZhi[p.day.zhi]] },
-    { title: '사주 구조', body: [s.summary, g.trait] },
-    { title: '오행 균형', body: a.lacking.length ? a.lacking.map((e) => D.lacking[e]) : [D.balanced] },
-    { title: '직업·활동 경향', body: [g.work] },
-    { title: '조언', body: [s.advice, D.yongshin[a.yongshin]] },
+    {
+      title: '기본 성향',
+      summary: gan.summary,
+      chips: gan.chips,
+      bullets: [...gan.bullets.slice(0, 2), C.dayZhi[p.day.zhi].summary],
+      more: [D.dayGan[a.dayGan], D.dayZhi[p.day.zhi]],
+    },
+    {
+      title: '사주 구조',
+      summary: str.summary,
+      chips: str.chips,
+      bullets: [...str.bullets.slice(0, 2), C.group[a.dominantGroup].trait.summary],
+      more: [s.summary, g.trait],
+      meter: [{ label: '자기 기운', value: Math.round(a.ratio * 100) }],
+    },
+    {
+      title: '오행 균형',
+      summary: balanceSummary,
+      chips: balance.chips,
+      bullets: balance.bullets,
+      more: a.lacking.length ? a.lacking.map((e) => D.lacking[e]) : [D.balanced],
+      meter: ELEMENTS.map((e) => ({ label: `${ELEMENT_KO[e]}(${e})`, value: Math.round((a.elements[e] / elTotal) * 100) })),
+    },
+    {
+      title: '직업·활동 경향',
+      summary: work.summary,
+      chips: work.chips,
+      bullets: work.bullets,
+      more: [g.work],
+    },
+    {
+      title: '조언',
+      summary: yong.summary,
+      chips: yong.chips,
+      bullets: yong.bullets,
+      more: [s.advice, D.yongshin[a.yongshin]],
+    },
   ]
 }
 

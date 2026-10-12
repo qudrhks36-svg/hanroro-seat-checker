@@ -23,8 +23,39 @@ describe('interpret', () => {
     expect(x).not.toContain('undefined')
     expect(x).not.toContain('{el}')
   })
-  it('기본 성향에 일간 풀이가 들어간다', () => {
-    expect(interpret(sample, a)[0].body[0]).toContain('기토(己土)')
+  it('기본 성향의 더 보기에 일간 풀이가 들어간다', () => {
+    expect(interpret(sample, a)[0].more[0]).toContain('기토(己土)')
+  })
+  it('모든 섹션이 요약·칩 3·불릿 3을 가진다', () => {
+    for (const s of interpret(sample, a)) {
+      expect(s.summary.length).toBeGreaterThan(0)
+      expect(s.chips).toHaveLength(3)
+      expect(s.bullets).toHaveLength(3)
+      expect(s.more.length).toBeGreaterThan(0)
+    }
+  })
+  it('오행 부족 개수가 0~4개여도 칩·불릿이 3개씩 나온다', () => {
+    const els = ['木', '火', '土', '金', '水'] as const
+    for (let n = 0; n <= 4; n++) {
+      const s = interpret(sample, { ...a, lacking: els.slice(0, n) as unknown as typeof a.lacking })[2]
+      expect(s.chips).toHaveLength(3)
+      expect(s.bullets).toHaveLength(3)
+    }
+  })
+  it('오행 균형 카드의 막대는 5개이고 합이 100 근처다', () => {
+    const m = interpret(sample, a)[2].meter!
+    expect(m).toHaveLength(5)
+    const sum = m.reduce((x, y) => x + y.value, 0)
+    expect(sum).toBeGreaterThanOrEqual(98)
+    expect(sum).toBeLessThanOrEqual(102)
+  })
+  it('사주 구조 카드에 비율 막대가 있다', () => {
+    const m = interpret(sample, a)[1].meter!
+    expect(m).toHaveLength(1)
+    expect(m[0].value).toBe(Math.round(a.ratio * 100))
+  })
+  it('샘플의 오행 균형 요약은 비어 있는 오행을 말한다', () => {
+    expect(interpret(sample, a)[2].summary.length).toBeGreaterThan(0)
   })
   it('헤드라인', () => {
     expect(headline(a)).toBe('기토(己土) 일간 · 중화 · 용신 수(水)')
