@@ -119,7 +119,7 @@ public class TalkNPC : MonoBehaviour
     // ---- UI 만들기 (ShopNPC와 같은 모양) ----
     void Build()
     {
-        var font = Font.CreateDynamicFontFromOSFont(new[] { "Malgun Gothic", "Arial" }, 28); // PC 가정
+        var font = GameFont.Get();
         var canvasGo = new GameObject("TalkCanvas");
         canvasGo.transform.SetParent(transform, false);
         var canvas = canvasGo.AddComponent<Canvas>();

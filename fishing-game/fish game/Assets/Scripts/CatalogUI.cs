@@ -29,7 +29,7 @@ public class CatalogUI : MonoBehaviour
     void Awake()
     {
         IsOpen = false;
-        font = Font.CreateDynamicFontFromOSFont(new[] { "Malgun Gothic", "Arial" }, 28); // PC 가정
+        font = GameFont.Get();
         Build();
         panel.SetActive(false);
     }

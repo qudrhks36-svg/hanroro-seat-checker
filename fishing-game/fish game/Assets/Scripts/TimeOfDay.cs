@@ -68,7 +68,7 @@ public class TimeOfDay : MonoBehaviour
         var go = new GameObject("PeriodLabel");
         go.transform.SetParent(canvasGo.transform, false);
         label = go.AddComponent<Text>();
-        label.font = Font.CreateDynamicFontFromOSFont(new[] { "Malgun Gothic", "Arial" }, 28); // PC 가정
+        label.font = GameFont.Get();
         label.fontSize = 28; label.alignment = TextAnchor.LowerLeft;
         label.color = new Color(1f, 0.96f, 0.88f); label.raycastTarget = false;
         var rt = label.rectTransform;

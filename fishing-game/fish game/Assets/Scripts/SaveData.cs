@@ -2,8 +2,8 @@ using System;
 using System.IO;
 using UnityEngine;
 
-// 저장 (GDD 8번 [확정]): 도감·가진 물고기·소지금·낚싯대 단계를 save.json 하나에 저장/불러오기.
-// 시간대·미끼·위치는 저장하지 않는다. 불러오기는 시작할 때, 저장은 낚기·판매·구매 때와 끌 때(Application.quitting).
+// 저장 (GDD 8번 [확정]): 도감·가진 물고기·소지금·낚싯대 단계를 save.json 하나(웹은 브라우저 저장소)에 저장/불러오기.
+// 시간대·미끼·위치는 저장하지 않는다. 불러오기는 시작할 때, 저장은 낚기·판매·구매 때와 끌 때(Application.quitting; 웹은 탭을 닫아도 불리지 않으므로 이벤트 저장이 전부).
 public static class SaveData
 {
     [Serializable]
@@ -36,11 +36,7 @@ public static class SaveData
                 money = Inventory.Money,
                 rod = RodUpgrade.Level,
             };
-            string p = Path_, tmp = p + ".tmp";
-            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(p));
-            File.WriteAllText(tmp, JsonUtility.ToJson(d));      // 먼저 임시 파일에 쓰고
-            if (File.Exists(p)) File.Replace(tmp, p, null);       // 성공하면 바꿔치기 (쓰다 꺼져도 옛 저장은 남음)
-            else File.Move(tmp, p);
+            Write(JsonUtility.ToJson(d));
         }
         catch (Exception e) { Debug.LogWarning("저장하지 못했어요: " + e.Message); }
     }
@@ -49,9 +45,9 @@ public static class SaveData
     {
         try
         {
-            string p = Path_;
-            if (!File.Exists(p)) return;
-            var d = JsonUtility.FromJson<Data>(File.ReadAllText(p));
+            string json = Read();
+            if (json == null) return;
+            var d = JsonUtility.FromJson<Data>(json);
             if (d == null) return;
             CopyCounts(d.collection, Collection.Counts);
             CopyCounts(d.inventory, Inventory.Counts);
@@ -60,6 +56,24 @@ public static class SaveData
         }
         catch (Exception e) { Debug.LogWarning("save.json을 읽지 못해 새로 시작해요: " + e.Message); }
     }
+
+    // 저장 위치: 웹(WebGL)에서는 컴퓨터 파일을 못 쓰므로 브라우저 저장소(PlayerPrefs), 그 밖에는 save.json 파일.
+#if UNITY_WEBGL && !UNITY_EDITOR
+    const string PrefsKey = "fishing_save";
+    static void Write(string json) { PlayerPrefs.SetString(PrefsKey, json); PlayerPrefs.Save(); }
+    static string Read() { return PlayerPrefs.HasKey(PrefsKey) ? PlayerPrefs.GetString(PrefsKey) : null; }
+#else
+    static void Write(string json)
+    {
+        string p = Path_, tmp = p + ".tmp";
+        Directory.CreateDirectory(System.IO.Path.GetDirectoryName(p));
+        File.WriteAllText(tmp, json);                           // 먼저 임시 파일에 쓰고
+        if (File.Exists(p)) File.Replace(tmp, p, null);          // 성공하면 바꿔치기 (쓰다 꺼져도 옛 저장은 남음)
+        else File.Move(tmp, p);
+    }
+
+    static string Read() { string p = Path_; return File.Exists(p) ? File.ReadAllText(p) : null; }
+#endif
 
     // 물고기 종류 수가 바뀐 저장 파일도 읽을 수 있게 짧은 쪽에 맞춰 복사, 음수는 0으로.
     static void CopyCounts(int[] src, int[] dst)

@@ -43,8 +43,8 @@ public class FishingRod : MonoBehaviour
     {
         SetCasting(false);
         if (baitLabel != null)
-            baitLabel.font = Font.CreateDynamicFontFromOSFont(new[] { "Malgun Gothic", "Arial" }, 28); // PC 가정
-        var font = Font.CreateDynamicFontFromOSFont(new[] { "Malgun Gothic", "Arial" }, 28);
+            baitLabel.font = GameFont.Get();
+        var font = GameFont.Get();
         if (bangLabel != null) { bangLabel.font = font; bangLabel.gameObject.SetActive(false); }
         if (resultLabel != null) { resultLabel.font = font; resultLabel.text = ""; }
         UpdateLabel();

@@ -49,7 +49,7 @@ public class MuteToggle : MonoBehaviour
         var go = new GameObject("MuteLabel");
         go.transform.SetParent(canvasGo.transform, false);
         label = go.AddComponent<Text>();
-        label.font = Font.CreateDynamicFontFromOSFont(new[] { "Malgun Gothic", "Arial" }, 24); // PC 가정
+        label.font = GameFont.Get();
         label.fontSize = 24; label.alignment = TextAnchor.LowerRight;
         label.color = new Color(1f, 0.96f, 0.88f, 0.85f); label.raycastTarget = false;
         label.text = "소리 꺼짐 (M)";
