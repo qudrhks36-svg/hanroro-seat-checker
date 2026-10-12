@@ -2908,8 +2908,6 @@ MonoBehaviour:
   castBait: 0
   bangLabel: {fileID: 991138331}
   resultLabel: {fileID: 1605872823}
-  biteWaitMin: 3
-  biteWaitMax: 8
   biteWindow: 1
   reelZoneSpeed: 0.7
   reelStart: 0.3
@@ -3441,6 +3439,52 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 938603959}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &947940453
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 947940455}
+  - component: {fileID: 947940454}
+  m_Layer: 0
+  m_Name: Bgm
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &947940454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947940453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90d69847a2511aa45b2884a6a4985941, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BgmPlayer
+  clip: {fileID: 8300000, guid: 4dc15ffd3d5b7cf4d84e8c10f274f25e, type: 3}
+  volume: 0.2
+--- !u!4 &947940455
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 947940453}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &964501760
 GameObject:
   m_ObjectHideFlags: 0
@@ -6183,3 +6227,4 @@ SceneRoots:
   - {fileID: 311583011}
   - {fileID: 1440885003}
   - {fileID: 1135146882}
+  - {fileID: 947940455}
