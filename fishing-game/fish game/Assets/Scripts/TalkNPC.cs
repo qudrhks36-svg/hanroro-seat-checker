@@ -18,7 +18,11 @@ public class TalkNPC : MonoBehaviour
     public float talkDistance = 3f;
     public float buyMultiplier;    // 0이면 사지 않음
     public bool onlySunset;
+    public TalkVoice voice;        // 말을 걸 때 나는 소리 (None이면 소리 없음)
+    public float voiceVolume = 0.5f;
 
+    AudioSource voiceSource;
+    AudioClip voiceClip;
     GameObject panel, prompt;
     Text dialogText;
     string message;
@@ -30,6 +34,12 @@ public class TalkNPC : MonoBehaviour
         Build();
         panel.SetActive(false);
         prompt.SetActive(false);
+        voiceClip = SfxSynth.Clip(voice);
+        if (voiceClip != null)
+        {
+            voiceSource = gameObject.AddComponent<AudioSource>();
+            voiceSource.playOnAwake = false; voiceSource.spatialBlend = 0f; // 2D(말 거는 순간 또렷하게)
+        }
     }
 
     void OnDestroy() { if (open) { Time.timeScale = 1f; IsOpen = false; } }
@@ -81,6 +91,7 @@ public class TalkNPC : MonoBehaviour
         Cursor.visible = on;
         if (on)
         {
+            if (voiceSource != null) voiceSource.PlayOneShot(voiceClip, voiceVolume);   // 시간이 멈춰도(timeScale 0) 재생됨
             sold = false;
             if (buyMultiplier > 0f)
                 message = Inventory.TotalCount > 0 ? "허허, 좋은 물고기구먼! 값을 20% 더 쳐주지." : "허허! 팔 물고기가 없구먼. 잡아 오게나!";

@@ -213,6 +213,8 @@ MonoBehaviour:
   talkDistance: 3
   buyMultiplier: 0
   onlySunset: 0
+  voice: 1
+  voiceVolume: 0.5
 --- !u!1 &75038195
 GameObject:
   m_ObjectHideFlags: 0
@@ -2972,6 +2974,8 @@ MonoBehaviour:
   talkDistance: 3
   buyMultiplier: 0
   onlySunset: 0
+  voice: 2
+  voiceVolume: 0.5
 --- !u!1 &828440397
 GameObject:
   m_ObjectHideFlags: 0
@@ -3325,6 +3329,8 @@ MonoBehaviour:
   talkDistance: 3
   buyMultiplier: 1.2
   onlySunset: 1
+  voice: 3
+  voiceVolume: 0.5
 --- !u!1 &938603959
 GameObject:
   m_ObjectHideFlags: 0
