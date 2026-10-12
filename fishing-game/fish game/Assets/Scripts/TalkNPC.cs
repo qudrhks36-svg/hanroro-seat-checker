@@ -59,6 +59,7 @@ public class TalkNPC : MonoBehaviour
             {
                 int earned = Inventory.SellAll(buyMultiplier);
                 SaveData.Save();
+                Sfx.Play(SfxKind.Sell);
                 message = "자, 여기 " + earned + "원이야! 또 잡아 오게나!";
                 sold = true;
                 RefreshDialog();

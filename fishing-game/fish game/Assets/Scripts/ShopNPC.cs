@@ -52,6 +52,7 @@ public class ShopNPC : MonoBehaviour
             {
                 int earned = Inventory.SellAll();
                 SaveData.Save();
+                Sfx.Play(SfxKind.Sell);
                 message = "고, 고마워요… 여기 " + earned + "원이에요.";
                 sold = true;
                 UpdateMoney();

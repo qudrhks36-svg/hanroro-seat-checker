@@ -37,6 +37,95 @@ public static class SfxSynth
         return o;
     }
 
+    // ---- 낚시 효과음 (GDD 2번 [제안]) : 잡음 없이 맑고 짧게 ----
+
+    // 던지기 "휙": 음높이가 쭉 올라갔다 내려오는 가벼운 소리
+    public static float[] Cast()
+    {
+        var o = new float[(int)(Rate * 0.32f)];
+        double phase = 0;
+        for (int i = 0; i < o.Length; i++)
+        {
+            float t = i / (float)o.Length;
+            float f = Mathf.Lerp(320f, 900f, Mathf.Sin(t * Mathf.PI * 0.5f)) * (1f - 0.25f * t * t);   // 빨리 올라가고 끝에서 살짝 처짐
+            phase += 2.0 * Mathf.PI * f / Rate;
+            float env = Mathf.Sin(Mathf.PI * t); env *= env;                                          // 종 모양으로 커졌다 작아짐
+            o[i] = (Mathf.Sin((float)phase) + 0.25f * Mathf.Sin(2f * (float)phase)) * env;
+        }
+        Normalize(o, 0.5f);                         // 길게 이어지는 소리라 작게 맞춤
+        return o;
+    }
+
+    // 입질 "띠링": 밝은 두 음(느낌표가 뜨는 순간)
+    public static float[] Bite()
+    {
+        var o = new float[(int)(Rate * 0.45f)];
+        Bell(o, 0.00f, 880f, 0.30f, 1f, 7f);
+        Bell(o, 0.11f, 1318.5f, 0.34f, 1f, 6f);
+        Normalize(o, 0.8f);
+        return o;
+    }
+
+    // 낚기 성공 "딩딩딩딩~": 밝게 올라가는 네 음(도·미·솔·높은 도)
+    public static float[] Catch()
+    {
+        var o = new float[(int)(Rate * 0.85f)];
+        float[] notes = { 523.25f, 659.25f, 783.99f, 1046.5f };
+        for (int k = 0; k < 4; k++) Bell(o, k * 0.095f, notes[k], k == 3 ? 0.55f : 0.30f, k == 3 ? 1f : 0.8f, k == 3 ? 4f : 7f);
+        Normalize(o, 0.8f);
+        return o;
+    }
+
+    // 놓침 "뿌-웅": 낮게 내려가는 두 음. 동그랗고 부드럽게
+    public static float[] Miss()
+    {
+        var o = new float[(int)(Rate * 0.62f)];
+        Soft(o, 0.00f, 0.22f, 392f, 330f, 1f);     // 솔 → 미 쪽으로 처지며
+        Soft(o, 0.24f, 0.36f, 294f, 233f, 0.9f);   // 레 → 낮은 시 b 쪽으로 더 처짐
+        Normalize(o, 0.36f);                        // 낮은 소리는 같은 최고점이어도 훨씬 크게 들려서 작게 맞춤
+        return o;
+    }
+
+    // 판매 "짤랑": 동전 두 개가 부딪히는 소리(금속 느낌의 배음)
+    public static float[] Sell()
+    {
+        var o = new float[(int)(Rate * 0.6f)];
+        float[] partial = { 1f, 2.76f, 5.4f };      // 금속 소리는 배음이 정수배가 아님
+        float[] gain = { 1f, 0.45f, 0.18f };
+        for (int k = 0; k < 2; k++)
+            for (int p = 0; p < 3; p++)
+                Bell(o, k * 0.085f, (k == 0 ? 1568f : 2093f) * partial[p], 0.28f, gain[p] * (k == 0 ? 1f : 0.85f), 11f);
+        Normalize(o, 0.8f);
+        return o;
+    }
+
+    // 종소리 한 번: 순식간에 시작해서 지수적으로 사라지는 맑은 소리(+옅은 2배음)
+    static void Bell(float[] o, float startSec, float freq, float lenSec, float amp, float decay)
+    {
+        int a = (int)(startSec * Rate), n = (int)(lenSec * Rate);
+        for (int i = 0; i < n && a + i < o.Length; i++)
+        {
+            float t = i / (float)n;
+            float x = 2f * Mathf.PI * freq * i / Rate;
+            float env = Mathf.Min(1f, i / (0.004f * Rate)) * Mathf.Exp(-decay * t) * Mathf.SmoothStep(0f, 1f, (n - i) / (0.02f * Rate));
+            o[a + i] += (Mathf.Sin(x) + 0.25f * Mathf.Sin(2f * x)) * env * amp;
+        }
+    }
+
+    // 부드러운 낮은 음 하나: 시작 음높이에서 끝 음높이로 처짐. 둥근 소리(셋째 배음만 아주 조금)
+    static void Soft(float[] o, float startSec, float lenSec, float f0, float f1, float amp)
+    {
+        int a = (int)(startSec * Rate), n = (int)(lenSec * Rate);
+        double phase = 0;
+        for (int i = 0; i < n && a + i < o.Length; i++)
+        {
+            float t = i / (float)n;
+            phase += 2.0 * Mathf.PI * Mathf.Lerp(f0, f1, t) / Rate;
+            float env = Mathf.SmoothStep(0f, 1f, i / (0.03f * Rate)) * Mathf.SmoothStep(0f, 1f, (n - i) / (0.08f * Rate));
+            o[a + i] += (Mathf.Sin((float)phase) + 0.2f * Mathf.Sin(3f * (float)phase)) * env * amp;
+        }
+    }
+
     // 고양이 모카: 상인처럼 짧고 부드러운 소리가 반복되는 NPC 느낌 "냐-냥-냐". 동물을 흉내 내지 않고 귀엽게.
     // 낮고(440~520Hz) 둥글게(높은 소리를 많이 줄임), 잡음 없음.
     public static float[] Cat()

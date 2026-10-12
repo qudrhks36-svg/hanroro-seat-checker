@@ -86,7 +86,7 @@ public class FishingRod : MonoBehaviour
                 bobber.position = endPos + Vector3.down * 0.15f; // 찌가 가라앉음
                 biteTimer -= Time.deltaTime;
                 if (click) Hook();
-                else if (biteTimer <= 0f) { ShowResult("놓쳤어요..."); SetCasting(false); }
+                else if (biteTimer <= 0f) { ShowResult("놓쳤어요..."); Sfx.Play(SfxKind.Miss); SetCasting(false); }
                 break;
             case State.Reeling:
                 bobber.position = endPos + Vector3.down * 0.15f;
@@ -121,6 +121,7 @@ public class FishingRod : MonoBehaviour
         state = State.Flying;
         SetCasting(true);
         bobber.position = startPos;
+        Sfx.Play(SfxKind.Cast);
     }
 
     void Land()
@@ -141,6 +142,7 @@ public class FishingRod : MonoBehaviour
         state = State.Biting;
         biteTimer = biteWindow;
         if (bangLabel != null) bangLabel.gameObject.SetActive(true);
+        Sfx.Play(SfxKind.Bite);
     }
 
     // 입질 타이밍 성공 → 물고기를 정하고 릴 감기 시작
@@ -173,7 +175,7 @@ public class FishingRod : MonoBehaviour
         gaugeRt.sizeDelta = new Vector2(gauge * BarW, gaugeRt.sizeDelta.y);
 
         if (gauge >= 1f) Catch();
-        else if (gauge <= 0f) { ShowResult("물고기가 도망갔어요..."); EndReel(); }
+        else if (gauge <= 0f) { ShowResult("물고기가 도망갔어요..."); Sfx.Play(SfxKind.Miss); EndReel(); }
     }
 
     void Catch()
@@ -182,6 +184,7 @@ public class FishingRod : MonoBehaviour
         Collection.Register(lastCatch);
         Inventory.Add(lastCatch);
         SaveData.Save();
+        Sfx.Play(SfxKind.Catch);
         ShowResult("낚았다! " + lastCatch.name + " (" + FishTable.RarityName(lastCatch.rarity) + ")  미끼: " + BaitInfo.Name(castBait));
         EndReel();
     }
