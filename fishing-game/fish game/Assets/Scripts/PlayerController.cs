@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
         var kb = Keyboard.current;
         var mouse = Mouse.current;
         if (kb == null || mouse == null) return;
-        if (CatalogUI.IsOpen || ShopNPC.IsOpen || Time.frameCount == CatalogUI.ClosedFrame || Time.frameCount == ShopNPC.ClosedFrame) return; // 도감이 열려 있는 동안은 입력을 도감이 처리
+        if (CatalogUI.IsOpen || ShopNPC.IsOpen || TalkNPC.IsOpen || Time.frameCount == CatalogUI.ClosedFrame || Time.frameCount == ShopNPC.ClosedFrame || Time.frameCount == TalkNPC.ClosedFrame) return; // 도감이 열려 있는 동안은 입력을 도감이 처리
 
         if (kb.escapeKey.wasPressedThisFrame)
         {

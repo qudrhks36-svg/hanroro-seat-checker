@@ -41,7 +41,7 @@ public class CatalogUI : MonoBehaviour
         var kb = Keyboard.current; var mouse = Mouse.current;
         if (kb == null || mouse == null) return;
 
-        if (kb.tabKey.wasPressedThisFrame && !ShopNPC.IsOpen) { SetOpen(!IsOpen); return; }
+        if (kb.tabKey.wasPressedThisFrame && !ShopNPC.IsOpen && !TalkNPC.IsOpen) { SetOpen(!IsOpen); return; }
         if (!IsOpen) return;
         if (kb.escapeKey.wasPressedThisFrame) { SetOpen(false); return; }
 

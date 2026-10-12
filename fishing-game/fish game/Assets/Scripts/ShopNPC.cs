@@ -68,7 +68,8 @@ public class ShopNPC : MonoBehaviour
             return;
         }
 
-        bool near = !CatalogUI.IsOpen && Cursor.lockState == CursorLockMode.Locked && Looking();
+        if (shownMoney != Inventory.Money) UpdateMoney(); // 상인(돌쇠)에게 판 돈도 반영
+        bool near = !CatalogUI.IsOpen && !TalkNPC.IsOpen && Cursor.lockState == CursorLockMode.Locked && Looking();
         prompt.SetActive(near);
         if (near && kb.eKey.wasPressedThisFrame) SetOpen(true);
     }
@@ -114,7 +115,8 @@ public class ShopNPC : MonoBehaviour
         dialogText.text = sb.ToString();
     }
 
-    void UpdateMoney() { moneyText.text = "소지금 " + Inventory.Money + "원"; }
+    int shownMoney = -1;
+    void UpdateMoney() { shownMoney = Inventory.Money; moneyText.text = "소지금 " + Inventory.Money + "원"; }
 
     // ---- UI 만들기 ----
     void Build()

@@ -35,9 +35,12 @@ public static class Inventory
         }
     }
 
-    public static int SellAll()
+    // 배율을 곱해 반올림 (상인 돌쇠는 1.2배, GDD 3번)
+    public static int ValueWith(float multiplier) { return Mathf.RoundToInt(TotalValue * multiplier); }
+
+    public static int SellAll(float multiplier = 1f)
     {
-        int earned = TotalValue;
+        int earned = ValueWith(multiplier);
         Array.Clear(Counts, 0, Counts.Length);
         Money += earned;
         return earned;
