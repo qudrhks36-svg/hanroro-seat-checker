@@ -41,11 +41,11 @@ public static class FishTable
         }
     }
 
-    // 구분 70/25/5%, 같은 구분 안에서는 균등 (GDD [제안]).
+    // 구분 확률은 미끼마다 다름(BaitInfo.Weights), 같은 구분 안에서는 균등.
     // 현재 시간대에 물고기가 없는 구분의 확률은 흔함으로 합친다 (GDD 7번).
-    public static FishData Pick(Period period)
+    public static FishData Pick(Period period, Bait bait)
     {
-        float[] w = { 70f, 25f, 5f };
+        float[] w = BaitInfo.Weights(bait);
         var pool = new System.Collections.Generic.List<FishData>[3];
         for (int i = 0; i < 3; i++) pool[i] = new System.Collections.Generic.List<FishData>();
         foreach (var f in All) if (f.In(period)) pool[(int)f.rarity].Add(f);

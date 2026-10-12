@@ -16,10 +16,9 @@ public class FishingRod : MonoBehaviour
     public float waterY = -0.1f;
     public UnityEngine.UI.Text baitLabel;
     public Bait selectedBait = Bait.Worm; // 고른 미끼
-    public Bait castBait;                 // 마지막으로 던진 미끼 (효과는 GDD 확정 후)
+    public Bait castBait;                 // 마지막으로 던진 미끼 (입질 시간·물고기 확률에 쓰임)
     public UnityEngine.UI.Text bangLabel;   // 입질 시 찌 위 느낌표
     public UnityEngine.UI.Text resultLabel; // 낚기 결과
-    public float biteWaitMin = 3f, biteWaitMax = 8f; // 입질까지 대기(초) [제안]
     public float biteWindow = 1f;                    // 입질 후 클릭 가능 시간(초) [제안]
     public FishData lastCatch;                       // 마지막으로 낚은 물고기 (6단계 도감·판매에서 사용)
 
@@ -132,7 +131,7 @@ public class FishingRod : MonoBehaviour
         if (water)
         {
             state = State.Floating;
-            biteTimer = Random.Range(biteWaitMin, biteWaitMax);
+            biteTimer = Random.Range(BaitInfo.WaitMin(castBait), BaitInfo.WaitMax(castBait)); // 미끼마다 다름 (GDD 6번)
         }
         else SetCasting(false); // 육지: 회수
     }
@@ -147,7 +146,7 @@ public class FishingRod : MonoBehaviour
     // 입질 타이밍 성공 → 물고기를 정하고 릴 감기 시작
     void Hook()
     {
-        hooked = FishTable.Pick(TimeOfDay.Current);
+        hooked = FishTable.Pick(TimeOfDay.Current, castBait);
         if (bangLabel != null) bangLabel.gameObject.SetActive(false);
         zonePos = 0.5f; fishPos = 0.5f; fishTarget = 0.5f; retargetTimer = 0f;
         gauge = reelStart;
