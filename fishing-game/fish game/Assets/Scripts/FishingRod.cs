@@ -24,7 +24,7 @@ public class FishingRod : MonoBehaviour
     public FishData lastCatch;                       // 마지막으로 낚은 물고기 (6단계 도감·판매에서 사용)
 
     // 릴 감기 수치 (GDD 6번 [제안])
-    public float reelZoneWidth = 0.25f, reelZoneSpeed = 0.7f;
+    public float reelZoneSpeed = 0.7f; // 내 칸 너비는 낚싯대 단계(RodUpgrade)에서 정해짐
     public float reelStart = 0.3f, reelGain = 0.35f, reelLoss = 0.25f;
     static readonly float[] FishSpeed = { 0.35f, 0.6f, 0.9f }; // 흔함/보통/희귀
 
@@ -152,6 +152,7 @@ public class FishingRod : MonoBehaviour
         zonePos = 0.5f; fishPos = 0.5f; fishTarget = 0.5f; retargetTimer = 0f;
         gauge = reelStart;
         BuildReelUI();
+        zoneRt.sizeDelta = new Vector2(RodUpgrade.ZoneWidth * BarW, 36f);
         reelRoot.SetActive(true);
         state = State.Reeling;
     }
@@ -165,7 +166,7 @@ public class FishingRod : MonoBehaviour
         if (retargetTimer <= 0f) { fishTarget = Random.value; retargetTimer = Random.Range(0.6f, 1.2f); }
         fishPos = Mathf.MoveTowards(fishPos, fishTarget, FishSpeed[(int)hooked.rarity] * dt);
 
-        bool inside = Mathf.Abs(fishPos - zonePos) <= reelZoneWidth * 0.5f;
+        bool inside = Mathf.Abs(fishPos - zonePos) <= RodUpgrade.ZoneWidth * 0.5f;
         gauge = Mathf.Clamp01(gauge + (inside ? reelGain : -reelLoss) * dt);
 
         zoneRt.anchoredPosition = new Vector2((zonePos - 0.5f) * BarW, 0f);
@@ -204,7 +205,7 @@ public class FishingRod : MonoBehaviour
 
         MakeBox(canvasGo.transform, "Bar", new Color(0.1f, 0.12f, 0.2f, 0.75f), new Vector2(BarW, 36f), new Vector2(0f, -140f), 0.5f);
         var bar = canvasGo.transform.Find("Bar");
-        zoneRt = MakeBox(bar, "Zone", new Color(0.35f, 0.85f, 0.45f, 0.8f), new Vector2(reelZoneWidth * BarW, 36f), Vector2.zero, 0.5f);
+        zoneRt = MakeBox(bar, "Zone", new Color(0.35f, 0.85f, 0.45f, 0.8f), new Vector2(RodUpgrade.ZoneWidth * BarW, 36f), Vector2.zero, 0.5f);
         fishRt = MakeBox(bar, "Fish", new Color(1f, 0.6f, 0.2f), new Vector2(18f, 36f), Vector2.zero, 0.5f);
         MakeBox(canvasGo.transform, "GaugeBg", new Color(0.1f, 0.12f, 0.2f, 0.75f), new Vector2(BarW, 14f), new Vector2(0f, -185f), 0.5f);
         gaugeRt = MakeBox(canvasGo.transform.Find("GaugeBg"), "Gauge", new Color(1f, 0.9f, 0.4f), new Vector2(0f, 14f), new Vector2(-BarW * 0.5f, 0f), 0f);

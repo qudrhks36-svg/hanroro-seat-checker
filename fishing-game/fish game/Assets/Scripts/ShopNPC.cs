@@ -56,6 +56,15 @@ public class ShopNPC : MonoBehaviour
                 UpdateMoney();
                 RefreshDialog();
             }
+            else if (mouse.rightButton.wasPressedThisFrame)
+            {
+                if (RodUpgrade.IsMax) message = "더, 더 좋은 낚싯대는… 저도 없어요.";
+                else if (RodUpgrade.TryBuy()) message = "와… " + RodUpgrade.Name + "예요. 잘 어울려요!";
+                else message = "으음… 돈이 조금 모자라요. " + RodUpgrade.NextCost + "원이 필요해요.";
+                sold = true;
+                UpdateMoney();
+                RefreshDialog();
+            }
             return;
         }
 
@@ -99,6 +108,8 @@ public class ShopNPC : MonoBehaviour
             sb.Append("\n합계 ").Append(Inventory.TotalValue).Append("원  —  [왼쪽 클릭] 모두 팔기");
         }
         else if (!sold) sb.Append("\n(팔 물고기가 없어요)");
+        sb.Append("\n낚싯대: ").Append(RodUpgrade.Name);
+        if (!RodUpgrade.IsMax) sb.Append("   —   [오른쪽 클릭] ").Append(RodUpgrade.NextName).Append(" ").Append(RodUpgrade.NextCost).Append("원");
         sb.Append("\n[E / Esc] 닫기");
         dialogText.text = sb.ToString();
     }
@@ -126,9 +137,9 @@ public class ShopNPC : MonoBehaviour
         var bg = panel.AddComponent<Image>();
         bg.color = new Color(0.98f, 0.93f, 0.82f, 0.96f);
         bg.raycastTarget = false;
-        Anchor(bg.rectTransform, new Vector2(0.5f, 0f), new Vector2(0, 150), new Vector2(900, 260));
+        Anchor(bg.rectTransform, new Vector2(0.5f, 0f), new Vector2(0, 150), new Vector2(900, 320));
         dialogText = MakeText(panel.transform, "Text", 26, TextAnchor.UpperLeft, new Color(0.15f, 0.12f, 0.1f));
-        Anchor(dialogText.rectTransform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(840, 220));
+        Anchor(dialogText.rectTransform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(840, 280));
     }
 
     Text MakeText(Transform parent, string name, int size, TextAnchor align, Color c)
