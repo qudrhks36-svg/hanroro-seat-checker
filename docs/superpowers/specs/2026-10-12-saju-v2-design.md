@@ -172,3 +172,4 @@ type Section = { title: string; summary: string; chips: string[]; bullets: strin
 ## 변경 이력
 
 - 2026-10-12: 최초 작성. 가중치(0.5 · 보너스 0.15/0.10 · gain 40)는 초기값이며 분포 검증 결과로 조정할 수 있다.
+- 2026-10-12 (구현 계획 작성 시): `reasons`는 2개가 아니라 1~2개. `buildCharacter`는 `(pillars, analysis)` 대신 명시적 입력 객체 `{dayGan, dayZhi, group, strength, dayElement}`를 받는다. 결과 화면 3번 "사주표와 오행 막대"는 별도 카드 없이 공유 카드의 사주표와 "오행 균형" 풀이 카드의 막대로 충족한다. 카드 문구(약 220개)는 규칙·예시·완결성 테스트로 정의하고 구현자가 작성한다. 근거: `docs/superpowers/plans/2026-10-12-saju-v2.md`.
