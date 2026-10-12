@@ -181,6 +181,7 @@ public class FishingRod : MonoBehaviour
         lastCatch = hooked;
         Collection.Register(lastCatch);
         Inventory.Add(lastCatch);
+        SaveData.Save();
         ShowResult("낚았다! " + lastCatch.name + " (" + FishTable.RarityName(lastCatch.rarity) + ")  미끼: " + BaitInfo.Name(castBait));
         EndReel();
     }

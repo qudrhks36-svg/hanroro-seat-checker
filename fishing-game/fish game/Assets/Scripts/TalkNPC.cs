@@ -48,6 +48,7 @@ public class TalkNPC : MonoBehaviour
             if (buyMultiplier > 0f && mouse.leftButton.wasPressedThisFrame && Inventory.TotalCount > 0)
             {
                 int earned = Inventory.SellAll(buyMultiplier);
+                SaveData.Save();
                 message = "자, 여기 " + earned + "원이야! 또 잡아 오게나!";
                 sold = true;
                 RefreshDialog();

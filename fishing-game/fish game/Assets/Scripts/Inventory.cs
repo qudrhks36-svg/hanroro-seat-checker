@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// 보유 물고기(판매 대기)와 소지금. 도감 기록(Collection)과는 별개. 저장은 하지 않는다.
+// 보유 물고기(판매 대기)와 소지금. 도감 기록(Collection)과는 별개. 저장·불러오기는 SaveData가 한다(GDD 8번).
 public static class Inventory
 {
     public static readonly int[] Counts = new int[FishTable.All.Length];

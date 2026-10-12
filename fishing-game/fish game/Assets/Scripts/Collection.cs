@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// 도감 기록: 종류별 잡은 마릿수. 저장은 하지 않는다(GDD에 없음).
+// 도감 기록: 종류별 잡은 마릿수. 저장·불러오기는 SaveData가 한다(GDD 8번).
 public static class Collection
 {
     public static readonly int[] Counts = new int[FishTable.All.Length];

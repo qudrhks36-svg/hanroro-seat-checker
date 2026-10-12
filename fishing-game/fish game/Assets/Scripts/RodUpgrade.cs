@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// 낚싯대 단계 (GDD 3번 [제안] 수치). 효과: 릴 감기 내 칸 너비. 저장은 하지 않는다.
+// 낚싯대 단계 (GDD 3번 [제안] 수치). 효과: 릴 감기 내 칸 너비. 저장·불러오기는 SaveData가 한다.
 public static class RodUpgrade
 {
     public static int Level;
@@ -13,7 +13,8 @@ public static class RodUpgrade
 
     public static string Name { get { return Names[Level]; } }
     public static float ZoneWidth { get { return Width[Level]; } }
-    public static bool IsMax { get { return Level >= Names.Length - 1; } }
+    public static int MaxLevel { get { return Names.Length - 1; } }
+    public static bool IsMax { get { return Level >= MaxLevel; } }
     public static string NextName { get { return Names[Level + 1]; } }
     public static int NextCost { get { return Cost[Level + 1]; } }
 

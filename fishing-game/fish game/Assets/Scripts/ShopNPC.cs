@@ -51,6 +51,7 @@ public class ShopNPC : MonoBehaviour
             if (mouse.leftButton.wasPressedThisFrame && Inventory.TotalCount > 0)
             {
                 int earned = Inventory.SellAll();
+                SaveData.Save();
                 message = "고, 고마워요… 여기 " + earned + "원이에요.";
                 sold = true;
                 UpdateMoney();
@@ -59,7 +60,7 @@ public class ShopNPC : MonoBehaviour
             else if (mouse.rightButton.wasPressedThisFrame)
             {
                 if (RodUpgrade.IsMax) message = "더, 더 좋은 낚싯대는… 저도 없어요.";
-                else if (RodUpgrade.TryBuy()) message = "와… " + RodUpgrade.Name + "예요. 잘 어울려요!";
+                else if (RodUpgrade.TryBuy()) { SaveData.Save(); message = "와… " + RodUpgrade.Name + "예요. 잘 어울려요!"; }
                 else message = "으음… 돈이 조금 모자라요. " + RodUpgrade.NextCost + "원이 필요해요.";
                 sold = true;
                 UpdateMoney();
