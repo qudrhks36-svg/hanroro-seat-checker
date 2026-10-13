@@ -134,6 +134,7 @@ public class FishingRod : MonoBehaviour
         {
             state = State.Floating;
             biteTimer = Random.Range(BaitInfo.WaitMin(castBait), BaitInfo.WaitMax(castBait)); // 미끼마다 다름 (GDD 6번)
+            SplashFx.Splash(endPos, false);   // 찌가 물에 닿는 물보라 (GDD 9번 낚시 연출)
         }
         else SetCasting(false); // 육지: 회수
     }
@@ -144,6 +145,7 @@ public class FishingRod : MonoBehaviour
         biteTimer = biteWindow;
         if (bangLabel != null) bangLabel.gameObject.SetActive(true);
         Sfx.Play(SfxKind.Bite);
+        SplashFx.Ring(endPos, 1.1f);   // 입질 물결
     }
 
     // 입질 타이밍 성공 → 물고기를 정하고 릴 감기 시작
@@ -183,11 +185,13 @@ public class FishingRod : MonoBehaviour
     void Catch()
     {
         lastCatch = hooked;
+        bool isNew = Collection.Counts[Collection.IndexOf(lastCatch)] == 0;   // 처음 잡은 물고기인지 (결과 카드의 NEW 배지)
         Collection.Register(lastCatch);
         Inventory.Add(lastCatch);
         SaveData.Save();
         Sfx.Play(SfxKind.Catch);
-        ShowResult("낚았다! " + lastCatch.name + " (" + FishTable.RarityName(lastCatch.rarity) + ")  미끼: " + BaitInfo.Name(castBait));
+        SplashFx.Splash(endPos, true);
+        ResultCard.Show(lastCatch, isNew, bobber.position, aimCamera.GetComponent<Camera>());   // 물고기가 튀어오르고 결과 카드가 뜸 (GDD 9번)
         EndReel();
     }
 

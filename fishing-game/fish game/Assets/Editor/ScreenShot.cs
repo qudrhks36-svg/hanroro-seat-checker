@@ -88,4 +88,52 @@ public static class ScreenShot
         cam.targetTexture = null;
         Debug.Log("DIALOG SHOTS done");
     }
+
+    // 낚시 연출 사진(편집 중 장면은 저장하지 않음): 결과 카드(새로 잡은 희귀 / 흔함 / 튀어오르는 순간), 상태창의 도감 줄, 물보라를 찍는다.
+    public static void Fx()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        UnityEngine.Object.FindFirstObjectByType<TimeOfDay>().Apply(0f);
+        var cam = Camera.main;
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = false;
+        cam.transform.SetPositionAndRotation(new Vector3(-15, 1.7f, 0), Quaternion.Euler(8, 270, 0));
+        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static;
+
+        Collection.Counts[0] = 2; Collection.Counts[3] = 1;   // 도감 줄 보여주기용(저장하지 않음)
+        var hud = new GameObject("TmpHud").AddComponent<HudPanel>(); hud.SendMessage("Awake"); hud.SendMessage("Update");
+        var card = new GameObject("TmpCard").AddComponent<ResultCard>(); card.SendMessage("Awake");
+        typeof(ResultCard).GetField("instance", bf).SetValue(null, card);
+        foreach (var cv in UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+            if (cv.isRootCanvas && cv.renderMode == RenderMode.ScreenSpaceOverlay && (cv.transform.parent == hud.transform || cv.transform.parent == card.transform))
+            { cv.renderMode = RenderMode.ScreenSpaceCamera; cv.worldCamera = cam; cv.planeDistance = 1f; }
+
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        System.Action<string> shot = name =>
+        {
+            cam.targetTexture = rt; Canvas.ForceUpdateCanvases(); cam.Render();
+            RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+            File.WriteAllBytes(Path.Combine(outDir, name + ".png"), tex.EncodeToPNG());
+        };
+        System.Action<float> setTime = back => { typeof(ResultCard).GetField("t0", bf).SetValue(card, Time.unscaledTime - back); card.SendMessage("Update"); };
+
+        ResultCard.Show(FishTable.All[7], true, new Vector3(-23, -0.1f, 0), cam); setTime(1.5f); shot("fx_card_new_rare");
+        ResultCard.Show(FishTable.All[0], false, new Vector3(-23, -0.1f, 0), cam); setTime(1.5f); shot("fx_card_common");
+        ResultCard.Show(FishTable.All[3], true, new Vector3(-23, -0.1f, 0), cam); setTime(0.35f); shot("fx_jump");
+        setTime(99f);   // 카드 숨김
+
+        var fxGo = new GameObject("TmpSplash"); var fxo = fxGo.AddComponent<SplashFx>(); fxo.SendMessage("Awake");   // 편집 모드에선 Awake가 안 불려서 직접
+        typeof(SplashFx).GetField("instance", bf).SetValue(null, fxo);
+        SplashFx.Splash(new Vector3(-23, -0.1f, 0), true);
+        foreach (var name in new[] { "rings", "drops" })
+        {
+            var ps = (ParticleSystem)typeof(SplashFx).GetField(name, bf).GetValue(fxo);
+            ps.Simulate(0.45f, true, false, true);
+        }
+        shot("fx_splash");
+        cam.targetTexture = null;
+        Debug.Log("FX SHOTS done");
+    }
 }

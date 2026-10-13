@@ -6,17 +6,17 @@ using UnityEngine.UI;
 // 장면에 올려 둘 것이 없고, 게임이 시작될 때 스스로 만들어진다. 아이콘은 이미지 파일 없이 코드로 그린다.
 public class HudPanel : MonoBehaviour
 {
-    const int Rows = 3, RowH = 46, Pad = 12, PanelW = 300;
+    const int Rows = 4, RowH = 46, Pad = 12, PanelW = 300;
     static readonly Color Cream = new Color(1f, 0.96f, 0.85f);
     static readonly Color Ink = new Color(0.08f, 0.05f, 0.03f, 0.9f);
 
     Image timeIcon, baitIcon;
-    Text timeText, baitText, moneyText;
+    Text timeText, baitText, moneyText, dexText;
     Sprite[] timeIcons, baitIcons;
     FishingRod rod;
     Period shownPeriod = (Period)(-1);
     Bait shownBait = (Bait)(-1);
-    int shownMoney = -1;
+    int shownMoney = -1, shownDex = -1;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Init()
@@ -53,6 +53,7 @@ public class HudPanel : MonoBehaviour
         hint.rectTransform.anchoredPosition = new Vector2(PanelW - 14 - 70, hint.rectTransform.anchoredPosition.y);
         hint.text = "1·2·3"; hint.color = new Color(1f, 0.96f, 0.85f, 0.65f);
         MakeIcon(prt, 2, coin); moneyText = MakeText(prt, 2, font, 26, TextAnchor.MiddleLeft, 200);
+        MakeIcon(prt, 3, Book()); dexText = MakeText(prt, 3, font, 26, TextAnchor.MiddleLeft, 200);
     }
 
     void Update()
@@ -78,6 +79,13 @@ public class HudPanel : MonoBehaviour
         {
             shownMoney = Inventory.Money;
             moneyText.text = shownMoney + "원";
+        }
+        if (Collection.Discovered != shownDex)
+        {
+            shownDex = Collection.Discovered;
+            bool done = shownDex >= FishTable.All.Length;
+            dexText.text = done ? "도감 완성!" : "도감 " + shownDex + "/" + FishTable.All.Length;
+            dexText.color = done ? new Color(1f, 0.85f, 0.3f) : Cream;
         }
     }
 
@@ -225,6 +233,19 @@ public class HudPanel : MonoBehaviour
             if (e > 0.72f) return C(0.74f, 0.46f, 0.2f);
             if (p.y > -0.05f && Mathf.Abs(Mathf.Repeat((p.x + p.y) * 2.3f, 1f) - 0.5f) < 0.07f) return C(0.99f, 0.88f, 0.6f);
             return C(0.94f, 0.7f, 0.38f);
+        });
+    }
+
+    static Sprite Book()
+    {
+        return Paint(p =>
+        {
+            if (Mathf.Abs(p.x) > 0.62f || Mathf.Abs(p.y) > 0.74f) return Color.clear;
+            if (p.x > 0.5f) return C(0.98f, 0.94f, 0.84f);                          // 쪽(종이) 옆면
+            if (p.x < -0.42f && p.x > -0.52f) return C(0.55f, 0.2f, 0.2f);          // 책등 줄
+            if (p.x > 0.05f && p.x < 0.2f && p.y < 0.2f) return C(1f, 0.82f, 0.3f);   // 노란 책갈피
+            if (Mathf.Abs(p.y - 0.2f) < 0.06f && p.x > -0.3f && p.x < 0.4f) return C(0.98f, 0.86f, 0.55f);   // 표지 장식 줄
+            return C(0.78f, 0.32f, 0.32f);
         });
     }
 

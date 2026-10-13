@@ -85,7 +85,7 @@ public class CatalogUI : MonoBehaviour
         infoText.text = seen ? "구분: " + FishTable.RarityName(f.rarity) + "\n잡은 수: " + Collection.Counts[selected] : "아직 못 잡았어요";
     }
 
-    static Color RarityColor(Rarity r)
+    internal static Color RarityColor(Rarity r)
     {
         switch (r)
         {
