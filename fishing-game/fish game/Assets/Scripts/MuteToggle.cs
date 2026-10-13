@@ -55,6 +55,6 @@ public class MuteToggle : MonoBehaviour
         label.text = "소리 꺼짐 (M)";
         var rt = label.rectTransform;
         rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(1f, 0f);
-        rt.anchoredPosition = new Vector2(-30, 75); rt.sizeDelta = new Vector2(400, 40);   // 소지금(아래 30) 바로 위
+        rt.anchoredPosition = new Vector2(-30, 30); rt.sizeDelta = new Vector2(400, 40);
     }
 }

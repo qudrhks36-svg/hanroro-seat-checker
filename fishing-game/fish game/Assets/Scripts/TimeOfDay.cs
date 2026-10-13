@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public enum Period { Day, Sunset, Night }
 
@@ -14,7 +13,6 @@ public class TimeOfDay : MonoBehaviour
     public float startClock = 0f;   // 0 = 낮의 시작
 
     float clock;
-    Text label;
 
     struct Look { public float pitch, intensity; public Color light, ambient; }
     static readonly Look DayLook = new Look { pitch = 55f, intensity = 2f, light = new Color(1f, 0.97f, 0.92f), ambient = new Color(0.45f, 0.50f, 0.60f) };
@@ -30,7 +28,6 @@ public class TimeOfDay : MonoBehaviour
         clock = startClock;
         RenderSettings.sun = sun;
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        BuildLabel();
         Apply(clock);
     }
 
@@ -57,22 +54,5 @@ public class TimeOfDay : MonoBehaviour
         sun.color = Color.Lerp(a.light, b.light, k);
         sun.intensity = Mathf.Lerp(a.intensity, b.intensity, k);
         RenderSettings.ambientLight = Color.Lerp(a.ambient, b.ambient, k);
-        if (label != null) label.text = Current == Period.Day ? "낮" : Current == Period.Sunset ? "노을" : "밤";
-    }
-
-    void BuildLabel()
-    {
-        var canvasGo = new GameObject("TimeCanvas");
-        canvasGo.transform.SetParent(transform, false);
-        canvasGo.AddComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-        var go = new GameObject("PeriodLabel");
-        go.transform.SetParent(canvasGo.transform, false);
-        label = go.AddComponent<Text>();
-        label.font = GameFont.Get();
-        label.fontSize = 28; label.alignment = TextAnchor.LowerLeft;
-        label.color = new Color(1f, 0.96f, 0.88f); label.raycastTarget = false;
-        var rt = label.rectTransform;
-        rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0f, 0f);
-        rt.anchoredPosition = new Vector2(30, 30); rt.sizeDelta = new Vector2(300, 50);
     }
 }

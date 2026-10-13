@@ -131,6 +131,7 @@ public class ShopNPC : MonoBehaviour
 
         moneyText = MakeText(canvasGo.transform, "Money", 28, TextAnchor.LowerRight, new Color(1f, 0.96f, 0.88f));
         Anchor(moneyText.rectTransform, new Vector2(1, 0), new Vector2(-30, 30), new Vector2(400, 50));
+        moneyText.gameObject.SetActive(false);   // 소지금은 이제 상태창(HudPanel)이 보여준다
 
         prompt = MakeText(canvasGo.transform, "Prompt", 28, TextAnchor.MiddleCenter, Color.white).gameObject;
         var pt = prompt.GetComponent<Text>(); pt.text = "E: 바틀이와 이야기하기";
