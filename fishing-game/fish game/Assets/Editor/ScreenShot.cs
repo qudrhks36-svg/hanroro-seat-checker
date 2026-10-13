@@ -19,6 +19,13 @@ public static class ScreenShot
         var tod = UnityEngine.Object.FindFirstObjectByType<TimeOfDay>(); tod.Apply(clock);
         var cam = Camera.main;
         UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = true;
+        // 반딧불은 실행 중에만 만들어지므로, 편집 중엔 Awake/Update를 직접 불러 8초치를 미리 돌려서 찍는다
+        var ff = UnityEngine.Object.FindFirstObjectByType<Fireflies>();
+        if (ff != null)
+        {
+            ff.SendMessage("Awake"); ff.SendMessage("Update");
+            var fps = ff.GetComponentInChildren<ParticleSystem>(); if (fps != null) fps.Simulate(8f, true, true);
+        }
         var views = new[]
         {
             new View("a_start_south", new Vector3(0, 1.7f, 0), new Vector3(8, 0, 0)),

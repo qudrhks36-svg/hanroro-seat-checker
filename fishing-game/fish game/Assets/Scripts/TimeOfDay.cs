@@ -7,6 +7,7 @@ public enum Period { Day, Sunset, Night }
 public class TimeOfDay : MonoBehaviour
 {
     public static Period Current { get; private set; }
+    public static float Night { get; private set; }   // 0=낮 … 1=한밤 (반딧불 같은 밤 장식이 읽음)
 
     public Light sun;
     public float dayLength = 600f;
@@ -90,7 +91,8 @@ public class TimeOfDay : MonoBehaviour
         Shader.SetGlobalColor("_SkyGlowColor", Color.Lerp(a.glow, b.glow, k));
         Shader.SetGlobalVector("_SunDir", -sun.transform.forward);
         Shader.SetGlobalFloat("_SkyGlow", Mathf.Lerp(a.skyGlow, b.skyGlow, k));
-        Shader.SetGlobalFloat("_Stars", Mathf.Lerp(a.stars, b.stars, k));
+        Night = Mathf.Lerp(a.stars, b.stars, k);
+        Shader.SetGlobalFloat("_Stars", Night);
         Shader.SetGlobalColor("_SeaShallow", Color.Lerp(a.seaShallow, b.seaShallow, k));
         Shader.SetGlobalColor("_SeaDeep", Color.Lerp(a.seaDeep, b.seaDeep, k));
         Shader.SetGlobalColor("_SeaFoam", Color.Lerp(a.seaFoam, b.seaFoam, k));

@@ -92,7 +92,8 @@ public static class PropScatter
                 rend.sharedMaterials = dst;
                 rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;   // 작은 소품은 그림자 생략(가볍게)
             }
-            foreach (var t in go.GetComponentsInChildren<Transform>()) GameObjectUtility.SetStaticEditorFlags(t.gameObject, StaticEditorFlags.BatchingStatic);
+            bool sways = model == "Grass" || model.StartsWith("Flower");   // 바람에 흔들리는 풀·꽃은 움직여야 하니 정적 묶음에서 뺌(WindSway)
+            if (!sways) foreach (var t in go.GetComponentsInChildren<Transform>()) GameObjectUtility.SetStaticEditorFlags(t.gameObject, StaticEditorFlags.BatchingStatic);
             placed.Add(new Zone(x, z, gap > 0.4f ? gap * 0.5f : 0f));
             return true;
         }
