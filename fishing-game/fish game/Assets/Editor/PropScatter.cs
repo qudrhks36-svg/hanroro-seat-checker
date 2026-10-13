@@ -19,8 +19,17 @@ public static class PropScatter
         new Zone(-12, -8, 1.8f), new Zone(-3, -13, 1.8f), new Zone(10, -10, 1.8f), new Zone(12, 10, 1.8f),   // 야자수
     };
 
-    // 섬 윗면 높이: 풀밭(r≤14.5)은 0.08, 해변으로 갈수록 0까지 내려옴(Island.fbx 기준)
-    internal static float GroundY(float r) { return r <= 14.5f ? 0.08f : r < 16.5f ? Mathf.Lerp(0.08f, 0f, (r - 14.5f) / 2f) : 0f; }
+    // 섬 윗면 높이(GDD 8번 15-4): 풀밭 0.08, 해변은 r 14.5~16.5에서 0까지 내려오다 r 16.5~20에서 -0.5까지 물속으로 기울고, 완만한 언덕 4개.
+    // 블렌더의 지형 만드는 식(Island.fbx)과 같은 식이어야 한다. 언덕은 r 13.5 밖에선 사라짐.
+    static readonly float[][] Hills = { new[] { 3.5f, -9.5f, 3.4f, 0.9f }, new[] { -6f, -9f, 3f, 0.7f }, new[] { 7f, 8.5f, 2.9f, 0.6f }, new[] { -11f, -3.5f, 2.4f, 0.5f } };
+    internal static float GroundY(float x, float z)
+    {
+        float r = Mathf.Sqrt(x * x + z * z);
+        float b = r <= 14.5f ? 0.08f : r < 16.5f ? 0.08f * (1f - (r - 14.5f) / 2f) : -0.5f * Mathf.SmoothStep(0f, 1f, (r - 16.5f) / 3.5f);
+        float fade = Mathf.Clamp01((13.5f - r) / 2.5f), h = 0f;
+        foreach (var k in Hills) h += k[3] * Mathf.Exp(-((x - k[0]) * (x - k[0]) + (z - k[1]) * (z - k[1])) / (2f * k[2] * k[2]));
+        return b + h * fade;
+    }
 
     static readonly Dictionary<string, Color> Colors = new Dictionary<string, Color>
     {
@@ -40,6 +49,7 @@ public static class PropScatter
         string path = "Assets/Materials/" + name + ".mat";
         var m = AssetDatabase.LoadAssetAtPath<Material>(path);
         if (m != null) return m;
+        if (!Colors.ContainsKey(name)) return null;
         m = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = name };
         m.SetColor("_BaseColor", Colors[name]);
         m.SetFloat("_Smoothness", 0.1f);
@@ -73,7 +83,7 @@ public static class PropScatter
             if (rr < r0 || rr > r1 || !Free(x, z, gap)) continue;
             var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
             float s = R(s0, s1);
-            go.transform.SetPositionAndRotation(new Vector3(x, GroundY(rr) - sink, z), Quaternion.Euler(0f, R(0f, 360f), 0f));
+            go.transform.SetPositionAndRotation(new Vector3(x, GroundY(x, z) - sink, z), Quaternion.Euler(0f, R(0f, 360f), 0f));
             go.transform.localScale = Vector3.one * s;
             foreach (var rend in go.GetComponentsInChildren<Renderer>())
             {
@@ -103,8 +113,8 @@ public static class PropScatter
 
         int nb = 0, nr = 0, ng = 0, nf = 0, ns = 0;
         for (int i = 0; i < 16; i++) if (Place(bushes, "Bush", 5f, 13.8f, 2.2f, 0.8f, 1.35f, 0.04f)) nb++;
-        for (int i = 0; i < 6; i++) if (Place(rocks, "RockA", 9f, 17.5f, 2.4f, 0.8f, 1.5f, 0.12f)) nr++;
-        for (int i = 0; i < 10; i++) if (Place(rocks, "RockB", 8f, 18.5f, 1.6f, 0.8f, 1.5f, 0.08f)) nr++;
+        for (int i = 0; i < 6; i++) if (Place(rocks, "RockA", 9f, 16.8f, 2.4f, 0.8f, 1.5f, 0.12f)) nr++;
+        for (int i = 0; i < 10; i++) if (Place(rocks, "RockB", 8f, 16.8f, 1.6f, 0.8f, 1.5f, 0.08f)) nr++;
         for (int i = 0; i < 110; i++) if (Place(grass, "Grass", 2f, 15.5f, 0.55f, 0.8f, 1.4f, 0.0f)) ng++;
         string[] kinds = { "FlowerPink", "FlowerYellow", "FlowerWhite" };
         for (int c = 0; c < 15; c++)   // 꽃은 무리 지어 핀다
@@ -114,8 +124,8 @@ public static class PropScatter
             int n = 5 + rng.Next(5);
             for (int i = 0; i < n; i++) if (Place(flowers, rng.NextDouble() < 0.85 ? kind : kinds[rng.Next(kinds.Length)], 2f, 15f, 0.4f, 1.4f, 2.0f, 0f, cx, cz, 1.5f)) nf++;
         }
-        for (int i = 0; i < 16; i++) if (Place(beach, "Shell", 16.8f, 19.2f, 0.9f, 0.9f, 1.5f, 0.0f)) ns++;
-        for (int i = 0; i < 7; i++) if (Place(beach, "Starfish", 16.8f, 19.0f, 1.8f, 0.9f, 1.4f, 0.0f)) ns++;
+        for (int i = 0; i < 16; i++) if (Place(beach, "Shell", 16.5f, 17.3f, 0.9f, 0.9f, 1.5f, 0.0f)) ns++;
+        for (int i = 0; i < 7; i++) if (Place(beach, "Starfish", 16.5f, 17.3f, 1.8f, 0.9f, 1.4f, 0.0f)) ns++;
 
         EditorSceneManager.MarkSceneDirty(scene);
         bool ok = EditorSceneManager.SaveScene(scene);
