@@ -8,9 +8,9 @@ using UnityEngine;
 // 에디터 없이 실행: Unity.exe -batchmode -quit -projectPath ... -executeMethod PropScatter.Run
 public static class PropScatter
 {
-    struct Zone { public float x, z, r; public Zone(float x, float z, float r) { this.x = x; this.z = z; this.r = r; } }
+    internal struct Zone { public float x, z, r; public Zone(float x, float z, float r) { this.x = x; this.z = z; this.r = r; } }
 
-    static readonly Zone[] Keepout =
+    internal static readonly Zone[] Keepout =
     {
         new Zone(0, 0, 3.2f),          // 시작 위치
         new Zone(-8, 6, 5.4f),         // 오두막
@@ -20,7 +20,7 @@ public static class PropScatter
     };
 
     // 섬 윗면 높이: 풀밭(r≤14.5)은 0.08, 해변으로 갈수록 0까지 내려옴(Island.fbx 기준)
-    static float GroundY(float r) { return r <= 14.5f ? 0.08f : r < 16.5f ? Mathf.Lerp(0.08f, 0f, (r - 14.5f) / 2f) : 0f; }
+    internal static float GroundY(float r) { return r <= 14.5f ? 0.08f : r < 16.5f ? Mathf.Lerp(0.08f, 0f, (r - 14.5f) / 2f) : 0f; }
 
     static readonly Dictionary<string, Color> Colors = new Dictionary<string, Color>
     {
@@ -31,9 +31,11 @@ public static class PropScatter
         { "Mat_FlowerCenter", new Color(1f, 0.72f, 0.2f) },
         { "Mat_Rock", new Color(0.64f, 0.62f, 0.60f) }, { "Mat_RockDark", new Color(0.47f, 0.46f, 0.48f) },
         { "Mat_Shell", new Color(0.98f, 0.86f, 0.80f) }, { "Mat_Starfish", new Color(0.96f, 0.55f, 0.42f) },
+        { "Mat_LHWhite", new Color(0.97f, 0.95f, 0.92f) }, { "Mat_LHRed", new Color(0.88f, 0.30f, 0.28f) }, { "Mat_LHDark", new Color(0.36f, 0.31f, 0.33f) },
+        { "Mat_LHGlass", new Color(1f, 0.90f, 0.50f) }, { "Mat_Fence", new Color(0.78f, 0.60f, 0.40f) }, { "Mat_FenceCap", new Color(0.62f, 0.45f, 0.30f) },
     };
 
-    static Material GetMat(string name)
+    internal static Material GetMat(string name)
     {
         string path = "Assets/Materials/" + name + ".mat";
         var m = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -41,6 +43,7 @@ public static class PropScatter
         m = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = name };
         m.SetColor("_BaseColor", Colors[name]);
         m.SetFloat("_Smoothness", 0.1f);
+        if (name == "Mat_LHGlass") { m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor", new Color(1f, 0.85f, 0.4f) * 1.6f); }   // 등대 램프는 스스로 빛남
         AssetDatabase.CreateAsset(m, path);
         return m;
     }

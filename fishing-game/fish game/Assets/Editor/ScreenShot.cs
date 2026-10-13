@@ -27,6 +27,8 @@ public static class ScreenShot
             new View("d_start_north", new Vector3(0, 1.7f, 0), new Vector3(8, 180, 0)),
             new View("e_overview", new Vector3(0, 38, -34), new Vector3(52, 0, 0)),
             new View("f_beach", new Vector3(-6, 1.7f, -10), new Vector3(6, 20, 0)),
+            new View("g_lighthouse", new Vector3(-6, 2f, 3), new Vector3(4, 270, 0)),
+            new View("h_fence", new Vector3(-4, 1.7f, -2), new Vector3(6, 330, 0)),
         };
         var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
         var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
