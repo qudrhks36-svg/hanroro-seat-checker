@@ -42,4 +42,40 @@ public static class ScreenShot
         cam.targetTexture = null;
         Debug.Log("SHOTS done " + views.Length);
     }
+
+    // 대화창 모양 사진(편집 중 장면은 저장하지 않음): 상점형(바틀이·돌쇠)과 대사형(끼룩이)을 샘플 글로 그려서 찍는다.
+    public static void Dialogs()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        var tod = UnityEngine.Object.FindFirstObjectByType<TimeOfDay>(); tod.Apply(0f);
+        var cam = Camera.main;
+        cam.transform.SetPositionAndRotation(new Vector3(0, 1.7f, 0), Quaternion.Euler(8, 270, 0));
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = true;
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        var cases = new[]
+        {
+            new[] { "바틀이", "고, 고마워요… 여기 90원이에요.", "끼룩이 x2   모카 x1\n합계 90원\n낚싯대: 기본 낚싯대   —   다음: 튼튼한 낚싯대 200원", "왼쪽 클릭|모두 팔기", "오른쪽 클릭|튼튼한 낚싯대 200원", "E / Esc|닫기" },
+            new[] { "돌쇠", "허허, 좋은 물고기구먼! 값을 20% 더 쳐주지.", "붕어 x3   고등어 x1\n합계 150원", "왼쪽 클릭|모두 팔기", "E / Esc|닫기" },
+            new[] { "끼룩이", "끼룩! 오늘은 바다가 반짝반짝해서 기분이 좋아~ 같이 낚시하자!", "", "E / Esc|닫기" },
+            new[] { "모카", "냐아… 졸려… 햇볕이 따뜻해서 낮잠 자기 딱 좋은 날이야…", "", "E / Esc|닫기" },
+        };
+        foreach (var c in cases)
+        {
+            var canvasGo = new GameObject("TmpCanvas"); var canvas = canvasGo.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceCamera; canvas.worldCamera = cam; canvas.planeDistance = 1f;
+            bool hasInfo = !string.IsNullOrEmpty(c[2]);
+            var hints = new string[c.Length - 3]; Array.Copy(c, 3, hints, 0, hints.Length);
+            var view = DialogView.Build(canvas.transform, c[0], hasInfo);
+            view.Set(c[1], c[2], hints);
+            cam.targetTexture = rt; Canvas.ForceUpdateCanvases(); cam.Render();
+            RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+            File.WriteAllBytes(Path.Combine(outDir, "dialog_" + c[0] + ".png"), tex.EncodeToPNG());
+            UnityEngine.Object.DestroyImmediate(canvasGo);
+        }
+        cam.targetTexture = null;
+        Debug.Log("DIALOG SHOTS done");
+    }
 }

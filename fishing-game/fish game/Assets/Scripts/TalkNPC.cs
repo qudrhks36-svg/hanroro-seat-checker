@@ -23,8 +23,8 @@ public class TalkNPC : MonoBehaviour
 
     AudioSource voiceSource;
     AudioClip voiceClip;
-    GameObject panel, prompt;
-    Text dialogText;
+    GameObject prompt;
+    DialogView view;
     string message;
     bool open, sold;
 
@@ -32,7 +32,7 @@ public class TalkNPC : MonoBehaviour
     {
         IsOpen = false;
         Build();
-        panel.SetActive(false);
+        view.SetActive(false);
         prompt.SetActive(false);
         voiceClip = SfxSynth.Clip(voice);
         if (voiceClip != null)
@@ -86,7 +86,7 @@ public class TalkNPC : MonoBehaviour
         IsOpen = on;
         if (!on) ClosedFrame = Time.frameCount;
         prompt.SetActive(false);
-        panel.SetActive(on);
+        view.SetActive(on);
         Time.timeScale = on ? 0f : 1f;
         Cursor.lockState = on ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = on;
@@ -103,17 +103,23 @@ public class TalkNPC : MonoBehaviour
 
     void RefreshDialog()
     {
-        var sb = new StringBuilder(npcName).Append("\n\n").Append(message).Append("\n");
-        if (buyMultiplier > 0f && Inventory.TotalCount > 0)
+        string infoText = "";
+        var hints = new System.Collections.Generic.List<string>();
+        if (buyMultiplier > 0f)
         {
-            sb.Append("\n");
-            for (int i = 0; i < Inventory.Counts.Length; i++)
-                if (Inventory.Counts[i] > 0) sb.Append(FishTable.All[i].name).Append(" x").Append(Inventory.Counts[i]).Append("   ");
-            sb.Append("\n합계 ").Append(Inventory.ValueWith(buyMultiplier)).Append("원  —  [왼쪽 클릭] 모두 팔기");
+            if (Inventory.TotalCount > 0)
+            {
+                var sb = new StringBuilder();
+                for (int i = 0; i < Inventory.Counts.Length; i++)
+                    if (Inventory.Counts[i] > 0) sb.Append(FishTable.All[i].name).Append(" x").Append(Inventory.Counts[i]).Append("   ");
+                sb.Append("\n합계 ").Append(Inventory.ValueWith(buyMultiplier)).Append("원");
+                infoText = sb.ToString();
+                hints.Add("왼쪽 클릭|모두 팔기");
+            }
+            else if (!sold) infoText = "(팔 물고기가 없어요)";
         }
-        else if (buyMultiplier > 0f && !sold) sb.Append("\n(팔 물고기가 없어요)");
-        sb.Append("\n[E / Esc] 닫기");
-        dialogText.text = sb.ToString();
+        hints.Add("E / Esc|닫기");
+        view.Set(message, infoText, hints.ToArray());
     }
 
     // ---- UI 만들기 (ShopNPC와 같은 모양) ----
@@ -130,14 +136,7 @@ public class TalkNPC : MonoBehaviour
         var pt = prompt.GetComponent<Text>(); pt.text = "E: " + npcName + "에게 말 걸기";
         Anchor(pt.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0, -80), new Vector2(600, 50));
 
-        panel = new GameObject("Dialog");
-        panel.transform.SetParent(canvasGo.transform, false);
-        var bg = panel.AddComponent<UnityEngine.UI.Image>();
-        bg.color = new Color(0.98f, 0.93f, 0.82f, 0.96f);
-        bg.raycastTarget = false;
-        Anchor(bg.rectTransform, new Vector2(0.5f, 0f), new Vector2(0, 150), new Vector2(900, 320));
-        dialogText = MakeText(panel.transform, "Text", font, 26, TextAnchor.UpperLeft, new Color(0.15f, 0.12f, 0.1f));
-        Anchor(dialogText.rectTransform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(840, 280));
+        view = DialogView.Build(canvasGo.transform, npcName, buyMultiplier > 0f);
     }
 
     static Text MakeText(Transform parent, string name, Font font, int size, TextAnchor align, Color c)

@@ -22,8 +22,9 @@ public class ShopNPC : MonoBehaviour
         "가끔 구름이나 별 모양 물고기가 있대요… 정말인지는, 저도 모르겠지만요.",
     };
 
-    GameObject panel, prompt;
-    Text dialogText, moneyText;
+    GameObject prompt;
+    DialogView view;
+    Text moneyText;
     Font font;
     string message;
     bool sold;
@@ -33,7 +34,7 @@ public class ShopNPC : MonoBehaviour
         IsOpen = false;
         font = GameFont.Get();
         Build();
-        panel.SetActive(false);
+        view.SetActive(false);
         prompt.SetActive(false);
         UpdateMoney();
     }
@@ -88,7 +89,7 @@ public class ShopNPC : MonoBehaviour
         IsOpen = open;
         if (!open) ClosedFrame = Time.frameCount;
         prompt.SetActive(false);
-        panel.SetActive(open);
+        view.SetActive(open);
         Time.timeScale = open ? 0f : 1f;
         Cursor.lockState = open ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = open;
@@ -102,19 +103,24 @@ public class ShopNPC : MonoBehaviour
 
     void RefreshDialog()
     {
-        var sb = new StringBuilder("바틀이\n\n").Append(message).Append("\n");
+        var sb = new StringBuilder();
+        var hints = new System.Collections.Generic.List<string>();
         if (Inventory.TotalCount > 0)
         {
-            sb.Append("\n");
             for (int i = 0; i < Inventory.Counts.Length; i++)
                 if (Inventory.Counts[i] > 0) sb.Append(FishTable.All[i].name).Append(" x").Append(Inventory.Counts[i]).Append("   ");
-            sb.Append("\n합계 ").Append(Inventory.TotalValue).Append("원  —  [왼쪽 클릭] 모두 팔기");
+            sb.Append("\n합계 ").Append(Inventory.TotalValue).Append("원");
+            hints.Add("왼쪽 클릭|모두 팔기");
         }
-        else if (!sold) sb.Append("\n(팔 물고기가 없어요)");
+        else if (!sold) sb.Append("(팔 물고기가 없어요)");
         sb.Append("\n낚싯대: ").Append(RodUpgrade.Name);
-        if (!RodUpgrade.IsMax) sb.Append("   —   [오른쪽 클릭] ").Append(RodUpgrade.NextName).Append(" ").Append(RodUpgrade.NextCost).Append("원");
-        sb.Append("\n[E / Esc] 닫기");
-        dialogText.text = sb.ToString();
+        if (!RodUpgrade.IsMax)
+        {
+            sb.Append("   —   다음: ").Append(RodUpgrade.NextName).Append(" ").Append(RodUpgrade.NextCost).Append("원");
+            hints.Add("오른쪽 클릭|" + RodUpgrade.NextName + " " + RodUpgrade.NextCost + "원");
+        }
+        hints.Add("E / Esc|닫기");
+        view.Set(message, sb.ToString(), hints.ToArray());
     }
 
     int shownMoney = -1;
@@ -137,14 +143,7 @@ public class ShopNPC : MonoBehaviour
         var pt = prompt.GetComponent<Text>(); pt.text = "E: 바틀이와 이야기하기";
         Anchor(pt.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0, -80), new Vector2(600, 50));
 
-        panel = new GameObject("Dialog");
-        panel.transform.SetParent(canvasGo.transform, false);
-        var bg = panel.AddComponent<Image>();
-        bg.color = new Color(0.98f, 0.93f, 0.82f, 0.96f);
-        bg.raycastTarget = false;
-        Anchor(bg.rectTransform, new Vector2(0.5f, 0f), new Vector2(0, 150), new Vector2(900, 320));
-        dialogText = MakeText(panel.transform, "Text", 26, TextAnchor.UpperLeft, new Color(0.15f, 0.12f, 0.1f));
-        Anchor(dialogText.rectTransform, new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(840, 280));
+        view = DialogView.Build(canvasGo.transform, "바틀이", true);
     }
 
     Text MakeText(Transform parent, string name, int size, TextAnchor align, Color c)
