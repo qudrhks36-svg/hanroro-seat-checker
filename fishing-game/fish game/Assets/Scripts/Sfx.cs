@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SfxKind { Cast, Bite, Catch, Miss, Sell }
+public enum SfxKind { Cast, Bite, Catch, Miss, Sell, Splash, NewFish, GoalDone }
 
 // 낚시 효과음 재생 (GDD 2번). 처음 필요할 때 소리를 한 번 만들어 두고 계속 재사용.
 // 장면에 따로 올려 둘 것이 없고, 어디서든 Sfx.Play(SfxKind.Cast) 하면 됨. 시간(timeScale)이 멈춰도 재생.
@@ -42,6 +42,9 @@ public static class Sfx
             case SfxKind.Bite: return SfxSynth.Bite();
             case SfxKind.Catch: return SfxSynth.Catch();
             case SfxKind.Miss: return SfxSynth.Miss();
+            case SfxKind.Splash: return SfxSynth.Splash();
+            case SfxKind.NewFish: return SfxSynth.NewFish();
+            case SfxKind.GoalDone: return SfxSynth.GoalDone();
             default: return SfxSynth.Sell();
         }
     }

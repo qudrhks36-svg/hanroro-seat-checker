@@ -134,7 +134,7 @@ public class FishingRod : MonoBehaviour
         {
             state = State.Floating;
             biteTimer = Random.Range(BaitInfo.WaitMin(castBait), BaitInfo.WaitMax(castBait)); // 미끼마다 다름 (GDD 6번)
-            SplashFx.Splash(endPos, false);   // 찌가 물에 닿는 물보라 (GDD 9번 낚시 연출)
+            Sfx.Play(SfxKind.Splash); SplashFx.Splash(endPos, false);   // 찌가 물에 닿는 물보라 (GDD 9번 낚시 연출)
         }
         else SetCasting(false); // 육지: 회수
     }
@@ -191,6 +191,8 @@ public class FishingRod : MonoBehaviour
         bool goalDone = Goal.OnCatch();   // 오늘의 목표 (GDD 9번)
         SaveData.Save();
         Sfx.Play(SfxKind.Catch);
+        if (isNew) Sfx.Play(SfxKind.NewFish);   // 새 물고기 도감 등록 (GDD 2번)
+        if (goalDone) Sfx.Play(SfxKind.GoalDone);   // 오늘의 목표 달성
         SplashFx.Splash(endPos, true);
         ResultCard.Show(lastCatch, isNew, bobber.position, aimCamera.GetComponent<Camera>(), goalDone);   // 물고기가 튀어오르고 결과 카드가 뜸 (GDD 9번)
         EndReel();

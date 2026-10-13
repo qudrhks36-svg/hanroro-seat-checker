@@ -76,6 +76,49 @@ public static class SfxSynth
         return o;
     }
 
+    // 물보라 "퐁": 높은 음에서 낮은 음으로 뚝 떨어지는 물방울 소리 + 작은 방울 하나
+    public static float[] Splash()
+    {
+        var o = new float[(int)(Rate * 0.3f)];
+        Drop(o, 0f, 0.16f, 720f, 240f, 1f);
+        Drop(o, 0.07f, 0.1f, 980f, 420f, 0.35f);
+        Normalize(o, 0.55f);
+        return o;
+    }
+
+    static void Drop(float[] o, float startSec, float lenSec, float f0, float f1, float amp)
+    {
+        int a = (int)(startSec * Rate), n = (int)(lenSec * Rate);
+        double phase = 0;
+        for (int i = 0; i < n && a + i < o.Length; i++)
+        {
+            float t = i / (float)n;
+            phase += 2.0 * Mathf.PI * Mathf.Lerp(f0, f1, Mathf.Sqrt(t)) / Rate;
+            float env = Mathf.Min(1f, i / (0.003f * Rate)) * Mathf.Exp(-5f * t);
+            o[a + i] += Mathf.Sin((float)phase) * env * amp;
+        }
+    }
+
+    // 새 물고기 도감 등록 "띠-링": 낚기 소리(0.85초)가 끝나갈 즈음 맑고 높은 두 음
+    public static float[] NewFish()
+    {
+        var o = new float[(int)(Rate * 1.45f)];
+        Bell(o, 0.55f, 1318.5f, 0.35f, 0.8f, 6f);
+        Bell(o, 0.70f, 1760f, 0.75f, 1f, 4f);
+        Normalize(o, 0.7f);
+        return o;
+    }
+
+    // 오늘의 목표 달성 팡파르: 올라가는 세 음 + 마지막은 길게 (앞 소리들이 끝난 뒤에 시작)
+    public static float[] GoalDone()
+    {
+        var o = new float[(int)(Rate * 2.5f)];
+        float[] notes = { 783.99f, 987.77f, 1174.66f, 1567.98f };
+        for (int k = 0; k < 4; k++) Bell(o, 1.45f + k * 0.12f, notes[k], k == 3 ? 0.9f : 0.3f, k == 3 ? 1f : 0.8f, k == 3 ? 3.5f : 6f);
+        Normalize(o, 0.75f);
+        return o;
+    }
+
     // 놓침 "뿌-웅": 낮게 내려가는 두 음. 동그랗고 부드럽게
     public static float[] Miss()
     {
