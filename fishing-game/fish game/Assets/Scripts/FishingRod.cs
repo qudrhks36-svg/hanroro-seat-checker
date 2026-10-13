@@ -188,10 +188,11 @@ public class FishingRod : MonoBehaviour
         bool isNew = Collection.Counts[Collection.IndexOf(lastCatch)] == 0;   // 처음 잡은 물고기인지 (결과 카드의 NEW 배지)
         Collection.Register(lastCatch);
         Inventory.Add(lastCatch);
+        bool goalDone = Goal.OnCatch();   // 오늘의 목표 (GDD 9번)
         SaveData.Save();
         Sfx.Play(SfxKind.Catch);
         SplashFx.Splash(endPos, true);
-        ResultCard.Show(lastCatch, isNew, bobber.position, aimCamera.GetComponent<Camera>());   // 물고기가 튀어오르고 결과 카드가 뜸 (GDD 9번)
+        ResultCard.Show(lastCatch, isNew, bobber.position, aimCamera.GetComponent<Camera>(), goalDone);   // 물고기가 튀어오르고 결과 카드가 뜸 (GDD 9번)
         EndReel();
     }
 

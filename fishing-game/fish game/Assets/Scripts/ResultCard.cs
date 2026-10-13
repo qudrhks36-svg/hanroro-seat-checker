@@ -14,7 +14,7 @@ public class ResultCard : MonoBehaviour
 
     CanvasGroup group;
     RectTransform card, iconBg, jumper;
-    Image iconBgImg, icon, jumpImg, chipImg, newBadge;
+    Image iconBgImg, icon, jumpImg, chipImg, newBadge, goalBadge;
     Text title, nameText, chipText, priceText, newText;
     readonly List<RectTransform> sparks = new List<RectTransform>();
     readonly List<Vector2> sparkDir = new List<Vector2>();
@@ -22,6 +22,7 @@ public class ResultCard : MonoBehaviour
     float t0 = -999f;
     Vector2 jumpFrom;
     bool showNew, rare;
+    const string GoalMsg = "오늘의 목표 달성!  +";
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Init()
@@ -32,9 +33,9 @@ public class ResultCard : MonoBehaviour
     }
 
     // 낚았을 때 FishingRod가 부른다. bobberWorld = 찌 위치(튀어오르는 시작 자리).
-    public static void Show(FishData fish, bool isNew, Vector3 bobberWorld, Camera cam)
+    public static void Show(FishData fish, bool isNew, Vector3 bobberWorld, Camera cam, bool goalDone = false)
     {
-        if (instance != null) instance.Begin(fish, isNew, bobberWorld, cam);
+        if (instance != null) instance.Begin(fish, isNew, bobberWorld, cam, goalDone);
     }
 
     void Awake()
@@ -66,6 +67,11 @@ public class ResultCard : MonoBehaviour
         var nol = newBadge.gameObject.AddComponent<Outline>(); nol.effectColor = new Color(0.55f, 0.2f, 0.08f, 1f); nol.effectDistance = new Vector2(2f, -2f);
         newText = Txt(nb, font, 24, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold, Vector2.zero, new Vector2(190f, 42f)); newText.text = "NEW! 도감 등록";
 
+        goalBadge = Img(card, "GoalBadge", new Color(1f, 0.82f, 0.28f), new Vector2(360f, 44f));   // 목표를 채웠을 때만 카드 아래에 붙는 금색 띠
+        var gb = goalBadge.rectTransform; gb.anchorMin = gb.anchorMax = gb.pivot = new Vector2(0.5f, 0.5f); gb.anchoredPosition = new Vector2(0f, -(H * 0.5f) - 30f);
+        var gol = goalBadge.gameObject.AddComponent<Outline>(); gol.effectColor = new Color(0.55f, 0.38f, 0.08f, 1f); gol.effectDistance = new Vector2(2f, -2f);
+        var gt = Txt(gb, font, 26, Ink, TextAnchor.MiddleCenter, FontStyle.Bold, Vector2.zero, new Vector2(360f, 44f)); gt.text = GoalMsg + Goal.Reward + "원";
+
         for (int i = 0; i < 12; i++)   // 반짝이는 조각(마름모)
         {
             var s = Img(card, "Spark" + i, new Color(1f, 0.92f, 0.5f), new Vector2(18f, 18f)); var rt = s.rectTransform;
@@ -79,7 +85,7 @@ public class ResultCard : MonoBehaviour
         jumpImg.gameObject.SetActive(false);
     }
 
-    void Begin(FishData fish, bool isNew, Vector3 bobberWorld, Camera cam)
+    void Begin(FishData fish, bool isNew, Vector3 bobberWorld, Camera cam, bool goalDone)
     {
         if (sprites == null) { var cat = FindFirstObjectByType<CatalogUI>(); sprites = cat != null ? cat.fishSprites : null; }
         int idx = Collection.IndexOf(fish);
@@ -89,8 +95,9 @@ public class ResultCard : MonoBehaviour
         nameText.text = fish.name;
         chipImg.color = Color.Lerp(rc, Color.white, 0.25f); chipText.text = FishTable.RarityName(fish.rarity);
         priceText.text = "판매 값 " + Inventory.Price(fish.rarity) + "원";
-        showNew = isNew; rare = fish.rarity == Rarity.Rare;
+        showNew = isNew || goalDone; rare = fish.rarity == Rarity.Rare;
         newBadge.gameObject.SetActive(isNew);
+        goalBadge.gameObject.SetActive(goalDone);
         Vector3 sp3 = cam != null ? cam.WorldToScreenPoint(bobberWorld) : new Vector3(Screen.width * 0.5f, Screen.height * 0.4f);
         if (sp3.z < 0f) sp3 = new Vector3(Screen.width * 0.5f, Screen.height * 0.4f);
         jumpFrom = new Vector2(sp3.x, sp3.y);

@@ -6,12 +6,13 @@ using UnityEngine.UI;
 // 장면에 올려 둘 것이 없고, 게임이 시작될 때 스스로 만들어진다. 아이콘은 이미지 파일 없이 코드로 그린다.
 public class HudPanel : MonoBehaviour
 {
-    const int Rows = 4, RowH = 46, Pad = 12, PanelW = 300;
+    const int Rows = 5, RowH = 46, Pad = 12, PanelW = 300;
     static readonly Color Cream = new Color(1f, 0.96f, 0.85f);
     static readonly Color Ink = new Color(0.08f, 0.05f, 0.03f, 0.9f);
 
     Image timeIcon, baitIcon;
-    Text timeText, baitText, moneyText, dexText;
+    Text timeText, baitText, moneyText, dexText, goalText;
+    int shownGoal = -1;
     Sprite[] timeIcons, baitIcons;
     FishingRod rod;
     Period shownPeriod = (Period)(-1);
@@ -54,6 +55,7 @@ public class HudPanel : MonoBehaviour
         hint.text = "1·2·3"; hint.color = new Color(1f, 0.96f, 0.85f, 0.65f);
         MakeIcon(prt, 2, coin); moneyText = MakeText(prt, 2, font, 26, TextAnchor.MiddleLeft, 200);
         MakeIcon(prt, 3, Book()); dexText = MakeText(prt, 3, font, 26, TextAnchor.MiddleLeft, 200);
+        MakeIcon(prt, 4, Flag()); goalText = MakeText(prt, 4, font, 26, TextAnchor.MiddleLeft, 230);
     }
 
     void Update()
@@ -86,6 +88,11 @@ public class HudPanel : MonoBehaviour
             bool done = shownDex >= FishTable.All.Length;
             dexText.text = done ? "도감 완성!" : "도감 " + shownDex + "/" + FishTable.All.Length;
             dexText.color = done ? new Color(1f, 0.85f, 0.3f) : Cream;
+        }
+        if (Goal.Progress != shownGoal)
+        {
+            shownGoal = Goal.Progress;
+            goalText.text = "목표 " + shownGoal + "/" + Goal.Target + " (+" + Goal.Reward + "원)";
         }
     }
 
@@ -246,6 +253,16 @@ public class HudPanel : MonoBehaviour
             if (p.x > 0.05f && p.x < 0.2f && p.y < 0.2f) return C(1f, 0.82f, 0.3f);   // 노란 책갈피
             if (Mathf.Abs(p.y - 0.2f) < 0.06f && p.x > -0.3f && p.x < 0.4f) return C(0.98f, 0.86f, 0.55f);   // 표지 장식 줄
             return C(0.78f, 0.32f, 0.32f);
+        });
+    }
+
+    static Sprite Flag()
+    {
+        return Paint(p =>
+        {
+            if (Mathf.Abs(p.x + 0.45f) < 0.07f && p.y > -0.8f && p.y < 0.8f) return C(0.72f, 0.55f, 0.35f);   // 깃대
+            if (p.x > -0.38f && p.x < 0.75f && p.y > 0.05f && p.y < 0.8f) return C(0.95f, 0.4f, 0.3f);   // 깃발
+            return Color.clear;
         });
     }
 

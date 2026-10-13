@@ -120,7 +120,7 @@ public static class ScreenShot
         System.Action<float> setTime = back => { typeof(ResultCard).GetField("t0", bf).SetValue(card, Time.unscaledTime - back); card.SendMessage("Update"); };
 
         ResultCard.Show(FishTable.All[7], true, new Vector3(-23, -0.1f, 0), cam); setTime(1.5f); shot("fx_card_new_rare");
-        ResultCard.Show(FishTable.All[0], false, new Vector3(-23, -0.1f, 0), cam); setTime(1.5f); shot("fx_card_common");
+        Goal.Progress = 2; ResultCard.Show(FishTable.All[0], false, new Vector3(-23, -0.1f, 0), cam, true); setTime(1.5f); shot("fx_card_common");
         ResultCard.Show(FishTable.All[3], true, new Vector3(-23, -0.1f, 0), cam); setTime(0.35f); shot("fx_jump");
         setTime(99f);   // 카드 숨김
 
