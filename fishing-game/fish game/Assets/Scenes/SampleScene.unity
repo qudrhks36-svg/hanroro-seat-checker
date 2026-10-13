@@ -11616,11 +11616,11 @@ MonoBehaviour:
   castBait: 0
   bangLabel: {fileID: 991138331}
   resultLabel: {fileID: 1605872823}
-  biteWindow: 1
+  biteWindow: 1.6
   reelZoneSpeed: 0.7
-  reelStart: 0.3
-  reelGain: 0.35
-  reelLoss: 0.25
+  reelStart: 0.4
+  reelGain: 0.4
+  reelLoss: 0.2
 --- !u!1001 &795168916
 PrefabInstance:
   m_ObjectHideFlags: 0

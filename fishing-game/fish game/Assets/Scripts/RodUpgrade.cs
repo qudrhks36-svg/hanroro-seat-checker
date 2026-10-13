@@ -5,7 +5,7 @@ public static class RodUpgrade
 {
     public static int Level;
     static readonly string[] Names = { "기본 낚싯대", "튼튼한 낚싯대", "반짝 낚싯대" };
-    static readonly float[] Width = { 0.25f, 0.32f, 0.40f };
+    static readonly float[] Width = { 0.30f, 0.36f, 0.43f };
     static readonly int[] Cost = { 0, 200, 600 };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

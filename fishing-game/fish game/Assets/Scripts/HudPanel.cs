@@ -110,7 +110,7 @@ public class HudPanel : MonoBehaviour
     }
 
     // ---- 그림 (모양 함수: 좌표 -1..1 → 색, 알파 0이면 비어 있음) ----
-    static Sprite RoundedRect()
+    internal static Sprite RoundedRect()
     {
         const int n = 48; const float r = 14f;
         var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear };

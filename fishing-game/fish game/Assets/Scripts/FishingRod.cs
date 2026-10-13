@@ -19,16 +19,17 @@ public class FishingRod : MonoBehaviour
     public Bait castBait;                 // 마지막으로 던진 미끼 (입질 시간·물고기 확률에 쓰임)
     public UnityEngine.UI.Text bangLabel;   // 입질 시 찌 위 느낌표
     public UnityEngine.UI.Text resultLabel; // 낚기 결과
-    public float biteWindow = 1f;                    // 입질 후 클릭 가능 시간(초) [제안]
+    public float biteWindow = 1.6f;                  // 입질 후 클릭 가능 시간(초) (GDD 6번 16-1: 1.0→1.6)
     public FishData lastCatch;                       // 마지막으로 낚은 물고기 (6단계 도감·판매에서 사용)
 
     // 릴 감기 수치 (GDD 6번 [제안])
     public float reelZoneSpeed = 0.7f; // 내 칸 너비는 낚싯대 단계(RodUpgrade)에서 정해짐
-    public float reelStart = 0.3f, reelGain = 0.35f, reelLoss = 0.25f;
-    static readonly float[] FishSpeed = { 0.35f, 0.6f, 0.9f }; // 흔함/보통/희귀
+    public float reelStart = 0.4f, reelGain = 0.4f, reelLoss = 0.2f;   // GDD 6번 16-1: 조금 더 쉽게
+    static readonly float[] FishSpeed = { 0.3f, 0.5f, 0.75f }; // 흔함/보통/희귀
 
-    enum State { Idle, Flying, Floating, Biting, Reeling }
+    public enum State { Idle, Flying, Floating, Biting, Reeling }
     State state = State.Idle;
+    public State Current { get { return state; } }   // 안내 판(GuideHint)이 읽음
     FishData hooked;
     float zonePos, fishPos, fishTarget, retargetTimer, gauge;
     GameObject reelRoot;
@@ -169,6 +170,7 @@ public class FishingRod : MonoBehaviour
 
         bool inside = Mathf.Abs(fishPos - zonePos) <= RodUpgrade.ZoneWidth * 0.5f;
         gauge = Mathf.Clamp01(gauge + (inside ? reelGain : -reelLoss) * dt);
+        zoneRt.GetComponent<UnityEngine.UI.Image>().color = inside ? new Color(0.35f, 1f, 0.5f, 0.9f) : new Color(0.95f, 0.45f, 0.35f, 0.8f);   // 물고기를 잡고 있으면 밝은 초록, 놓치면 붉은 주황
 
         zoneRt.anchoredPosition = new Vector2((zonePos - 0.5f) * BarW, 0f);
         fishRt.anchoredPosition = new Vector2((fishPos - 0.5f) * BarW, 0f);
