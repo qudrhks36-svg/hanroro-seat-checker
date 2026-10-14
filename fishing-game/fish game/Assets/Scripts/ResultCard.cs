@@ -15,7 +15,7 @@ public class ResultCard : MonoBehaviour
     CanvasGroup group;
     RectTransform card, iconBg, jumper;
     Image iconBgImg, icon, jumpImg, chipImg, newBadge, goalBadge;
-    Text title, nameText, chipText, priceText, newText;
+    Text title, nameText, sizeText, chipText, priceText, newText;
     readonly List<RectTransform> sparks = new List<RectTransform>();
     readonly List<Vector2> sparkDir = new List<Vector2>();
     Sprite[] sprites;
@@ -33,9 +33,9 @@ public class ResultCard : MonoBehaviour
     }
 
     // 낚았을 때 FishingRod가 부른다. bobberWorld = 찌 위치(튀어오르는 시작 자리).
-    public static void Show(FishData fish, bool isNew, Vector3 bobberWorld, Camera cam, bool goalDone = false)
+    public static void Show(FishData fish, bool isNew, Vector3 bobberWorld, Camera cam, bool goalDone = false, int cm = 0, bool isRecord = false)
     {
-        if (instance != null) instance.Begin(fish, isNew, bobberWorld, cam, goalDone);
+        if (instance != null) instance.Begin(fish, isNew, bobberWorld, cam, goalDone, cm, isRecord);
     }
 
     void Awake()
@@ -57,6 +57,7 @@ public class ResultCard : MonoBehaviour
 
         title = Txt(card, font, 24, new Color(0.45f, 0.30f, 0.18f), TextAnchor.MiddleLeft, FontStyle.Bold, new Vector2(70f, 62f), new Vector2(330f, 32f)); title.text = "낚았다!";
         nameText = Txt(card, font, 46, Ink, TextAnchor.MiddleLeft, FontStyle.Bold, new Vector2(70f, 14f), new Vector2(330f, 60f));
+        sizeText = Txt(card, font, 34, new Color(0.62f, 0.38f, 0.12f), TextAnchor.MiddleRight, FontStyle.Bold, new Vector2(70f, 14f), new Vector2(330f, 60f));   // 이름 줄 오른쪽 끝에 크기(cm)
         chipImg = Img(card, "Chip", Color.white, new Vector2(96f, 36f)); chipImg.rectTransform.anchorMin = chipImg.rectTransform.anchorMax = chipImg.rectTransform.pivot = new Vector2(0.5f, 0.5f);
         chipImg.rectTransform.anchoredPosition = new Vector2(-30f, -42f);
         chipText = Txt(chipImg.rectTransform, font, 22, Ink, TextAnchor.MiddleCenter, FontStyle.Bold, Vector2.zero, new Vector2(96f, 36f));
@@ -85,7 +86,7 @@ public class ResultCard : MonoBehaviour
         jumpImg.gameObject.SetActive(false);
     }
 
-    void Begin(FishData fish, bool isNew, Vector3 bobberWorld, Camera cam, bool goalDone)
+    void Begin(FishData fish, bool isNew, Vector3 bobberWorld, Camera cam, bool goalDone, int cm, bool isRecord)
     {
         if (sprites == null) { var cat = FindFirstObjectByType<CatalogUI>(); sprites = cat != null ? cat.fishSprites : null; }
         int idx = Collection.IndexOf(fish);
@@ -95,8 +96,10 @@ public class ResultCard : MonoBehaviour
         nameText.text = fish.name;
         chipImg.color = Color.Lerp(rc, Color.white, 0.25f); chipText.text = FishTable.RarityName(fish.rarity);
         priceText.text = "판매 값 " + Inventory.Price(fish.rarity) + "원";
-        showNew = isNew || goalDone; rare = fish.rarity == Rarity.Rare;
-        newBadge.gameObject.SetActive(isNew);
+        showNew = isNew || goalDone || isRecord; rare = fish.rarity == Rarity.Rare;
+        sizeText.text = cm > 0 ? cm + "cm" : "";
+        newText.text = isNew ? "NEW! 도감 등록" : "기록 갱신!";
+        newBadge.gameObject.SetActive(isNew || isRecord);
         goalBadge.gameObject.SetActive(goalDone);
         Vector3 sp3 = cam != null ? cam.WorldToScreenPoint(bobberWorld) : new Vector3(Screen.width * 0.5f, Screen.height * 0.4f);
         if (sp3.z < 0f) sp3 = new Vector3(Screen.width * 0.5f, Screen.height * 0.4f);

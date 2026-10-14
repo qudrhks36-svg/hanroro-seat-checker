@@ -143,8 +143,8 @@ public static class ScreenShot
         };
         System.Action<float> setTime = back => { typeof(ResultCard).GetField("t0", bf).SetValue(card, Time.unscaledTime - back); card.SendMessage("Update"); };
 
-        ResultCard.Show(FishTable.All[7], true, new Vector3(-23, -0.1f, 0), cam); setTime(1.5f); shot("fx_card_new_rare");
-        Goal.Progress = 2; ResultCard.Show(FishTable.All[0], false, new Vector3(-23, -0.1f, 0), cam, true); setTime(1.5f); shot("fx_card_common");
+        ResultCard.Show(FishTable.All[7], true, new Vector3(-23, -0.1f, 0), cam, false, 67, false); setTime(1.5f); shot("fx_card_new_rare");
+        Goal.Progress = 2; ResultCard.Show(FishTable.All[0], false, new Vector3(-23, -0.1f, 0), cam, true, 31, true); setTime(1.5f); shot("fx_card_common");
         ResultCard.Show(FishTable.All[3], true, new Vector3(-23, -0.1f, 0), cam); setTime(0.35f); shot("fx_jump");
         setTime(99f);   // 카드 숨김
 
@@ -157,6 +157,12 @@ public static class ScreenShot
             ps.Simulate(0.45f, true, false, true);
         }
         shot("fx_splash");
+        // 도감 화면(최고 기록 줄)
+        Collection.BestCm[0] = 31;
+        var cat = UnityEngine.Object.FindFirstObjectByType<CatalogUI>(); cat.SendMessage("Awake");
+        typeof(CatalogUI).GetMethod("SetOpen", bf).Invoke(cat, new object[] { true });
+        foreach (var cv in cat.GetComponentsInChildren<Canvas>(true)) if (cv.isRootCanvas || cv.renderMode == RenderMode.ScreenSpaceOverlay) { cv.renderMode = RenderMode.ScreenSpaceCamera; cv.worldCamera = cam; cv.planeDistance = 1f; }
+        shot("fx_catalog");
         cam.targetTexture = null;
         Debug.Log("FX SHOTS done");
     }

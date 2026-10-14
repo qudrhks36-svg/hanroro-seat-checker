@@ -7,7 +7,7 @@ using UnityEngine;
 public static class SaveData
 {
     [Serializable]
-    class Data { public int[] collection, inventory; public int money, rod, goal; }
+    class Data { public int[] collection, inventory, best; public int money, rod, goal; }
 
     public static string FilePath; // 비어 있으면 기본 위치(게임 데이터 폴더). 시험할 때 다른 파일로 바꿔 쓴다.
 
@@ -32,6 +32,7 @@ public static class SaveData
             var d = new Data
             {
                 collection = (int[])Collection.Counts.Clone(),
+                best = (int[])Collection.BestCm.Clone(),
                 inventory = (int[])Inventory.Counts.Clone(),
                 money = Inventory.Money,
                 rod = RodUpgrade.Level,
@@ -52,6 +53,7 @@ public static class SaveData
             if (d == null) return;
             CopyCounts(d.collection, Collection.Counts);
             CopyCounts(d.inventory, Inventory.Counts);
+            CopyCounts(d.best, Collection.BestCm);
             Inventory.Money = Mathf.Max(0, d.money);
             RodUpgrade.Level = Mathf.Clamp(d.rod, 0, RodUpgrade.MaxLevel);
             Goal.Progress = Mathf.Clamp(d.goal, 0, Goal.Target - 1);

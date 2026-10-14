@@ -82,7 +82,7 @@ public class CatalogUI : MonoBehaviour
         bigPicture.sprite = SpriteOf(selected);
         bigPicture.color = seen ? Color.white : Color.black;   // 실루엣
         nameText.text = seen ? f.name : "???";
-        infoText.text = seen ? "구분: " + FishTable.RarityName(f.rarity) + "\n잡은 수: " + Collection.Counts[selected] : "아직 못 잡았어요";
+        infoText.text = seen ? "구분: " + FishTable.RarityName(f.rarity) + "\n잡은 수: " + Collection.Counts[selected] + "\n최고 기록: " + Collection.BestCm[selected] + "cm" : "아직 못 잡았어요";
     }
 
     internal static Color RarityColor(Rarity r)
@@ -122,7 +122,7 @@ public class CatalogUI : MonoBehaviour
         bigPicture.preserveAspect = true;
         Place(bigPicture.rectTransform, new Vector2(-270, 60), new Vector2(224, 224));
         nameText = MakeText("Name", 40, TextAnchor.MiddleCenter, new Vector2(-270, -90), new Vector2(360, 60));
-        infoText = MakeText("Info", 28, TextAnchor.UpperCenter, new Vector2(-270, -190), new Vector2(360, 100));
+        infoText = MakeText("Info", 28, TextAnchor.UpperCenter, new Vector2(-270, -200), new Vector2(360, 130));
 
         int n = FishTable.All.Length;
         cells = new RectTransform[n]; cellBg = new Image[n]; cellText = new Text[n]; cellIcon = new Image[n];
