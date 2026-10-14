@@ -109,7 +109,7 @@ public static class ScreenShot
             RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
             File.WriteAllBytes(Path.Combine(outDir, name + ".png"), tex.EncodeToPNG());
         };
-        var poses = new[] { ("front", new Vector3(-8f, 2.2f, -4.5f), 0f, 6f), ("side", new Vector3(-4.2f, 2.0f, -6f), -42f, 8f), ("parasol", new Vector3(-8f, 2.0f, -2.5f), 28f, 10f), ("chimney", new Vector3(-5.5f, 4.2f, -3f), -30f, -6f), ("above", new Vector3(-1f, 9f, -1f), -52f, 30f) };
+        var poses = new[] { ("front", new Vector3(-8f, 2.2f, -4.5f), 0f, 6f), ("side", new Vector3(-4.2f, 2.0f, -6f), -42f, 8f), ("parasol", new Vector3(-8f, 2.0f, -2.5f), 28f, 10f), ("chimney", new Vector3(-5.5f, 4.2f, -3f), -30f, -6f), ("above", new Vector3(-1f, 9f, -1f), -52f, 30f), ("hammock", new Vector3(-8f, 1.7f, -3.5f), 270f, 8f) };
         foreach (var clock in new[] { 0f, 470f })
         {
             tod.Apply(clock); home.SendMessage("Update");
@@ -120,6 +120,7 @@ public static class ScreenShot
                 shot("home_" + p.Item1 + (clock > 0f ? "_night" : "_day"));
             }
         }
+        foreach (var t in home.GetComponentsInChildren<Transform>(true)) if (t.name == "Hammock" || t.name == "Home_Hammock(Clone)" || t.name == "Post") Debug.Log("HMDBG " + t.name + " lp=" + t.localPosition + " lr=" + t.localEulerAngles + " ls=" + t.localScale + " wp=" + t.position);
         // 꾸미기 창
         tod.Apply(0f); Inventory.Money = 250;
         var shop = new GameObject("TmpDecorShop").AddComponent<DecorShop>(); shop.SendMessage("Awake");

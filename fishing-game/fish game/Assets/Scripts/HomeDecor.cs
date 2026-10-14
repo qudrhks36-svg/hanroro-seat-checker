@@ -79,7 +79,7 @@ public class HomeDecor : MonoBehaviour
             chimeTimer -= Time.deltaTime;
             if (chimeTimer <= 0f) { chimeTimer = Random.Range(10f, 22f); chimeAudio.PlayOneShot(chimeClip, 0.5f); }
         }
-        if (items[4].activeSelf) hammock.localRotation = Quaternion.Euler(Mathf.Sin(t * 0.9f) * 3f, 0f, 0f);
+        if (items[4].activeSelf) hammock.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 0.9f) * 3f);
         if (items[3].activeSelf) fireLight.intensity = (0.8f + night * 2.2f) * (0.85f + 0.15f * Mathf.Sin(t * 17f) + 0.08f * Mathf.Sin(t * 29f));
         if (Home.CabinLevel >= 1) { var e = smoke.emission; e.rateOverTime = 6f; }
         if (Home.CabinLevel >= 2 && windowMat != null)
@@ -124,8 +124,13 @@ public class HomeDecor : MonoBehaviour
 
         // 2단계: 굴뚝(+ 연기)
         chimney = new GameObject("Chimney"); chimney.transform.SetParent(transform, false); chimney.transform.position = new Vector3(-9.6f, 4.75f, 7.4f);
+        var cmod = SpawnModel("Home_Chimney", chimney.transform);
+        if (cmod != null) cmod.localPosition = new Vector3(0f, -0.4f, 0f);
+        else
+        {
         Part(PrimitiveType.Cylinder, chimney.transform, new Vector3(0f, 0.25f, 0f), new Vector3(0.7f, 0.65f, 0.7f), Tint(new Color(0.62f, 0.4f, 0.34f)));
         Part(PrimitiveType.Cylinder, chimney.transform, new Vector3(0f, 0.92f, 0f), new Vector3(0.82f, 0.07f, 0.82f), Tint(new Color(0.4f, 0.28f, 0.24f)));
+        }
         var sg = new GameObject("Smoke"); sg.transform.SetParent(chimney.transform, false); sg.transform.localPosition = new Vector3(0f, 1.0f, 0f);
         smoke = sg.AddComponent<ParticleSystem>(); smoke.Stop();
         var m = smoke.main; m.loop = true; m.startLifetime = 3.2f; m.startSpeed = 0.7f; m.startSize = new ParticleSystem.MinMaxCurve(0.4f, 0.7f);
@@ -141,12 +146,21 @@ public class HomeDecor : MonoBehaviour
 
         // 3단계: 지붕 깃발 + 문 옆 등불 + 창문 불빛
         flagGroup = new GameObject("Flag"); flagGroup.transform.SetParent(transform, false); flagGroup.transform.position = new Vector3(-8f, 5.5f, 6f);
-        Part(PrimitiveType.Cylinder, flagGroup.transform, new Vector3(0f, 0.9f, 0f), new Vector3(0.08f, 0.9f, 0.08f), Tint(new Color(0.55f, 0.4f, 0.28f)));
-        var fp = new GameObject("FlagPivot").transform; fp.SetParent(flagGroup.transform, false); fp.localPosition = new Vector3(0f, 1.55f, 0f); flag = fp;
-        Part(PrimitiveType.Cube, fp, new Vector3(0.45f, 0f, 0f), new Vector3(0.9f, 0.5f, 0.04f), Tint(new Color(0.95f, 0.35f, 0.35f)));
+        var fmod = SpawnModel("Home_Flag", flagGroup.transform);
+        if (fmod != null) flag = fmod.Find("FlagCloth");   // 천(원점 = 깃대)만 살랑
+        if (flag == null)
+        {
+            if (fmod != null) Destroy(fmod.gameObject);
+            Part(PrimitiveType.Cylinder, flagGroup.transform, new Vector3(0f, 0.9f, 0f), new Vector3(0.08f, 0.9f, 0.08f), Tint(new Color(0.55f, 0.4f, 0.28f)));
+            var fp = new GameObject("FlagPivot").transform; fp.SetParent(flagGroup.transform, false); fp.localPosition = new Vector3(0f, 1.55f, 0f); flag = fp;
+            Part(PrimitiveType.Cube, fp, new Vector3(0.45f, 0f, 0f), new Vector3(0.9f, 0.5f, 0.04f), Tint(new Color(0.95f, 0.35f, 0.35f)));
+        }
         lanternGroup = new GameObject("Lantern"); lanternGroup.transform.SetParent(transform, false); lanternGroup.transform.position = new Vector3(-6.7f, 2.3f, 2.8f);
-        Part(PrimitiveType.Cube, lanternGroup.transform, new Vector3(0f, 0.32f, 0.04f), new Vector3(0.06f, 0.3f, 0.06f), Tint(new Color(0.34f, 0.22f, 0.13f)));
-        Part(PrimitiveType.Sphere, lanternGroup.transform, Vector3.zero, new Vector3(0.3f, 0.36f, 0.3f), Tint(new Color(1f, 0.85f, 0.4f)));
+        if (SpawnModel("Home_Lantern", lanternGroup.transform) == null)
+        {
+            Part(PrimitiveType.Cube, lanternGroup.transform, new Vector3(0f, 0.32f, 0.04f), new Vector3(0.06f, 0.3f, 0.06f), Tint(new Color(0.34f, 0.22f, 0.13f)));
+            Part(PrimitiveType.Sphere, lanternGroup.transform, Vector3.zero, new Vector3(0.3f, 0.36f, 0.3f), Tint(new Color(1f, 0.85f, 0.4f)));
+        }
         lanternLight = MakeLight(lanternGroup.transform, Vector3.zero, new Color(1f, 0.8f, 0.45f), 7f);
         windowLightL = MakeLight(lanternGroup.transform, new Vector3(-11.9f + 6.7f, -0.7f, 6f - 2.8f), new Color(1f, 0.8f, 0.45f), 5f);   // 서쪽 창 앞
         windowLightR = MakeLight(lanternGroup.transform, new Vector3(-3.9f + 6.7f, -0.7f, 6f - 2.8f), new Color(1f, 0.8f, 0.45f), 5f);    // 동쪽 창 앞
@@ -174,6 +188,7 @@ public class HomeDecor : MonoBehaviour
     void BuildPot()
     {
         var g = Item(0, -9.8f, 2.4f);
+        if (SpawnModel("Home_Pot", g.transform) != null) return;   // 블렌더 모델이 있으면 그걸 씀(없으면 아래 임시 도형)
         Part(PrimitiveType.Cylinder, g.transform, new Vector3(0f, 0.2f, 0f), new Vector3(0.5f, 0.2f, 0.5f), Tint(new Color(0.8f, 0.45f, 0.3f)));
         Part(PrimitiveType.Sphere, g.transform, new Vector3(0f, 0.42f, 0f), new Vector3(0.44f, 0.12f, 0.44f), Tint(new Color(0.3f, 0.2f, 0.14f)));
         var pink = Tint(new Color(1f, 0.55f, 0.7f)); var yel = Tint(new Color(1f, 0.85f, 0.3f)); var green = Tint(new Color(0.4f, 0.7f, 0.35f));
@@ -188,6 +203,7 @@ public class HomeDecor : MonoBehaviour
     void BuildParasol()
     {
         var g = Item(1, -4.6f, 1.0f);
+        if (SpawnModel("Home_Parasol", g.transform) != null) return;
         Part(PrimitiveType.Cylinder, g.transform, new Vector3(0f, 0.95f, 0f), new Vector3(0.08f, 0.95f, 0.08f), Tint(new Color(0.75f, 0.6f, 0.4f)));
         Part(PrimitiveType.Sphere, g.transform, new Vector3(0f, 1.95f, 0f), new Vector3(2.5f, 0.55f, 2.5f), Tint(new Color(0.98f, 0.45f, 0.42f)));
         Part(PrimitiveType.Sphere, g.transform, new Vector3(0f, 1.98f, 0f), new Vector3(1.5f, 0.62f, 1.5f), Tint(new Color(1f, 0.96f, 0.9f)));   // 하얀 줄무늬 느낌의 안쪽 둥근 부분
@@ -198,6 +214,10 @@ public class HomeDecor : MonoBehaviour
     void BuildChime()
     {
         var g = Item(2, -6f, 2.85f); g.transform.position = new Vector3(-6f, 3.45f, 2.85f);   // 처마 끝에 걸림
+        var cm = SpawnModel("Home_Chime", g.transform);   // 모델의 원점 = 처마에 거는 점이라 통째로 흔들면 됨
+        if (cm != null) chime = cm;
+        else
+        {
         chime = new GameObject("ChimeSwing").transform; chime.SetParent(g.transform, false);
         var gold = Tint(new Color(1f, 0.84f, 0.4f)); var wood = Tint(new Color(0.55f, 0.38f, 0.25f));
         Part(PrimitiveType.Cylinder, chime, new Vector3(0f, -0.25f, 0f), new Vector3(0.02f, 0.25f, 0.02f), wood);   // 줄
@@ -208,6 +228,7 @@ public class HomeDecor : MonoBehaviour
             float a = ang[i] * Mathf.Deg2Rad;
             Part(PrimitiveType.Cylinder, chime, new Vector3(Mathf.Cos(a) * 0.14f, -0.55f - len[i] * 0.5f, Mathf.Sin(a) * 0.14f), new Vector3(0.045f, len[i] * 0.5f, 0.045f), gold);
         }
+        }
         chimeAudio = g.AddComponent<AudioSource>();
         chimeAudio.spatialBlend = 1f; chimeAudio.rolloffMode = AudioRolloffMode.Linear; chimeAudio.minDistance = 3f; chimeAudio.maxDistance = 30f;
     }
@@ -215,6 +236,9 @@ public class HomeDecor : MonoBehaviour
     void BuildFire()
     {
         var g = Item(3, -7.5f, -1.2f);
+        bool fireModel = SpawnModel("Home_Fire", g.transform) != null;
+        if (!fireModel)
+        {
         var stone = Tint(new Color(0.55f, 0.55f, 0.58f)); var log = Tint(new Color(0.45f, 0.3f, 0.2f));
         for (int i = 0; i < 8; i++)
         {
@@ -225,6 +249,7 @@ public class HomeDecor : MonoBehaviour
         {
             var l = Part(PrimitiveType.Cylinder, g.transform, new Vector3(0f, 0.16f, 0f), new Vector3(0.12f, 0.45f, 0.12f), log);
             l.transform.localRotation = Quaternion.Euler(0f, i * 60f, 80f);
+        }
         }
         var fg = new GameObject("Flames"); fg.transform.SetParent(g.transform, false); fg.transform.localPosition = new Vector3(0f, 0.2f, 0f);
         var ps = fg.AddComponent<ParticleSystem>(); ps.Stop();
@@ -245,6 +270,9 @@ public class HomeDecor : MonoBehaviour
     void BuildHammock()
     {
         var g = Item(4, -11.4f, -3.5f);   // 기둥 두 개(z ±1.5) 사이
+        var hm = SpawnModel("Home_Hammock", g.transform);
+        if (hm != null && (hammock = hm.Find("Hammock")) != null) return;   // 모델의 "Hammock" 부분(원점 = 흔들리는 축)만 흔듦
+        if (hm != null) Destroy(hm.gameObject);
         var wood = Tint(new Color(0.5f, 0.36f, 0.24f));
         foreach (float z in new[] { -1.5f, 1.5f }) Part(PrimitiveType.Cylinder, g.transform, new Vector3(0f, 0.85f, z), new Vector3(0.14f, 0.85f, 0.14f), wood);
         hammock = new GameObject("HammockSway").transform; hammock.SetParent(g.transform, false); hammock.localPosition = new Vector3(0f, 1.35f, 0f);
@@ -259,6 +287,32 @@ public class HomeDecor : MonoBehaviour
     }
 
     // ---------------- 공통 ----------------
+    // 블렌더 모델(Resources/Models/<이름>.fbx)을 부모 아래에 놓는다. 없으면 null(임시 도형으로 대신).
+    // 재질 이름 "C_RRGGBB"에서 색을 읽어 구름 재질 복사본(Tint)으로 바꾼다(웹 빌드에서 셰이더가 빠지지 않게).
+    Transform SpawnModel(string res, Transform parent)
+    {
+        var prefab = Resources.Load<GameObject>("Models/" + res);
+        if (prefab == null) return null;
+        var t = Instantiate(prefab, parent).transform;
+        t.localPosition = Vector3.zero; t.localRotation = Quaternion.identity; t.localScale = Vector3.one;
+        foreach (var r in t.GetComponentsInChildren<Renderer>())
+        {
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+            var src = r.sharedMaterials; var dst = new Material[src.Length];
+            for (int i = 0; i < src.Length; i++) dst[i] = Tint(ColorOf(src[i] != null ? src[i].name : ""));
+            r.sharedMaterials = dst;
+        }
+        return t;
+    }
+
+    static Color ColorOf(string name)
+    {
+        int k = name.IndexOf("C_");
+        if (k >= 0 && name.Length >= k + 8 && int.TryParse(name.Substring(k + 2, 6), System.Globalization.NumberStyles.HexNumber, null, out int v))
+            return new Color32((byte)(v >> 16), (byte)(v >> 8), (byte)v, 255);
+        return new Color(0.8f, 0.8f, 0.8f);
+    }
+
     GameObject Item(int i, float x, float z)
     {
         var g = new GameObject("Decor_" + Home.ItemNames[i]); g.transform.SetParent(transform, false);
