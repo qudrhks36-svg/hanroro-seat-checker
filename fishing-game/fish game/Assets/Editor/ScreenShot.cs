@@ -268,6 +268,7 @@ public static class ScreenShot
             RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
             File.WriteAllBytes(Path.Combine(outDir, "rod_" + lv + ".png"), tex.EncodeToPNG());
         }
+        foreach (var r in cam.GetComponentsInChildren<Renderer>(true)) Debug.Log("RODDBG " + r.name + " enabled=" + r.enabled + " active=" + r.gameObject.activeInHierarchy + " mats=" + string.Join(",", System.Array.ConvertAll(r.sharedMaterials, m => m.name + "/" + m.color)) + " bounds=" + r.bounds.center + r.bounds.size);
         cam.targetTexture = null; RodUpgrade.Level = 0;
         Debug.Log("ROD SHOTS done");
     }
