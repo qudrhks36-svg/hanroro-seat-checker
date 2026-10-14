@@ -112,7 +112,7 @@ public static class SfxSynth
     // 오늘의 목표 달성 팡파르: 올라가는 세 음 + 마지막은 길게 (앞 소리들이 끝난 뒤에 시작)
     public static float[] GoalDone()
     {
-        var o = new float[(int)(Rate * 2.5f)];
+        var o = new float[(int)(Rate * 2.8f)];
         float[] notes = { 783.99f, 987.77f, 1174.66f, 1567.98f };
         for (int k = 0; k < 4; k++) Bell(o, 1.45f + k * 0.12f, notes[k], k == 3 ? 0.9f : 0.3f, k == 3 ? 1f : 0.8f, k == 3 ? 3.5f : 6f);
         Normalize(o, 0.75f);
