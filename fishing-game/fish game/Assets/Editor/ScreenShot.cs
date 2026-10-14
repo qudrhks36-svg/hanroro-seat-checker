@@ -89,6 +89,48 @@ public static class ScreenShot
         Debug.Log("DIALOG SHOTS done");
     }
 
+    // 이벤트 사진(편집 중 장면은 저장하지 않음): 해변의 병 + 줍기 안내, 쪽지 카드, 하늘의 갈매기
+    public static void Events()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        UnityEngine.Object.FindFirstObjectByType<TimeOfDay>().Apply(0f);
+        var cam = Camera.main;
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = false;
+        cam.transform.SetPositionAndRotation(new Vector3(-15, 1.7f, 0), Quaternion.Euler(14, 270, 0));
+        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
+        var ev = new GameObject("TmpEvents").AddComponent<SeaEvents>(); ev.SendMessage("Awake");
+        foreach (var cv in UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+            if (cv.isRootCanvas && cv.renderMode == RenderMode.ScreenSpaceOverlay) { cv.renderMode = RenderMode.ScreenSpaceCamera; cv.worldCamera = cam; cv.planeDistance = 1f; }
+        float bx = -16.8f, bz = 0.4f;
+        ev.PlaceBottle(new Vector3(bx, PropScatter.GroundY(bx, bz), bz));
+        ev.StartGull(new Vector3(-30, 14, -20), new Vector3(-40, 14, 20));
+        var gullGo = (GameObject)typeof(SeaEvents).GetField("gull", bf).GetValue(ev);
+        gullGo.transform.position = new Vector3(-34f, 9f, 5f);
+        ((CanvasGroup)typeof(SeaEvents).GetField("promptGroup", bf).GetValue(ev)).alpha = 1f;
+        ev.ShowNote(2, 50, true);
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        typeof(SeaEvents).GetField("noteT0", bf).SetValue(ev, Time.unscaledTime - 1.5f);
+        typeof(SeaEvents).GetMethod("UpdateUi", bf).Invoke(ev, null);
+        cam.targetTexture = rt; Canvas.ForceUpdateCanvases(); cam.Render();
+        RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+        File.WriteAllBytes(Path.Combine(outDir, "ev_scene.png"), tex.EncodeToPNG());
+        // 멀리서 본 병과 하늘의 갈매기
+        typeof(SeaEvents).GetField("noteT0", bf).SetValue(ev, -999f); typeof(SeaEvents).GetMethod("UpdateUi", bf).Invoke(ev, null);
+        ((CanvasGroup)typeof(SeaEvents).GetField("promptGroup", bf).GetValue(ev)).alpha = 0f;
+        UnityEngine.Object.DestroyImmediate((GameObject)typeof(SeaEvents).GetField("bottle", bf).GetValue(ev));
+        ev.PlaceBottle(new Vector3(-18.6f, PropScatter.GroundY(-18.6f, 0.8f), 0.8f));
+        cam.transform.rotation = Quaternion.Euler(6, 270, 0);
+        gullGo.transform.position = new Vector3(-30f, 7f, -2f);
+        cam.targetTexture = rt; Canvas.ForceUpdateCanvases(); cam.Render();
+        RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+        File.WriteAllBytes(Path.Combine(outDir, "ev_far.png"), tex.EncodeToPNG());
+        cam.targetTexture = null;
+        Debug.Log("EVENT SHOTS done");
+    }
+
     // 날씨별 모습 사진(편집 중 장면은 저장하지 않음): 맑음 / 흐림 / 비 (낮과 노을)
     public static void Weathers()
     {

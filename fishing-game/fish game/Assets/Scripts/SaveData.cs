@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using UnityEngine;
 
-// 저장 (GDD 8번 [확정]): 도감·가진 물고기·소지금·낚싯대 단계·오늘의 목표 진행을 save.json 하나(웹은 브라우저 저장소)에 저장/불러오기.
+// 저장 (GDD 8번 [확정]): 도감·가진 물고기·소지금·낚싯대 단계·오늘의 목표 진행·읽은 쪽지를 save.json 하나(웹은 브라우저 저장소)에 저장/불러오기.
 // 시간대·미끼·위치는 저장하지 않는다. 불러오기는 시작할 때, 저장은 낚기·판매·구매 때와 끌 때(Application.quitting; 웹은 탭을 닫아도 불리지 않으므로 이벤트 저장이 전부).
 public static class SaveData
 {
     [Serializable]
-    class Data { public int[] collection, inventory, best; public int money, rod, goal; }
+    class Data { public int[] collection, inventory, best; public int money, rod, goal, notes; }
 
     public static string FilePath; // 비어 있으면 기본 위치(게임 데이터 폴더). 시험할 때 다른 파일로 바꿔 쓴다.
 
@@ -37,6 +37,7 @@ public static class SaveData
                 money = Inventory.Money,
                 rod = RodUpgrade.Level,
                 goal = Goal.Progress,
+                notes = SeaEvents.NotesFound,
             };
             Write(JsonUtility.ToJson(d));
         }
@@ -57,6 +58,7 @@ public static class SaveData
             Inventory.Money = Mathf.Max(0, d.money);
             RodUpgrade.Level = Mathf.Clamp(d.rod, 0, RodUpgrade.MaxLevel);
             Goal.Progress = Mathf.Clamp(d.goal, 0, Goal.Target - 1);
+            SeaEvents.NotesFound = d.notes & ((1 << SeaEvents.NoteCount) - 1);
         }
         catch (Exception e) { Debug.LogWarning("save.json을 읽지 못해 새로 시작해요: " + e.Message); }
     }
