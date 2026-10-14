@@ -155,6 +155,9 @@ public class SeaEvents : MonoBehaviour
         bottle = new GameObject("Bottle");
         bottle.transform.position = ground;
         bottle.transform.rotation = Quaternion.Euler(0f, Random.value * 360f, 0f);
+        var bm = SpawnModel("Sea_Bottle", bottle.transform);   // 블렌더 모델(없으면 아래 임시 도형). 모델의 "Gem"이 위에서 떠서 도는 반짝이
+        if (bm != null && (diamond = bm.Find("Gem")) != null) { bottleBob = 0f; bottle.transform.localScale = Vector3.one * 1.4f; return; }
+        if (bm != null) Destroy(bm.gameObject);
         var glass = Tinted(new Color(0.55f, 0.85f, 0.8f)); var cork = Tinted(new Color(0.7f, 0.5f, 0.3f)); var paper = Tinted(new Color(1f, 0.95f, 0.8f));
         Part(PrimitiveType.Cylinder, bottle.transform, new Vector3(0f, 0.13f, 0f), new Vector3(0.26f, 0.2f, 0.26f), Quaternion.Euler(0f, 0f, 90f), glass);        // 몸통(누워 있음)
         Part(PrimitiveType.Cylinder, bottle.transform, new Vector3(0.3f, 0.13f, 0f), new Vector3(0.12f, 0.12f, 0.12f), Quaternion.Euler(0f, 0f, 90f), glass);       // 목
@@ -206,12 +209,18 @@ public class SeaEvents : MonoBehaviour
         gullFrom = from; gullTo = to; gullT = 0f; gullLen = Vector3.Distance(from, to); gullCry = 1f;
         Vector3 dir = (to - from).normalized;
         gull.transform.position = from; gull.transform.rotation = Quaternion.LookRotation(dir) * Quaternion.Euler(0f, -90f, 0f);   // 몸의 앞(+x)이 날아가는 쪽
-        var white = Tinted(new Color(0.97f, 0.97f, 0.98f)); var beak = Tinted(new Color(1f, 0.7f, 0.2f)); var tip = Tinted(new Color(0.35f, 0.38f, 0.45f));
-        Part(PrimitiveType.Sphere, gull.transform, Vector3.zero, new Vector3(0.9f, 0.4f, 0.4f), Quaternion.identity, white);                                // 몸
-        Part(PrimitiveType.Sphere, gull.transform, new Vector3(0.5f, 0.12f, 0f), new Vector3(0.3f, 0.28f, 0.28f), Quaternion.identity, white);              // 머리
-        Part(PrimitiveType.Cylinder, gull.transform, new Vector3(0.74f, 0.1f, 0f), new Vector3(0.07f, 0.12f, 0.07f), Quaternion.Euler(0f, 0f, 90f), beak);  // 부리
-        Part(PrimitiveType.Cube, gull.transform, new Vector3(-0.55f, 0.04f, 0f), new Vector3(0.5f, 0.05f, 0.3f), Quaternion.identity, white);               // 꼬리
-        gullWingL = Wing(white, tip, 1f); gullWingR = Wing(white, tip, -1f);
+        var gm = SpawnModel("Sea_Gull", gull.transform);   // 모델의 "WingL"·"WingR"(원점 = 어깨)만 퍼덕임
+        if (gm != null) { gullWingL = gm.Find("WingL"); gullWingR = gm.Find("WingR"); }
+        if (gm == null || gullWingL == null || gullWingR == null)
+        {
+            if (gm != null) Destroy(gm.gameObject);
+            var white = Tinted(new Color(0.97f, 0.97f, 0.98f)); var beak = Tinted(new Color(1f, 0.7f, 0.2f)); var tip = Tinted(new Color(0.35f, 0.38f, 0.45f));
+            Part(PrimitiveType.Sphere, gull.transform, Vector3.zero, new Vector3(0.9f, 0.4f, 0.4f), Quaternion.identity, white);                                // 몸
+            Part(PrimitiveType.Sphere, gull.transform, new Vector3(0.5f, 0.12f, 0f), new Vector3(0.3f, 0.28f, 0.28f), Quaternion.identity, white);              // 머리
+            Part(PrimitiveType.Cylinder, gull.transform, new Vector3(0.74f, 0.1f, 0f), new Vector3(0.07f, 0.12f, 0.07f), Quaternion.Euler(0f, 0f, 90f), beak);  // 부리
+            Part(PrimitiveType.Cube, gull.transform, new Vector3(-0.55f, 0.04f, 0f), new Vector3(0.5f, 0.05f, 0.3f), Quaternion.identity, white);               // 꼬리
+            gullWingL = Wing(white, tip, 1f); gullWingR = Wing(white, tip, -1f);
+        }
         gull.transform.localScale = Vector3.one * 1.8f;
         gullAudio = gull.AddComponent<AudioSource>();
         gullAudio.spatialBlend = 1f; gullAudio.rolloffMode = AudioRolloffMode.Linear; gullAudio.minDistance = 8f; gullAudio.maxDistance = 80f;
@@ -227,6 +236,32 @@ public class SeaEvents : MonoBehaviour
     }
 
     // ---------------- 공통 ----------------
+    // 블렌더 모델(Resources/Models/<이름>.fbx)을 부모 아래에 놓는다. 없으면 null(임시 도형으로 대신).
+    // 재질 이름 "C_RRGGBB"에서 색을 읽어 구름 재질 복사본(Tinted)으로 바꾼다(웹 빌드에서 셰이더가 빠지지 않게).
+    Transform SpawnModel(string res, Transform parent)
+    {
+        var prefab = Resources.Load<GameObject>("Models/" + res);
+        if (prefab == null) return null;
+        var t = Instantiate(prefab, parent).transform;
+        t.localPosition = Vector3.zero; t.localRotation = Quaternion.identity; t.localScale = Vector3.one;
+        foreach (var r in t.GetComponentsInChildren<Renderer>())
+        {
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+            var src = r.sharedMaterials; var dst = new Material[src.Length];
+            for (int i = 0; i < src.Length; i++) dst[i] = Tinted(ColorOf(src[i] != null ? src[i].name : ""));
+            r.sharedMaterials = dst;
+        }
+        return t;
+    }
+
+    static Color ColorOf(string name)
+    {
+        int k = name.IndexOf("C_");
+        if (k >= 0 && name.Length >= k + 8 && int.TryParse(name.Substring(k + 2, 6), System.Globalization.NumberStyles.HexNumber, null, out int v))
+            return new Color32((byte)(v >> 16), (byte)(v >> 8), (byte)v, 255);
+        return new Color(0.8f, 0.8f, 0.8f);
+    }
+
     readonly System.Collections.Generic.Dictionary<Color, Material> tints = new System.Collections.Generic.Dictionary<Color, Material>();
     Material Tinted(Color c)   // 같은 색은 한 번만 만들어 재사용(스폰할 때마다 재질이 쌓이지 않게)
     {
