@@ -65,7 +65,7 @@ public class GuideHint : MonoBehaviour
             {
                 case FishingRod.State.Idle:
                     a = "왼쪽 클릭: 바다 쪽으로 낚싯대 던지기";
-                    b = "WASD 이동 · 마우스 시점 · 1·2·3 미끼 · Tab 도감 · E 말 걸기 · M 소리";
+                    b = "WASD 이동 · 마우스 시점 · 1·2·3 미끼 · Tab 도감 · E 말 걸기 · P 사진 · M 소리";
                     break;
                 case FishingRod.State.Floating:
                     a = "찌를 지켜보세요… 느낌표(!)가 뜨면 바로 왼쪽 클릭!";

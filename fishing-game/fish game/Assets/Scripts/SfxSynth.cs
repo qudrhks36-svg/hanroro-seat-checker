@@ -141,6 +141,27 @@ public static class SfxSynth
         return o;
     }
 
+    // 사진 "찰칵": 아주 짧은 두 번의 딸깍(부드럽게 깎은 잡음 + 낮은 울림)
+    public static float[] Shutter()
+    {
+        var o = new float[(int)(Rate * 0.26f)];
+        var rng = new System.Random(11);
+        float lp = 0f;
+        foreach (float start in new[] { 0f, 0.07f })
+        {
+            int a = (int)(start * Rate), n = (int)(0.05f * Rate);
+            for (int i = 0; i < n && a + i < o.Length; i++)
+            {
+                float t = i / (float)Rate, w = (float)rng.NextDouble() * 2f - 1f;
+                lp += 0.5f * (w - lp);
+                float env = Mathf.Exp(-t * 90f);
+                o[a + i] += (lp * 0.8f + Mathf.Sin(2f * Mathf.PI * 180f * t) * 0.6f) * env;
+            }
+        }
+        Normalize(o, 0.6f);
+        return o;
+    }
+
     // 놓침 "뿌-웅": 낮게 내려가는 두 음. 동그랗고 부드럽게
     public static float[] Miss()
     {
