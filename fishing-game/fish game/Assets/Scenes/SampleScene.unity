@@ -12971,6 +12971,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BgmPlayer
   clip: {fileID: 8300000, guid: 4dc15ffd3d5b7cf4d84e8c10f274f25e, type: 3}
   volume: 0.2
+  loopEnd: 16.5
 --- !u!4 &947940455
 Transform:
   m_ObjectHideFlags: 0
@@ -19445,6 +19446,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 0256f178b8bb78d44b59c7f2efdecfcd, type: 3}
   - {fileID: 21300000, guid: 32a576214e9e05a4aaa314be12758e07, type: 3}
   - {fileID: 21300000, guid: 3b3cb0fa53a1fc647843acfaf1c39178, type: 3}
+  - {fileID: 21300000, guid: 3c5d20beb0f6d8c44a89a4995d825dc2, type: 3}
+  - {fileID: 21300000, guid: d388b77eabcd3d74b8f4b80b2d408262, type: 3}
+  - {fileID: 21300000, guid: f13a1222e7999184d9de7548f223209d, type: 3}
+  - {fileID: 21300000, guid: e6ceaaf9884872f46a3ad1fcafd6702b, type: 3}
 --- !u!4 &1440885003
 Transform:
   m_ObjectHideFlags: 0

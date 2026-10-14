@@ -14,7 +14,7 @@ public class FishData
     public bool In(Period p) { return System.Array.IndexOf(periods, p) >= 0; }
 }
 
-// GDD 7번 1차 물고기 8종과 시간대 표.
+// GDD 7번 물고기 표(1차 8종 + 2차 4종)와 시간대. 새 물고기는 맨 뒤에 붙여서 저장 파일·그림 순서가 어긋나지 않게 한다.
 public static class FishTable
 {
     const Period D = Period.Day, S = Period.Sunset, N = Period.Night;
@@ -29,6 +29,10 @@ public static class FishTable
         new FishData("구름고기", Rarity.Rare, D),
         new FishData("노을별고기", Rarity.Rare, S),
         new FishData("별똥고기", Rarity.Rare, N),
+        new FishData("해마", Rarity.Uncommon, D, S),
+        new FishData("해파리", Rarity.Uncommon, N),
+        new FishData("달빛고기", Rarity.Rare, N),
+        new FishData("무지개고기", Rarity.Rare, D, S),
     };
 
     public static string RarityName(Rarity r)

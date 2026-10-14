@@ -132,7 +132,7 @@ public class CatalogUI : MonoBehaviour
             c.transform.SetParent(panel.transform, false);
             cellBg[i] = c.AddComponent<Image>();
             cells[i] = cellBg[i].rectTransform;
-            Place(cells[i], new Vector2(32.5f + (i % 4) * 117, 70 - (i / 4) * 117), new Vector2(105, 105)); // 4칸이 패널(폭 900) 안에 들어오게
+            Place(cells[i], new Vector2(32.5f + (i % 4) * 117, 100 - (i / 4) * 110), new Vector2(105, 105)); // 4칸이 패널(폭 900) 안에 들어오게
             var iconGo = new GameObject("Icon");
             iconGo.transform.SetParent(c.transform, false);
             cellIcon[i] = iconGo.AddComponent<Image>();
