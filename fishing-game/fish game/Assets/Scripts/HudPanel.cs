@@ -10,10 +10,12 @@ public class HudPanel : MonoBehaviour
     static readonly Color Cream = new Color(1f, 0.96f, 0.85f);
     static readonly Color Ink = new Color(0.08f, 0.05f, 0.03f, 0.9f);
 
-    Image timeIcon, baitIcon;
+    Image timeIcon, baitIcon, weatherIcon;
     Text timeText, baitText, moneyText, dexText, goalText;
     int shownGoal = -1;
     Sprite[] timeIcons, baitIcons;
+    Sprite cloudIcon, rainIcon;
+    WeatherKind shownWeather = (WeatherKind)(-1);
     FishingRod rod;
     Period shownPeriod = (Period)(-1);
     Bait shownBait = (Bait)(-1);
@@ -31,6 +33,7 @@ public class HudPanel : MonoBehaviour
     {
         timeIcons = new[] { Sun(), Sunset(), Moon() };
         baitIcons = new[] { Worm(), Shrimp(), Bread() };
+        cloudIcon = Cloud(false); rainIcon = Cloud(true);
         var coin = Coin();
         var font = GameFont.Get();
 
@@ -48,7 +51,8 @@ public class HudPanel : MonoBehaviour
         prt.anchoredPosition = new Vector2(24, 24);
         prt.sizeDelta = new Vector2(PanelW, Pad * 2 + RowH * Rows);
 
-        timeIcon = MakeIcon(prt, 0, null); timeText = MakeText(prt, 0, font, 26, TextAnchor.MiddleLeft, 170);
+        timeIcon = MakeIcon(prt, 0, null); timeText = MakeText(prt, 0, font, 26, TextAnchor.MiddleLeft, 190);
+        weatherIcon = MakeIcon(prt, 0, null); weatherIcon.rectTransform.anchoredPosition = new Vector2(PanelW - 14 - 36, RowY(0)); weatherIcon.gameObject.SetActive(false);
         baitIcon = MakeIcon(prt, 1, null); baitText = MakeText(prt, 1, font, 26, TextAnchor.MiddleLeft, 130);
         var hint = MakeText(prt, 1, font, 18, TextAnchor.MiddleRight, 70);
         hint.rectTransform.anchoredPosition = new Vector2(PanelW - 14 - 70, hint.rectTransform.anchoredPosition.y);
@@ -65,11 +69,14 @@ public class HudPanel : MonoBehaviour
             rod = FindFirstObjectByType<FishingRod>();
             if (rod != null && rod.baitLabel != null) rod.baitLabel.gameObject.SetActive(false);   // 예전 따로 떠 있던 미끼 글자
         }
-        if (TimeOfDay.Current != shownPeriod)
+        if (TimeOfDay.Current != shownPeriod || Weather.Current != shownWeather)
         {
-            shownPeriod = TimeOfDay.Current;
+            shownPeriod = TimeOfDay.Current; shownWeather = Weather.Current;
             timeIcon.sprite = timeIcons[(int)shownPeriod];
-            timeText.text = shownPeriod == Period.Day ? "낮" : shownPeriod == Period.Sunset ? "노을" : "밤";
+            string period = shownPeriod == Period.Day ? "낮" : shownPeriod == Period.Sunset ? "노을" : "밤";
+            timeText.text = shownWeather == WeatherKind.Clear ? period : period + " · " + Weather.Name(shownWeather);
+            weatherIcon.gameObject.SetActive(shownWeather != WeatherKind.Clear);   // 맑음은 아이콘 없음
+            weatherIcon.sprite = shownWeather == WeatherKind.Rain ? rainIcon : cloudIcon;
         }
         if (rod != null && rod.selectedBait != shownBait)
         {
@@ -174,6 +181,21 @@ public class HudPanel : MonoBehaviour
     }
 
     static Color C(float r, float g, float b) { return new Color(r, g, b, 1f); }
+
+    // 구름(비 올 때는 빗방울 줄을 더함)
+    static Sprite Cloud(bool rain)
+    {
+        float lift = rain ? 0.28f : 0.05f;
+        return Paint(p =>
+        {
+            var q = new Vector2(p.x, p.y - lift);
+            bool body = (q - new Vector2(-0.4f, -0.12f)).magnitude < 0.34f || (q - new Vector2(0.02f, 0.14f)).magnitude < 0.46f
+                     || (q - new Vector2(0.5f, -0.12f)).magnitude < 0.32f || (Mathf.Abs(q.x - 0.05f) < 0.78f && q.y > -0.42f && q.y < -0.1f);
+            if (body) return C(0.86f, 0.9f, 0.96f);
+            if (rain && p.y < -0.42f && p.y > -0.92f && Mathf.Repeat(p.x * 3.4f + p.y * 1.2f, 1f) < 0.22f && Mathf.Abs(p.x) < 0.7f) return C(0.45f, 0.72f, 1f);
+            return Color.clear;
+        });
+    }
 
     static Sprite Sun()
     {

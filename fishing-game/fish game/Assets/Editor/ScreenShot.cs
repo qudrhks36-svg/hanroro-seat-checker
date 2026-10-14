@@ -89,6 +89,47 @@ public static class ScreenShot
         Debug.Log("DIALOG SHOTS done");
     }
 
+    // 날씨별 모습 사진(편집 중 장면은 저장하지 않음): 맑음 / 흐림 / 비 (낮과 노을)
+    public static void Weathers()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        var tod = UnityEngine.Object.FindFirstObjectByType<TimeOfDay>();
+        var cam = Camera.main;
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = false;
+        cam.transform.SetPositionAndRotation(new Vector3(-15, 1.7f, 0), Quaternion.Euler(8, 270, 0));
+        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public;
+        var hud = new GameObject("TmpHud").AddComponent<HudPanel>(); hud.SendMessage("Awake");
+        foreach (var cv in UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+            if (cv.isRootCanvas && cv.renderMode == RenderMode.ScreenSpaceOverlay) { cv.renderMode = RenderMode.ScreenSpaceCamera; cv.worldCamera = cam; cv.planeDistance = 1f; }
+        var w = new GameObject("TmpWeather").AddComponent<Weather>(); w.SendMessage("Awake");
+        var rain = (ParticleSystem)typeof(Weather).GetField("rain", bf).GetValue(w);
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        var cases = new[] { ("clear", WeatherKind.Clear, 0f, 0f), ("cloudy", WeatherKind.Cloudy, 0.6f, 0f), ("rain", WeatherKind.Rain, 1f, 1f) };
+        foreach (var clock in new[] { 0f, 300f })
+            foreach (var c in cases)
+            {
+                typeof(Weather).GetProperty("Current").GetSetMethod(true).Invoke(null, new object[] { c.Item2 });
+                typeof(Weather).GetProperty("Overcast").GetSetMethod(true).Invoke(null, new object[] { c.Item3 });
+                typeof(Weather).GetProperty("Rain").GetSetMethod(true).Invoke(null, new object[] { c.Item4 });
+                tod.Apply(clock); hud.SendMessage("Update");
+                rain.Clear();
+                if (c.Item4 > 0f)
+                {
+                    var em = rain.emission; em.rateOverTime = 1000f;
+                    rain.transform.position = cam.transform.position + Vector3.up * 9f + cam.transform.forward * 6f;
+                    rain.Simulate(1.5f, true, true, true);
+                }
+                cam.targetTexture = rt; Canvas.ForceUpdateCanvases(); cam.Render();
+                RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+                File.WriteAllBytes(Path.Combine(outDir, "w_" + c.Item1 + (clock > 0f ? "_sunset" : "_day") + ".png"), tex.EncodeToPNG());
+            }
+        cam.targetTexture = null;
+        Debug.Log("WEATHER SHOTS done");
+    }
+
     // 낚싯대 단계별 모습 사진(편집 중 장면은 저장하지 않음)
     public static void Rods()
     {
