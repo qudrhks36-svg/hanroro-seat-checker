@@ -89,6 +89,30 @@ public static class ScreenShot
         Debug.Log("DIALOG SHOTS done");
     }
 
+    // 낚싯대 단계별 모습 사진(편집 중 장면은 저장하지 않음)
+    public static void Rods()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        UnityEngine.Object.FindFirstObjectByType<TimeOfDay>().Apply(0f);
+        var cam = Camera.main;
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = false;
+        cam.transform.SetPositionAndRotation(new Vector3(-15, 1.7f, 0), Quaternion.Euler(8, 270, 0));
+        var look = new GameObject("TmpRodLook").AddComponent<RodLook>();
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        for (int lv = 0; lv < 3; lv++)
+        {
+            RodUpgrade.Level = lv; look.SendMessage("Update");
+            cam.targetTexture = rt; cam.Render();
+            RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+            File.WriteAllBytes(Path.Combine(outDir, "rod_" + lv + ".png"), tex.EncodeToPNG());
+        }
+        cam.targetTexture = null; RodUpgrade.Level = 0;
+        Debug.Log("ROD SHOTS done");
+    }
+
     // 낚시 연출 사진(편집 중 장면은 저장하지 않음): 결과 카드(새로 잡은 희귀 / 흔함 / 튀어오르는 순간), 상태창의 도감 줄, 물보라를 찍는다.
     public static void Fx()
     {

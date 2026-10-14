@@ -119,6 +119,17 @@ public static class SfxSynth
         return o;
     }
 
+    // 낚싯대 구매 "착-띠링": 낮고 짧은 "착" 한 번 + 반짝이는 두 음
+    public static float[] Upgrade()
+    {
+        var o = new float[(int)(Rate * 1.1f)];
+        Soft(o, 0f, 0.12f, 220f, 150f, 0.9f);
+        Bell(o, 0.14f, 1046.5f, 0.35f, 0.8f, 6f);
+        Bell(o, 0.26f, 1568f, 0.8f, 1f, 4f);
+        Normalize(o, 0.7f);
+        return o;
+    }
+
     // 놓침 "뿌-웅": 낮게 내려가는 두 음. 동그랗고 부드럽게
     public static float[] Miss()
     {
