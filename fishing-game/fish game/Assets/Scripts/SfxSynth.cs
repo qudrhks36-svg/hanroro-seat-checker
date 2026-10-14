@@ -130,6 +130,17 @@ public static class SfxSynth
         return o;
     }
 
+    // 풍경 "딩-동-딩": 높고 맑은 종소리 세 번이 길게 울림(바람결에 흩어진 듯 간격이 고르지 않음)
+    public static float[] Chime()
+    {
+        var o = new float[(int)(Rate * 2.6f)];
+        Bell(o, 0.00f, 1568f, 1.3f, 0.8f, 3.5f);
+        Bell(o, 0.35f, 2093f, 1.4f, 0.7f, 3.5f);
+        Bell(o, 0.80f, 1760f, 1.6f, 0.75f, 3.2f);
+        Normalize(o, 0.55f);
+        return o;
+    }
+
     // 놓침 "뿌-웅": 낮게 내려가는 두 음. 동그랗고 부드럽게
     public static float[] Miss()
     {

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 // 바틀이(햄스터): 3m 안에서 바라보고 E → 대화창. 왼쪽 클릭 = 물고기 모두 판매. E/Esc = 닫기.
-// 열려 있는 동안 시간이 멈춘다. 소지금 표시(화면 하단 오른쪽)도 여기서 만든다.
+// F = 집 꾸미기 창(DecorShop). 열려 있는 동안 시간이 멈춘다. 소지금 표시(화면 하단 오른쪽)도 여기서 만든다.
 [DefaultExecutionOrder(-20)]
 public class ShopNPC : MonoBehaviour
 {
@@ -48,6 +48,8 @@ public class ShopNPC : MonoBehaviour
 
         if (IsOpen)
         {
+            if (DecorShop.IsOpen || Time.frameCount == DecorShop.ClosedFrame) return;   // 꾸미기 창이 열려 있는 동안·닫은 프레임엔 입력을 그쪽이 처리
+            if (kb.fKey.wasPressedThisFrame) { DecorShop.Open(); return; }
             if (kb.eKey.wasPressedThisFrame || kb.escapeKey.wasPressedThisFrame) { SetOpen(false); return; }
             if (mouse.leftButton.wasPressedThisFrame && Inventory.TotalCount > 0)
             {
@@ -110,15 +112,16 @@ public class ShopNPC : MonoBehaviour
             for (int i = 0; i < Inventory.Counts.Length; i++)
                 if (Inventory.Counts[i] > 0) sb.Append(FishTable.All[i].name).Append(" x").Append(Inventory.Counts[i]).Append("   ");
             sb.Append("\n합계 ").Append(Inventory.TotalValue).Append("원");
-            hints.Add("왼쪽 클릭|모두 팔기");
+            hints.Add("왼쪽 클릭|팔기");
         }
         else if (!sold) sb.Append("(팔 물고기가 없어요)");
         sb.Append("\n낚싯대: ").Append(RodUpgrade.Name);
         if (!RodUpgrade.IsMax)
         {
             sb.Append("   —   다음: ").Append(RodUpgrade.NextName).Append(" ").Append(RodUpgrade.NextCost).Append("원");
-            hints.Add("오른쪽 클릭|" + RodUpgrade.NextName + " " + RodUpgrade.NextCost + "원");
+            hints.Add("오른쪽 클릭|낚싯대 " + RodUpgrade.NextCost + "원");
         }
+        hints.Add("F|꾸미기");
         hints.Add("E / Esc|닫기");
         view.Set(message, sb.ToString(), hints.ToArray());
     }

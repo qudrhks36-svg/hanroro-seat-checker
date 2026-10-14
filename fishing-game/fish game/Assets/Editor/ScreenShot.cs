@@ -89,6 +89,82 @@ public static class ScreenShot
         Debug.Log("DIALOG SHOTS done");
     }
 
+    // 집 꾸미기 사진(편집 중 장면은 저장하지 않음): 장식 전부+오두막 3단계를 낮/밤에, 꾸미기 창, 바틀이 대화창 안내 칸
+    public static void Homes()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        var tod = UnityEngine.Object.FindFirstObjectByType<TimeOfDay>();
+        var cam = Camera.main;
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = false;
+        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public;
+        Home.OwnedMask = (1 << Home.ItemCount) - 1; Home.CabinLevel = int.Parse(Environment.GetEnvironmentVariable("FG_CABIN") ?? "2");
+        var home = new GameObject("TmpHome").AddComponent<HomeDecor>(); home.SendMessage("Awake");
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        System.Action<string> shot = name =>
+        {
+            cam.targetTexture = rt; Canvas.ForceUpdateCanvases(); cam.Render();
+            RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+            File.WriteAllBytes(Path.Combine(outDir, name + ".png"), tex.EncodeToPNG());
+        };
+        var poses = new[] { ("front", new Vector3(-8f, 2.2f, -4.5f), 0f, 6f), ("side", new Vector3(-4.2f, 2.0f, -6f), -42f, 8f), ("parasol", new Vector3(-8f, 2.0f, -2.5f), 28f, 10f), ("chimney", new Vector3(-5.5f, 4.2f, -3f), -30f, -6f), ("above", new Vector3(-1f, 9f, -1f), -52f, 30f) };
+        foreach (var clock in new[] { 0f, 470f })
+        {
+            tod.Apply(clock); home.SendMessage("Update");
+            foreach (var ps in home.GetComponentsInChildren<ParticleSystem>()) ps.Simulate(2f, true, true, true);
+            foreach (var p in poses)
+            {
+                cam.transform.SetPositionAndRotation(p.Item2, Quaternion.Euler(p.Item4, p.Item3, 0f));
+                shot("home_" + p.Item1 + (clock > 0f ? "_night" : "_day"));
+            }
+        }
+        // 꾸미기 창
+        tod.Apply(0f); Inventory.Money = 250;
+        var shop = new GameObject("TmpDecorShop").AddComponent<DecorShop>(); shop.SendMessage("Awake");
+        typeof(DecorShop).GetField("instance", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).SetValue(null, shop);
+        Home.OwnedMask = 0b00101; Home.CabinLevel = 1;
+        typeof(DecorShop).GetMethod("SetOpen", bf).Invoke(shop, new object[] { true });
+        foreach (var cv in shop.GetComponentsInChildren<Canvas>(true)) { cv.renderMode = RenderMode.ScreenSpaceCamera; cv.worldCamera = cam; cv.planeDistance = 1f; }
+        cam.transform.SetPositionAndRotation(new Vector3(-15, 1.7f, 0), Quaternion.Euler(8, 270, 0));
+        shot("home_shop");
+        // 바틀이 대화창의 안내 칸(가장 긴 경우)
+        typeof(DecorShop).GetMethod("SetOpen", bf).Invoke(shop, new object[] { false });
+        var canvasGo = new GameObject("TmpDlg"); var dc = canvasGo.AddComponent<Canvas>(); dc.renderMode = RenderMode.ScreenSpaceCamera; dc.worldCamera = cam; dc.planeDistance = 1f;
+        var view = DialogView.Build(canvasGo.transform, "바틀이", true);
+        view.Set("저, 저기… 물고기 잡으셨네요.", "고등어 x2   도미 x1\n합계 30원\n낚싯대: 기본 낚싯대   —   다음: 튼튼한 낚싯대 200원",
+                 "왼쪽 클릭|팔기", "오른쪽 클릭|낚싯대 200원", "F|꾸미기", "E / Esc|닫기");
+        shot("home_dialog");
+        cam.targetTexture = null;
+        Debug.Log("HOME SHOTS done");
+    }
+
+    // 임의 시점 사진: FG_CAMS="x,y,z,pitch,yaw;..." (파일 이름 view_0, view_1 ...). 작업 중 자리 확인용.
+    public static void Views()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        UnityEngine.Object.FindFirstObjectByType<TimeOfDay>().Apply(float.Parse(Environment.GetEnvironmentVariable("FG_CLOCK") ?? "0"));
+        var cam = Camera.main;
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = false;
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        int i = 0;
+        foreach (var spec in Environment.GetEnvironmentVariable("FG_CAMS").Split(';'))
+        {
+            var v = spec.Split(',');
+            float[] f = Array.ConvertAll(v, float.Parse);
+            cam.transform.SetPositionAndRotation(new Vector3(f[0], f[1], f[2]), Quaternion.Euler(f[3], f[4], 0f));
+            cam.targetTexture = rt; cam.Render();
+            RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+            File.WriteAllBytes(Path.Combine(outDir, "view_" + i++ + ".png"), tex.EncodeToPNG());
+        }
+        cam.targetTexture = null;
+        Debug.Log("VIEWS done");
+    }
+
     // 이벤트 사진(편집 중 장면은 저장하지 않음): 해변의 병 + 줍기 안내, 쪽지 카드, 하늘의 갈매기
     public static void Events()
     {

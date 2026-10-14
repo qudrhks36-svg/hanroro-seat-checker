@@ -6,7 +6,7 @@ using UnityEngine.UI;
 // ShopNPC·TalkNPC가 같이 쓴다. 내용(말·판매·구매)은 각 NPC가 정하고, 여기는 보이는 모양만 맡는다.
 public class DialogView
 {
-    const float W = 900f, MaxChips = 3;
+    const float W = 900f, MaxChips = 4;
     static readonly Color Cream = new Color(0.99f, 0.95f, 0.86f, 0.97f);
     static readonly Color CreamDark = new Color(0.96f, 0.87f, 0.70f, 1f);
     static readonly Color Ink = new Color(0.22f, 0.15f, 0.10f);
