@@ -355,6 +355,12 @@ public static class ScreenShot
         typeof(CatalogUI).GetMethod("SetOpen", bf).Invoke(cat, new object[] { true });
         foreach (var cv in cat.GetComponentsInChildren<Canvas>(true)) if (cv.isRootCanvas || cv.renderMode == RenderMode.ScreenSpaceOverlay) { cv.renderMode = RenderMode.ScreenSpaceCamera; cv.worldCamera = cam; cv.planeDistance = 1f; }
         shot("fx_catalog");
+        foreach (var (idx, nm) in new[] { (15, "fx_catalog_far"), (5, "fx_catalog_unknown"), (11, "fx_catalog_rare") })
+        {
+            typeof(CatalogUI).GetField("selected", bf).SetValue(cat, idx);
+            typeof(CatalogUI).GetMethod("Refresh", bf).Invoke(cat, null);
+            shot(nm);
+        }
         cam.targetTexture = null;
         Debug.Log("FX SHOTS done");
     }
