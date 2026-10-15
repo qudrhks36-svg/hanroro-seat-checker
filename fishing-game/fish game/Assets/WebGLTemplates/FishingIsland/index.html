@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>낚시 섬 · 힐링 낚시 게임</title>
+    <meta name="description" content="한적한 섬에서 느긋하게 낚시하는 힐링 게임. 물고기를 낚고, 도감을 채우고, 오두막을 꾸며 보세요. 브라우저에서 바로 플레이(PC).">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="낚시 섬 · 힐링 낚시 게임">
+    <meta property="og:description" content="한적한 섬에서 느긋하게 낚시하는 힐링 게임. 브라우저에서 바로 플레이(PC).">
+    <meta property="og:image" content="https://fishing-game-web.vercel.app/TemplateData/preview.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <main id="page">
+      <h1 id="title">낚시 섬</h1>
+      <div id="unity-container">
+        <canvas id="unity-canvas" width=1280 height=720 tabindex="-1"></canvas>
+        <div id="unity-loading-bar">
+          <div id="loading-card">
+            <div id="loading-title">낚시 섬으로 가는 중…</div>
+            <div id="unity-progress-bar-empty"><div id="unity-progress-bar-full"></div></div>
+            <div id="loading-tip">처음엔 조금 걸려요(약 20MB). 잠시만 기다려 주세요.</div>
+          </div>
+        </div>
+        <div id="unity-warning"> </div>
+      </div>
+      <div id="controls">
+        <span><b>클릭</b> 시작</span><span><b>WASD</b> 이동</span><span><b>마우스</b> 시점</span><span><b>왼쪽 클릭</b> 낚시</span>
+        <span><b>1·2·3</b> 미끼</span><span><b>E</b> 말 걸기·줍기·배</span><span><b>Tab</b> 도감</span><span><b>P</b> 사진</span><span><b>M</b> 소리</span>
+        <button id="unity-fullscreen-button" type="button">전체 화면</button>
+      </div>
+      <footer id="credits">BGM: monume · 글꼴: 나눔고딕(OFL) · 저장은 이 브라우저에 자동으로 돼요</footer>
+    </main>
+    <div id="desktop-only" hidden>
+      <h2>낚시 섬</h2>
+      <p>이 게임은 <b>PC(키보드와 마우스)</b>에서 플레이할 수 있어요.<br>컴퓨터의 브라우저로 이 주소를 열어 주세요.</p>
+    </div>
+    <script>
+      var canvas = document.querySelector("#unity-canvas");
+
+      // 알림(경고·오류) 띠
+      function unityShowBanner(msg, type) {
+        var warningBanner = document.querySelector("#unity-warning");
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px; color: white;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      // 화면 크기에 맞춰 16:9 상자로 키움(최대 1600x900). 게임 안 글자·칸은 1280x720 기준으로 만들었어요.
+      function fit() {
+        var w = Math.min(window.innerWidth - 24, (window.innerHeight - 150) * 16 / 9, 1600);
+        w = Math.max(w, 480);
+        canvas.style.width = w + "px";
+        canvas.style.height = (w * 9 / 16) + "px";
+        document.querySelector("#unity-container").style.width = w + "px";
+        document.querySelector("#unity-container").style.height = (w * 9 / 16) + "px";
+      }
+      window.addEventListener("resize", fit);
+      fit();
+
+      // 터치 기기(키보드·마우스가 없는 폰·태블릿)에서는 게임을 불러오지 않고 안내만 보여 줌
+      var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (window.matchMedia && matchMedia("(pointer: coarse)").matches && !matchMedia("(pointer: fine)").matches);
+      if (isMobile) {
+        document.querySelector("#page").style.display = "none";
+        document.querySelector("#desktop-only").hidden = false;
+      } else {
+        var buildUrl = "Build";
+        var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
+        var config = {
+          arguments: [],
+          dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+          frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+#if USE_THREADS
+          workerUrl: buildUrl + "/{{{ WORKER_FILENAME }}}",
+#endif
+#if USE_WASM
+          codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+          symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
+#endif
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+          productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+          productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+          showBanner: unityShowBanner,
+        };
+        document.querySelector("#unity-loading-bar").style.display = "flex";
+
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+          createUnityInstance(canvas, config, (progress) => {
+            document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+          }).then((unityInstance) => {
+            document.querySelector("#unity-loading-bar").style.display = "none";
+            document.querySelector("#unity-fullscreen-button").onclick = () => { unityInstance.SetFullscreen(1); };
+          }).catch((message) => {
+            document.querySelector("#loading-title").textContent = "게임을 불러오지 못했어요";
+            document.querySelector("#loading-tip").textContent = "페이지를 새로고침하거나, 최신 크롬·엣지·파이어폭스로 열어 주세요. (" + message + ")";
+          });
+        };
+        document.body.appendChild(script);
+      }
+    </script>
+  </body>
+</html>

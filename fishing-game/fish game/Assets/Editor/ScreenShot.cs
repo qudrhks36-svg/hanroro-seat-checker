@@ -110,14 +110,14 @@ public static class ScreenShot
             File.WriteAllBytes(Path.Combine(outDir, name + ".png"), tex.EncodeToPNG());
         };
         var poses = new[] { ("front", new Vector3(-8f, 2.2f, -4.5f), 0f, 6f), ("side", new Vector3(-4.2f, 2.0f, -6f), -42f, 8f), ("parasol", new Vector3(-8f, 2.0f, -2.5f), 28f, 10f), ("chimney", new Vector3(-5.5f, 4.2f, -3f), -30f, -6f), ("above", new Vector3(-1f, 9f, -1f), -52f, 30f), ("hammock", new Vector3(-8f, 1.7f, -3.5f), 270f, 8f) };
-        foreach (var clock in new[] { 0f, 470f })
+        foreach (var clock in new[] { 0f, 300f, 470f })
         {
             tod.Apply(clock); home.SendMessage("Update");
             foreach (var ps in home.GetComponentsInChildren<ParticleSystem>()) ps.Simulate(2f, true, true, true);
             foreach (var p in poses)
             {
                 cam.transform.SetPositionAndRotation(p.Item2, Quaternion.Euler(p.Item4, p.Item3, 0f));
-                shot("home_" + p.Item1 + (clock > 0f ? "_night" : "_day"));
+                shot("home_" + p.Item1 + (clock == 0f ? "_day" : clock < 400f ? "_sunset" : "_night"));
             }
         }
         foreach (var t in home.GetComponentsInChildren<Transform>(true)) if (t.name == "Hammock" || t.name == "Home_Hammock(Clone)" || t.name == "Post") Debug.Log("HMDBG " + t.name + " lp=" + t.localPosition + " lr=" + t.localEulerAngles + " ls=" + t.localScale + " wp=" + t.position);

@@ -26,6 +26,7 @@ public static class WebBuild
 
     static void Run(string scenePath, string outDir)
     {
+        PlayerSettings.WebGL.template = "PROJECT:FishingIsland";   // 공개용 웹 페이지 틀(Assets/WebGLTemplates/FishingIsland). 제품 이름은 그대로 둔다(바꾸면 브라우저 저장이 새로 시작됨).
         var r = BuildPipeline.BuildPlayer(new BuildPlayerOptions
         {
             scenes = new[] { scenePath },
