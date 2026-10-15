@@ -7,10 +7,12 @@ public class FishData
     public string name;
     public Rarity rarity;
     public Period[] periods; // 잡히는 시간대
+    public bool farSea;      // true면 먼 바다에서만 잡힘 (GDD 9번 먼 바다 낚시터)
     public FishData(string name, Rarity rarity, params Period[] periods)
     {
         this.name = name; this.rarity = rarity; this.periods = periods;
     }
+    public FishData(string name, Rarity rarity, bool farSea, params Period[] periods) : this(name, rarity, periods) { this.farSea = farSea; }
     public bool In(Period p) { return System.Array.IndexOf(periods, p) >= 0; }
 }
 
@@ -33,6 +35,10 @@ public static class FishTable
         new FishData("해파리", Rarity.Uncommon, N),
         new FishData("달빛고기", Rarity.Rare, N),
         new FishData("무지개고기", Rarity.Rare, D, S),
+        new FishData("참치", Rarity.Common, true, D, S, N),          // 13~16: 먼 바다 전용
+        new FishData("청새치", Rarity.Uncommon, true, D, S),
+        new FishData("초롱아귀", Rarity.Uncommon, true, N),
+        new FishData("별고래", Rarity.Rare, true, S, N),
     };
 
     public static string RarityName(Rarity r)
@@ -47,12 +53,12 @@ public static class FishTable
 
     // 구분 확률은 미끼마다 다름(BaitInfo.Weights), 같은 구분 안에서는 균등.
     // 현재 시간대에 물고기가 없는 구분의 확률은 흔함으로 합친다 (GDD 7번).
-    public static FishData Pick(Period period, Bait bait)
+    public static FishData Pick(Period period, Bait bait, bool farSea = false)
     {
         float[] w = BaitInfo.Weights(bait);
         var pool = new System.Collections.Generic.List<FishData>[3];
         for (int i = 0; i < 3; i++) pool[i] = new System.Collections.Generic.List<FishData>();
-        foreach (var f in All) if (f.In(period)) pool[(int)f.rarity].Add(f);
+        foreach (var f in All) if (f.farSea == farSea && f.In(period)) pool[(int)f.rarity].Add(f);   // 섬 근처와 먼 바다는 서로 다른 물고기
 
         for (int i = 1; i < 3; i++)
             if (pool[i].Count == 0) { w[0] += w[i]; w[i] = 0f; }

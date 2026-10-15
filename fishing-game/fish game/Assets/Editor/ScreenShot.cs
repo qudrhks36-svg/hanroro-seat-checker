@@ -141,6 +141,37 @@ public static class ScreenShot
         Debug.Log("HOME SHOTS done");
     }
 
+    // 먼 바다 사진(편집 중 장면은 저장하지 않음): 부두의 배, 먼 바다의 배(낮/밤), 도감 16칸
+    public static void Fars()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        var tod = UnityEngine.Object.FindFirstObjectByType<TimeOfDay>();
+        var cam = Camera.main;
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = false;
+        var fs = new GameObject("TmpFarSea").AddComponent<FarSea>(); fs.SendMessage("Awake");
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        System.Action<string> shot = name =>
+        {
+            cam.targetTexture = rt; Canvas.ForceUpdateCanvases(); cam.Render();
+            RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+            File.WriteAllBytes(Path.Combine(outDir, name + ".png"), tex.EncodeToPNG());
+        };
+        tod.Apply(0f);
+        cam.transform.SetPositionAndRotation(new Vector3(24f, 1.7f, -0.6f), Quaternion.Euler(18f, 180f, 0f)); shot("far_dock_day");
+        cam.transform.SetPositionAndRotation(new Vector3(18f, 3f, -7f), Quaternion.Euler(15f, 40f, 0f)); shot("far_dock_side");
+        cam.transform.SetPositionAndRotation(new Vector3(95f, 1.9f, -40f), Quaternion.Euler(6f, -67f, 0f)); shot("far_boat_view_island");
+        cam.transform.SetPositionAndRotation(new Vector3(88f, 2.5f, -36f), Quaternion.Euler(14f, 120f, 0f)); shot("far_boat_day");
+        tod.Apply(450f);
+        fs.SendMessage("Update");
+        cam.transform.SetPositionAndRotation(new Vector3(88f, 2.5f, -36f), Quaternion.Euler(14f, 120f, 0f)); shot("far_boat_night");
+        cam.transform.SetPositionAndRotation(new Vector3(24f, 1.7f, -0.6f), Quaternion.Euler(18f, 180f, 0f)); shot("far_dock_night");
+        cam.targetTexture = null;
+        Debug.Log("FAR SHOTS done");
+    }
+
     // 임의 시점 사진: FG_CAMS="x,y,z,pitch,yaw;..." (파일 이름 view_0, view_1 ...). 작업 중 자리 확인용.
     public static void Views()
     {
@@ -304,7 +335,7 @@ public static class ScreenShot
         };
         System.Action<float> setTime = back => { typeof(ResultCard).GetField("t0", bf).SetValue(card, Time.unscaledTime - back); card.SendMessage("Update"); };
 
-        ResultCard.Show(FishTable.All[11], true, new Vector3(-23, -0.1f, 0), cam, false, 67, false); setTime(1.5f); shot("fx_card_new_rare");
+        ResultCard.Show(FishTable.All[15], true, new Vector3(-23, -0.1f, 0), cam, false, 67, false); setTime(1.5f); shot("fx_card_new_rare");
         Goal.Progress = 2; ResultCard.Show(FishTable.All[0], false, new Vector3(-23, -0.1f, 0), cam, true, 31, true); setTime(1.5f); shot("fx_card_common");
         ResultCard.Show(FishTable.All[3], true, new Vector3(-23, -0.1f, 0), cam); setTime(0.35f); shot("fx_jump");
         setTime(99f);   // 카드 숨김

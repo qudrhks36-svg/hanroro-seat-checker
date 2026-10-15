@@ -6,7 +6,7 @@ using UnityEngine;
 // 실행: Unity.exe -batchmode -quit -projectPath ... -executeMethod FishSetup.Run
 public static class FishSetup
 {
-    static readonly string[] Files = { "Fish_09_Seahorse", "Fish_10_Jelly", "Fish_11_Moonfish", "Fish_12_Rainbow" };
+    static readonly string[] Files = { "Fish_09_Seahorse", "Fish_10_Jelly", "Fish_11_Moonfish", "Fish_12_Rainbow", "Fish_13_Tuna", "Fish_14_Marlin", "Fish_15_Angler", "Fish_16_StarWhale" };
 
     public static void Run()
     {

@@ -82,7 +82,7 @@ public class CatalogUI : MonoBehaviour
         bigPicture.sprite = SpriteOf(selected);
         bigPicture.color = seen ? Color.white : Color.black;   // 실루엣
         nameText.text = seen ? f.name : "???";
-        infoText.text = seen ? "구분: " + FishTable.RarityName(f.rarity) + "\n잡은 수: " + Collection.Counts[selected] + "\n최고 기록: " + Collection.BestCm[selected] + "cm" : "아직 못 잡았어요";
+        infoText.text = seen ? "구분: " + FishTable.RarityName(f.rarity) + (f.farSea ? " · 먼 바다" : "") + "\n잡은 수: " + Collection.Counts[selected] + "\n최고 기록: " + Collection.BestCm[selected] + "cm" : "아직 못 잡았어요";
     }
 
     internal static Color RarityColor(Rarity r)
@@ -132,16 +132,16 @@ public class CatalogUI : MonoBehaviour
             c.transform.SetParent(panel.transform, false);
             cellBg[i] = c.AddComponent<Image>();
             cells[i] = cellBg[i].rectTransform;
-            Place(cells[i], new Vector2(32.5f + (i % 4) * 117, 100 - (i / 4) * 110), new Vector2(105, 105)); // 4칸이 패널(폭 900) 안에 들어오게
+            Place(cells[i], new Vector2(32.5f + (i % 4) * 117, 112 - (i / 4) * 92), new Vector2(105, 86)); // 4칸이 패널(폭 900) 안에 들어오게, 4줄(16칸)이 패널 높이 안에 들어오게
             var iconGo = new GameObject("Icon");
             iconGo.transform.SetParent(c.transform, false);
             cellIcon[i] = iconGo.AddComponent<Image>();
             cellIcon[i].preserveAspect = true; cellIcon[i].raycastTarget = false;
             cellIcon[i].sprite = SpriteOf(i);
-            Place(cellIcon[i].rectTransform, new Vector2(0, 14), new Vector2(92, 64));
+            Place(cellIcon[i].rectTransform, new Vector2(0, 12), new Vector2(84, 52));
             var t = MakeText("Label", 18, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(105, 26));
             t.transform.SetParent(c.transform, false);
-            Place(t.rectTransform, new Vector2(0, -38), new Vector2(105, 26));
+            Place(t.rectTransform, new Vector2(0, -31), new Vector2(105, 26));
             cellText[i] = t;
         }
         MakeText("Hint", 22, TextAnchor.MiddleCenter, new Vector2(0, -235), new Vector2(600, 40)).text = "Tab 또는 Esc: 닫기";

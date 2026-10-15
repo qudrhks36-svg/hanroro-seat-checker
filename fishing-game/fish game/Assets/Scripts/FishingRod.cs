@@ -56,6 +56,7 @@ public class FishingRod : MonoBehaviour
         var mouse = Mouse.current;
         var kb = Keyboard.current;
         if (mouse == null || kb == null) return;
+        if (FarSea.Busy) return;   // 배로 이동하는 동안(화면이 어두워지는 사이)엔 던지기 등 입력을 막음
 
         // 미끼 선택: 숫자키 1·2·3 (대기 중일 때만)
         if (state == State.Idle && Cursor.lockState == CursorLockMode.Locked)
@@ -151,7 +152,7 @@ public class FishingRod : MonoBehaviour
     // 입질 타이밍 성공 → 물고기를 정하고 릴 감기 시작
     void Hook()
     {
-        hooked = FishTable.Pick(TimeOfDay.Current, castBait);
+        hooked = FishTable.Pick(TimeOfDay.Current, castBait, FarSea.Active);   // 먼 바다에서는 먼 바다 전용 물고기만
         if (bangLabel != null) bangLabel.gameObject.SetActive(false);
         zonePos = 0.5f; fishPos = 0.5f; fishTarget = 0.5f; retargetTimer = 0f;
         gauge = reelStart;
