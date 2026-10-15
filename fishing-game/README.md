@@ -1,4 +1,4 @@
-# 낚시 섬 (Fishing Island)
+# BOTTLE ISLAND
 
 한적한 섬에서 느긋하게 낚시하는 1인칭 힐링 게임. 브라우저(PC)에서 바로 플레이해요.
 

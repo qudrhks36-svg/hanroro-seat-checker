@@ -4,24 +4,32 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>낚시 섬 · 힐링 낚시 게임</title>
-    <meta name="description" content="한적한 섬에서 느긋하게 낚시하는 힐링 게임. 물고기를 낚고, 도감을 채우고, 오두막을 꾸며 보세요. 브라우저에서 바로 플레이(PC).">
+    <title>BOTTLE ISLAND · 힐링 낚시 게임</title>
+    <meta name="description" content="바다 위 작은 섬에서 느긋하게 낚시하는 힐링 게임. 물고기를 낚고, 도감을 채우고, 오두막을 꾸며 보세요. 브라우저에서 바로 플레이(PC).">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="낚시 섬 · 힐링 낚시 게임">
-    <meta property="og:description" content="한적한 섬에서 느긋하게 낚시하는 힐링 게임. 브라우저에서 바로 플레이(PC).">
+    <meta property="og:title" content="BOTTLE ISLAND · 힐링 낚시 게임">
+    <meta property="og:description" content="바다 위 작은 섬에서 느긋하게 낚시하는 힐링 게임. 브라우저에서 바로 플레이(PC).">
     <meta property="og:image" content="https://fishing-game-web.vercel.app/TemplateData/preview.png">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
+    <div id="sun"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
     <main id="page">
-      <h1 id="title">낚시 섬</h1>
+      <header id="head">
+        <h1 id="title">BOTTLE ISLAND</h1>
+        <p id="subtitle">느긋하게 낚시하고, 도감을 채우고, 집을 꾸미는 힐링 섬</p>
+      </header>
       <div id="unity-container">
         <canvas id="unity-canvas" width=1280 height=720 tabindex="-1"></canvas>
         <div id="unity-loading-bar">
           <div id="loading-card">
-            <div id="loading-title">낚시 섬으로 가는 중…</div>
+            <div id="loading-title">섬으로 가는 중…</div>
             <div id="unity-progress-bar-empty"><div id="unity-progress-bar-full"></div></div>
             <div id="loading-tip">처음엔 조금 걸려요(약 20MB). 잠시만 기다려 주세요.</div>
           </div>
@@ -29,14 +37,18 @@
         <div id="unity-warning"> </div>
       </div>
       <div id="controls">
-        <span><b>클릭</b> 시작</span><span><b>WASD</b> 이동</span><span><b>마우스</b> 시점</span><span><b>왼쪽 클릭</b> 낚시</span>
-        <span><b>1·2·3</b> 미끼</span><span><b>E</b> 말 걸기·줍기·배</span><span><b>Tab</b> 도감</span><span><b>P</b> 사진</span><span><b>M</b> 소리</span>
+        <span class="chip c-mint"><b>클릭</b> 시작</span><span class="chip c-peach"><b>WASD</b> 이동</span><span class="chip c-lemon"><b>마우스</b> 시점</span><span class="chip c-sky"><b>왼쪽 클릭</b> 낚시</span>
+        <span class="chip c-mint"><b>1·2·3</b> 미끼</span><span class="chip c-peach"><b>E</b> 말 걸기·줍기·배</span><span class="chip c-lemon"><b>Tab</b> 도감</span><span class="chip c-sky"><b>P</b> 사진</span><span class="chip c-mint"><b>M</b> 소리</span>
         <button id="unity-fullscreen-button" type="button">전체 화면</button>
       </div>
       <footer id="credits">BGM: monume · 글꼴: 나눔고딕(OFL) · 저장은 이 브라우저에 자동으로 돼요</footer>
     </main>
+    <svg id="waves" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,60 C240,110 480,10 720,60 C960,110 1200,10 1440,60 L1440,120 L0,120 Z" fill="#9fdbe8" opacity=".55"/>
+      <path d="M0,80 C260,40 520,110 780,75 C1040,40 1240,100 1440,70 L1440,120 L0,120 Z" fill="#7cc8da" opacity=".5"/>
+    </svg>
     <div id="desktop-only" hidden>
-      <h2>낚시 섬</h2>
+      <h2>BOTTLE ISLAND</h2>
       <p>이 게임은 <b>PC(키보드와 마우스)</b>에서 플레이할 수 있어요.<br>컴퓨터의 브라우저로 이 주소를 열어 주세요.</p>
     </div>
     <script>
@@ -51,9 +63,9 @@
         var div = document.createElement('div');
         div.innerHTML = msg;
         warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px; color: white;';
+        if (type == 'error') div.style = 'background: #e8584d; padding: 10px; color: white; border-radius: 10px;';
         else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          if (type == 'warning') div.style = 'background: #ffe9a8; padding: 10px; border-radius: 10px; color: #5a4220;';
           setTimeout(function() {
             warningBanner.removeChild(div);
             updateBannerVisibility();
@@ -64,7 +76,7 @@
 
       // 화면 크기에 맞춰 16:9 상자로 키움(최대 1600x900). 게임 안 글자·칸은 1280x720 기준으로 만들었어요.
       function fit() {
-        var w = Math.min(window.innerWidth - 24, (window.innerHeight - 150) * 16 / 9, 1600);
+        var w = Math.min(window.innerWidth - 24, (window.innerHeight - 210) * 16 / 9, 1600);
         w = Math.max(w, 480);
         canvas.style.width = w + "px";
         canvas.style.height = (w * 9 / 16) + "px";
@@ -101,7 +113,13 @@
           productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
           showBanner: unityShowBanner,
         };
-        document.querySelector("#unity-loading-bar").style.display = "flex";
+        var bar = document.querySelector("#unity-loading-bar");
+        bar.style.display = "flex";
+
+        // 게임이 실제로 몇 프레임 그려진 뒤(게임이 FG_Ready로 알려 줌)에 불러오는 화면을 걷는다 → 까만 첫 화면이 보이지 않게. 못 받아도 25초 뒤엔 걷음.
+        var hidden = false;
+        function hideLoading() { if (hidden) return; hidden = true; bar.classList.add("done"); setTimeout(function () { bar.style.display = "none"; }, 700); }
+        window.fgGameReady = hideLoading;
 
         var script = document.createElement("script");
         script.src = loaderUrl;
@@ -109,8 +127,10 @@
           createUnityInstance(canvas, config, (progress) => {
             document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
           }).then((unityInstance) => {
-            document.querySelector("#unity-loading-bar").style.display = "none";
+            document.querySelector("#loading-title").textContent = "거의 다 왔어요…";
+            document.querySelector("#loading-tip").textContent = "섬을 꾸미는 중이에요.";
             document.querySelector("#unity-fullscreen-button").onclick = () => { unityInstance.SetFullscreen(1); };
+            setTimeout(hideLoading, 25000);
           }).catch((message) => {
             document.querySelector("#loading-title").textContent = "게임을 불러오지 못했어요";
             document.querySelector("#loading-tip").textContent = "페이지를 새로고침하거나, 최신 크롬·엣지·파이어폭스로 열어 주세요. (" + message + ")";

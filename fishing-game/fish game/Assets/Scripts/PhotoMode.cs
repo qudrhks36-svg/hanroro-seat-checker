@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 // 사진 찍기 (GDD 9번 [확정]): P키 → 화면 글자(상태창·안내)를 빼고 풍경(낚싯대 포함)만 찍어 저장한다. 찰칵 소리 + 하얀 번쩍임 + "사진을 저장했어요!".
-// 웹: 브라우저 다운로드(PhotoDownload.jslib). PC/편집기: 내 사진 폴더 아래 "낚시섬"에 저장. 대화창·상점·꾸미기·도감이 열려 있거나 커서가 풀려 있으면 안 찍힘.
+// 웹: 브라우저 다운로드(PhotoDownload.jslib). PC/편집기: 내 사진 폴더 아래 "BottleIsland"에 저장. 대화창·상점·꾸미기·도감이 열려 있거나 커서가 풀려 있으면 안 찍힘.
 // 게임이 시작될 때 스스로 만들어진다(장면에 올릴 것 없음).
 public class PhotoMode : MonoBehaviour
 {
@@ -49,7 +49,7 @@ public class PhotoMode : MonoBehaviour
         foreach (var c in hidden) if (c != null) c.enabled = true;
         if (tex != null)
         {
-            string name = "낚시섬_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png";
+            string name = "BottleIsland_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png";
             bool ok = Save(tex.EncodeToPNG(), name);
             Destroy(tex);
             Sfx.Play(SfxKind.Shutter);
@@ -68,7 +68,7 @@ public class PhotoMode : MonoBehaviour
 #if UNITY_WEBGL && !UNITY_EDITOR
             FG_DownloadPng(png, png.Length, name);
 #else
-            string dir = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyPictures), "낚시섬");
+            string dir = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyPictures), "BottleIsland");
             Directory.CreateDirectory(dir);
             File.WriteAllBytes(Path.Combine(dir, name), png);
 #endif
