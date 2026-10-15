@@ -301,16 +301,16 @@ public class SeaEvents : MonoBehaviour
         noteReward = Txt(chip.rectTransform, font, 26, Ink, TextAnchor.MiddleCenter, FontStyle.Bold, Vector2.zero, new Vector2(150f, 42f));
 
         // 알림(위쪽 가운데)
-        var toast = Img(canvas.transform, "Toast", new Color(0.07f, 0.09f, 0.13f, 0.7f), new Vector2(520f, 54f));
+        var toast = Img(canvas.transform, "Toast", UiTheme.Cream, new Vector2(520f, 54f));
         var trt = toast.rectTransform; trt.anchorMin = trt.anchorMax = trt.pivot = new Vector2(0.5f, 1f); trt.anchoredPosition = new Vector2(0f, -24f);
         toastGroup = toast.gameObject.AddComponent<CanvasGroup>(); toastGroup.alpha = 0f; toastGroup.blocksRaycasts = false;
-        toastText = Txt(trt, font, 28, new Color(1f, 0.96f, 0.85f), TextAnchor.MiddleCenter, FontStyle.Bold, Vector2.zero, new Vector2(500f, 50f));
+        toastText = Txt(trt, font, 28, UiTheme.Ink, TextAnchor.MiddleCenter, FontStyle.Bold, Vector2.zero, new Vector2(500f, 50f));
 
         // 줍기 안내 (대화 안내와 같은 자리)
-        var pr = Img(canvas.transform, "Prompt", new Color(0.07f, 0.09f, 0.13f, 0.62f), new Vector2(260f, 50f));
+        var pr = Img(canvas.transform, "Prompt", UiTheme.Cream, new Vector2(260f, 50f));
         var prt = pr.rectTransform; prt.anchorMin = prt.anchorMax = prt.pivot = new Vector2(0.5f, 0.5f); prt.anchoredPosition = new Vector2(0f, -80f);
         promptGroup = pr.gameObject.AddComponent<CanvasGroup>(); promptGroup.alpha = 0f; promptGroup.blocksRaycasts = false;
-        Txt(prt, font, 28, Color.white, TextAnchor.MiddleCenter, FontStyle.Bold, Vector2.zero, new Vector2(250f, 46f)).text = "E: 병 줍기";
+        Txt(prt, font, 28, UiTheme.Ink, TextAnchor.MiddleCenter, FontStyle.Normal, Vector2.zero, new Vector2(250f, 46f)).text = "E: 병 줍기";
     }
 
     void UpdateUi()

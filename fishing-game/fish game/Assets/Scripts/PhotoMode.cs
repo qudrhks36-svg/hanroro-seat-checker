@@ -91,12 +91,12 @@ public class PhotoMode : MonoBehaviour
 
         var toast = new GameObject("Toast").AddComponent<Image>();
         toast.transform.SetParent(canvas.transform, false);
-        toast.sprite = HudPanel.RoundedRect(); toast.type = Image.Type.Sliced; toast.color = new Color(0.07f, 0.09f, 0.13f, 0.7f); toast.raycastTarget = false;
+        toast.sprite = HudPanel.RoundedRect(); toast.type = Image.Type.Sliced; toast.color = UiTheme.Cream; toast.raycastTarget = false;
         var trt = toast.rectTransform; trt.anchorMin = trt.anchorMax = trt.pivot = new Vector2(0.5f, 1f); trt.anchoredPosition = new Vector2(0f, -24f); trt.sizeDelta = new Vector2(420f, 54f);
         toastGroup = toast.gameObject.AddComponent<CanvasGroup>(); toastGroup.alpha = 0f; toastGroup.blocksRaycasts = false;
         var t = new GameObject("Text").AddComponent<Text>();
         t.transform.SetParent(trt, false);
-        t.font = GameFont.Get(); t.fontSize = 28; t.fontStyle = FontStyle.Bold; t.color = new Color(1f, 0.96f, 0.85f); t.alignment = TextAnchor.MiddleCenter; t.raycastTarget = false;
+        t.font = GameFont.Get(); t.fontSize = 28; t.fontStyle = FontStyle.Bold; t.color = UiTheme.Ink; t.alignment = TextAnchor.MiddleCenter; t.raycastTarget = false;
         var rt = t.rectTransform; rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f); rt.anchoredPosition = Vector2.zero; rt.sizeDelta = new Vector2(400f, 50f);
         toastText = t;
     }

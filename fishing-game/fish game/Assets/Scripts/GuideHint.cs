@@ -30,14 +30,15 @@ public class GuideHint : MonoBehaviour
         var img = new GameObject("Panel").AddComponent<Image>();
         img.transform.SetParent(canvas.transform, false);
         img.sprite = HudPanel.RoundedRect(); img.type = Image.Type.Sliced;
-        img.color = new Color(0.07f, 0.09f, 0.13f, 0.62f); img.raycastTarget = false;
+        img.color = UiTheme.Cream; img.raycastTarget = false;
+        var gol = img.gameObject.AddComponent<Outline>(); gol.effectColor = UiTheme.Edge; gol.effectDistance = new Vector2(2f, -2f);
         panel = img.gameObject; panelRt = img.rectTransform;
         panelRt.anchorMin = panelRt.anchorMax = panelRt.pivot = new Vector2(0.5f, 1f);
         panelRt.anchoredPosition = new Vector2(0, -24);
 
         var font = GameFont.Get();
-        line1 = MakeText(panelRt, font, 28, new Color(1f, 0.96f, 0.85f), FontStyle.Bold); line1Rt = line1.rectTransform;
-        line2 = MakeText(panelRt, font, 19, new Color(1f, 0.96f, 0.85f, 0.7f), FontStyle.Normal);
+        line1 = MakeText(panelRt, font, 28, UiTheme.Ink, FontStyle.Normal); line1Rt = line1.rectTransform;
+        line2 = MakeText(panelRt, font, 19, UiTheme.InkSoft, FontStyle.Normal);
         panel.SetActive(false);
     }
 
@@ -47,7 +48,6 @@ public class GuideHint : MonoBehaviour
         t.transform.SetParent(parent, false);
         t.font = font; t.fontSize = size; t.fontStyle = style; t.color = c; t.alignment = TextAnchor.MiddleCenter; t.raycastTarget = false;
         t.resizeTextForBestFit = true; t.resizeTextMinSize = size * 2 / 3; t.resizeTextMaxSize = size;
-        var o = t.gameObject.AddComponent<Outline>(); o.effectColor = new Color(0.08f, 0.05f, 0.03f, 0.9f); o.effectDistance = new Vector2(1.5f, -1.5f);
         var rt = t.rectTransform;
         rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f); rt.pivot = new Vector2(0.5f, 1f);
         return t;
@@ -93,6 +93,6 @@ public class GuideHint : MonoBehaviour
         }
         // 입질이면 크게 깜빡여서 놓치지 않게
         panelRt.localScale = Vector3.one * (rod.Current == FishingRod.State.Biting ? 1f + 0.08f * Mathf.Sin(Time.unscaledTime * 12f) : 1f);
-        line1.color = rod.Current == FishingRod.State.Biting ? new Color(1f, 0.9f, 0.3f) : new Color(1f, 0.96f, 0.85f);
+        line1.color = rod.Current == FishingRod.State.Biting ? UiTheme.Coral : UiTheme.Ink;
     }
 }

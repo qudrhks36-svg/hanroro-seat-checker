@@ -36,7 +36,7 @@ public class MuteToggle : MonoBehaviour
     void Apply()
     {
         AudioListener.volume = muted ? 0f : 1f;
-        label.gameObject.SetActive(muted);
+        label.transform.parent.gameObject.SetActive(muted);
     }
 
     void BuildLabel()
@@ -48,13 +48,15 @@ public class MuteToggle : MonoBehaviour
         canvas.sortingOrder = 6;
         var go = new GameObject("MuteLabel");
         go.transform.SetParent(canvasGo.transform, false);
-        label = go.AddComponent<Text>();
-        label.font = GameFont.Get();
-        label.fontSize = 24; label.alignment = TextAnchor.LowerRight;
-        label.color = new Color(1f, 0.96f, 0.88f, 0.85f); label.raycastTarget = false;
-        label.text = "소리 꺼짐 (M)";
-        var rt = label.rectTransform;
+        var bg = go.AddComponent<Image>();
+        bg.sprite = HudPanel.RoundedRect(); bg.type = Image.Type.Sliced; bg.color = UiTheme.Cream; bg.raycastTarget = false;
+        var rt = bg.rectTransform;
         rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(1f, 0f);
-        rt.anchoredPosition = new Vector2(-30, 30); rt.sizeDelta = new Vector2(400, 40);
+        rt.anchoredPosition = new Vector2(-30, 30); rt.sizeDelta = new Vector2(210, 46);
+        var tg = new GameObject("Text").AddComponent<Text>();
+        tg.transform.SetParent(go.transform, false);
+        tg.font = GameFont.Get(); tg.fontSize = 24; tg.alignment = TextAnchor.MiddleCenter; tg.color = UiTheme.Ink; tg.raycastTarget = false; tg.text = "소리 꺼짐 (M)";
+        var trt = tg.rectTransform; trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one; trt.offsetMin = trt.offsetMax = Vector2.zero;
+        label = tg;   // 켜고 끄는 건 부모(알약) 전체
     }
 }

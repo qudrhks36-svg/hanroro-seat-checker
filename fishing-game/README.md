@@ -18,5 +18,5 @@
 
 ## 크레딧
 - BGM: monume (무료 음원)
-- 글꼴: 나눔고딕 (SIL Open Font License)
+- 글꼴: 주아 Jua (SIL Open Font License)
 - 코드·모델·그림: 이 저장소 (Claude와 함께 제작)

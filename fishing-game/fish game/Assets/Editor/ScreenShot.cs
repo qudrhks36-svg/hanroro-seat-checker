@@ -197,6 +197,41 @@ public static class ScreenShot
         Debug.Log("VIEWS done");
     }
 
+    // 안내 판 사진(편집 중 장면은 저장하지 않음): 위쪽 안내 판, E 안내 알약, 소리 꺼짐 알약
+    public static void Hints()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        UnityEngine.Object.FindFirstObjectByType<TimeOfDay>().Apply(0f);
+        var cam = Camera.main;
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = false;
+        cam.transform.SetPositionAndRotation(new Vector3(-15, 1.7f, 0), Quaternion.Euler(8, 270, 0));
+        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static;
+        var hud = new GameObject("TmpHud").AddComponent<HudPanel>(); hud.SendMessage("Awake"); hud.SendMessage("Update");
+        var gh = new GameObject("TmpGuide").AddComponent<GuideHint>(); gh.SendMessage("Awake");
+        var panel = (GameObject)typeof(GuideHint).GetField("panel", bf).GetValue(gh); panel.SetActive(true);
+        ((UnityEngine.UI.Text)typeof(GuideHint).GetField("line1", bf).GetValue(gh)).text = "왼쪽 클릭: 바다 쪽으로 낚싯대 던지기";
+        ((UnityEngine.UI.Text)typeof(GuideHint).GetField("line2", bf).GetValue(gh)).text = "WASD 이동 · 마우스 시점 · 1·2·3 미끼 · Tab 도감 · E 말 걸기 · P 사진 · M 소리";
+        typeof(GuideHint).GetField("panelRt", bf).GetValue(gh).GetType();
+        var prt = (RectTransform)typeof(GuideHint).GetField("panelRt", bf).GetValue(gh); prt.sizeDelta = new Vector2(820f, 86f);
+        var l1 = (UnityEngine.UI.Text)typeof(GuideHint).GetField("line1", bf).GetValue(gh); var l2 = (UnityEngine.UI.Text)typeof(GuideHint).GetField("line2", bf).GetValue(gh);
+        l1.rectTransform.sizeDelta = new Vector2(780f, 40f); l1.rectTransform.anchoredPosition = new Vector2(0f, -10f);
+        l2.rectTransform.sizeDelta = new Vector2(780f, 28f); l2.rectTransform.anchoredPosition = new Vector2(0f, -50f);
+        var mc = new GameObject("TmpMute").AddComponent<MuteToggle>(); mc.SendMessage("Awake"); typeof(MuteToggle).GetMethod("Flip", bf).Invoke(mc, null);
+        var cvs = new GameObject("TmpPromptCanvas").AddComponent<Canvas>(); cvs.renderMode = RenderMode.ScreenSpaceOverlay;
+        UiTheme.Prompt(cvs.transform, "E: 바틀이와 이야기하기", new Vector2(0, -80));
+        foreach (var cv in UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+            if (cv.isRootCanvas && cv.renderMode == RenderMode.ScreenSpaceOverlay) { cv.renderMode = RenderMode.ScreenSpaceCamera; cv.worldCamera = cam; cv.planeDistance = 1f; }
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        cam.targetTexture = rt; Canvas.ForceUpdateCanvases(); cam.Render();
+        RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+        File.WriteAllBytes(Path.Combine(outDir, "hints.png"), tex.EncodeToPNG());
+        cam.targetTexture = null;
+        Debug.Log("HINT SHOTS done");
+    }
+
     // 이벤트 사진(편집 중 장면은 저장하지 않음): 해변의 병 + 줍기 안내, 쪽지 카드, 하늘의 갈매기
     public static void Events()
     {

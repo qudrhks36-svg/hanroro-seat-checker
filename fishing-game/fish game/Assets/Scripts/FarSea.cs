@@ -169,15 +169,15 @@ public class FarSea : MonoBehaviour
         canvas.transform.SetParent(transform, false);
         canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 6;
 
-        var pr = Panel(canvas.transform, "Prompt", new Color(0.07f, 0.09f, 0.13f, 0.62f), new Vector2(520f, 50f));
+        var pr = Panel(canvas.transform, "Prompt", UiTheme.Cream, new Vector2(520f, 50f));
         var prt = pr.rectTransform; prt.anchorMin = prt.anchorMax = prt.pivot = new Vector2(0.5f, 0.5f); prt.anchoredPosition = new Vector2(0f, -80f);
         promptGroup = pr.gameObject.AddComponent<CanvasGroup>(); promptGroup.alpha = 0f; promptGroup.blocksRaycasts = false;
-        promptText = Txt(prt, font, 28, Color.white, new Vector2(510f, 46f));
+        promptText = Txt(prt, font, 28, UiTheme.Ink, new Vector2(510f, 46f));
 
-        var toast = Panel(canvas.transform, "Toast", new Color(0.07f, 0.09f, 0.13f, 0.7f), new Vector2(760f, 54f));
+        var toast = Panel(canvas.transform, "Toast", UiTheme.Cream, new Vector2(760f, 54f));
         var trt = toast.rectTransform; trt.anchorMin = trt.anchorMax = trt.pivot = new Vector2(0.5f, 1f); trt.anchoredPosition = new Vector2(0f, -24f);
         toastGroup = toast.gameObject.AddComponent<CanvasGroup>(); toastGroup.alpha = 0f; toastGroup.blocksRaycasts = false;
-        toastText = Txt(trt, font, 28, new Color(1f, 0.96f, 0.85f), new Vector2(740f, 50f));
+        toastText = Txt(trt, font, 28, UiTheme.Ink, new Vector2(740f, 50f));
 
         var fc = new GameObject("FadeCanvas").AddComponent<Canvas>();
         fc.transform.SetParent(transform, false); fc.renderMode = RenderMode.ScreenSpaceOverlay; fc.sortingOrder = 21;

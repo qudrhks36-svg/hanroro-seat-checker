@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8820626de1c96c747800d1b7befccbea
+guid: 36f88c20edd33a7439664c9124dd669e
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - NanumGothic
+  - Jua
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

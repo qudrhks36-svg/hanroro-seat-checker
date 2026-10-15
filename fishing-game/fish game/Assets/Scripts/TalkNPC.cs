@@ -132,9 +132,7 @@ public class TalkNPC : MonoBehaviour
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 5;
 
-        prompt = MakeText(canvasGo.transform, "Prompt", font, 28, TextAnchor.MiddleCenter, Color.white).gameObject;
-        var pt = prompt.GetComponent<Text>(); pt.text = "E: " + npcName + "에게 말 걸기";
-        Anchor(pt.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0, -80), new Vector2(600, 50));
+        prompt = UiTheme.Prompt(canvasGo.transform, "E: " + npcName + "에게 말 걸기", new Vector2(0, -80));
 
         view = DialogView.Build(canvasGo.transform, npcName, buyMultiplier > 0f);
     }

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class HudPanel : MonoBehaviour
 {
     const int Rows = 5, RowH = 46, Pad = 12, PanelW = 300;
-    static readonly Color Cream = new Color(1f, 0.96f, 0.85f);
+    static readonly Color TextInk = UiTheme.Ink;   // 크림 판 위 글자색
     static readonly Color Ink = new Color(0.08f, 0.05f, 0.03f, 0.9f);
 
     Image timeIcon, baitIcon, weatherIcon;
@@ -45,7 +45,8 @@ public class HudPanel : MonoBehaviour
         var panel = new GameObject("Panel").AddComponent<Image>();
         panel.transform.SetParent(canvas.transform, false);
         panel.sprite = RoundedRect(); panel.type = Image.Type.Sliced;
-        panel.color = new Color(0.07f, 0.09f, 0.13f, 0.62f); panel.raycastTarget = false;
+        panel.color = UiTheme.Cream; panel.raycastTarget = false;
+        var pol = panel.gameObject.AddComponent<Outline>(); pol.effectColor = UiTheme.Edge; pol.effectDistance = new Vector2(2f, -2f);
         var prt = panel.rectTransform;
         prt.anchorMin = prt.anchorMax = prt.pivot = Vector2.zero;
         prt.anchoredPosition = new Vector2(24, 24);
@@ -56,7 +57,7 @@ public class HudPanel : MonoBehaviour
         baitIcon = MakeIcon(prt, 1, null); baitText = MakeText(prt, 1, font, 26, TextAnchor.MiddleLeft, 130);
         var hint = MakeText(prt, 1, font, 18, TextAnchor.MiddleRight, 70);
         hint.rectTransform.anchoredPosition = new Vector2(PanelW - 14 - 70, hint.rectTransform.anchoredPosition.y);
-        hint.text = "1·2·3"; hint.color = new Color(1f, 0.96f, 0.85f, 0.65f);
+        hint.text = "1·2·3"; hint.color = UiTheme.InkSoft;
         MakeIcon(prt, 2, coin); moneyText = MakeText(prt, 2, font, 26, TextAnchor.MiddleLeft, 200);
         MakeIcon(prt, 3, Book()); dexText = MakeText(prt, 3, font, 26, TextAnchor.MiddleLeft, 200);
         MakeIcon(prt, 4, Flag()); goalText = MakeText(prt, 4, font, 26, TextAnchor.MiddleLeft, 230);
@@ -94,7 +95,7 @@ public class HudPanel : MonoBehaviour
             shownDex = Collection.Discovered;
             bool done = shownDex >= FishTable.All.Length;
             dexText.text = done ? "도감 완성!" : "도감 " + shownDex + "/" + FishTable.All.Length;
-            dexText.color = done ? new Color(1f, 0.85f, 0.3f) : Cream;
+            dexText.color = done ? new Color(0.88f, 0.52f, 0.1f) : TextInk;
         }
         if (Goal.Progress != shownGoal)
         {
@@ -122,9 +123,7 @@ public class HudPanel : MonoBehaviour
         var t = new GameObject("Text" + row).AddComponent<Text>();
         t.transform.SetParent(parent, false);
         t.font = font; t.fontSize = size; t.fontStyle = FontStyle.Bold; t.alignment = align;
-        t.color = Cream; t.raycastTarget = false;
-        var o = t.gameObject.AddComponent<Outline>(); o.effectColor = Ink; o.effectDistance = new Vector2(1.5f, -1.5f);
-        var s = t.gameObject.AddComponent<Shadow>(); s.effectColor = new Color(0, 0, 0, 0.5f); s.effectDistance = new Vector2(2f, -2.5f);
+        t.color = TextInk; t.raycastTarget = false;
         var rt = t.rectTransform;
         rt.anchorMin = rt.anchorMax = new Vector2(0, 1); rt.pivot = new Vector2(0, 0.5f);
         rt.anchoredPosition = new Vector2(62, RowY(row)); rt.sizeDelta = new Vector2(width, 40);
