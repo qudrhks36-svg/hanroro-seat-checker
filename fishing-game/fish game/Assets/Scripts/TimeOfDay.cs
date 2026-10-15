@@ -93,17 +93,17 @@ public class TimeOfDay : MonoBehaviour
         sun.color = Color.Lerp(a.light, b.light, k);
         sun.intensity = Mathf.Lerp(a.intensity, b.intensity, k) * (1f - 0.5f * o);
         RenderSettings.ambientLight = Color.Lerp(a.ambient, b.ambient, k);
-        RenderSettings.fogColor = Grey(Color.Lerp(a.fog, b.fog, k), o * 0.75f, 1f - 0.12f * o);
+        RenderSettings.fogColor = Grey(Color.Lerp(a.fog, b.fog, k), o * 0.9f, 1f - 0.15f * o);
 
         // 하늘(SkyGradient)과 바다(Sea) 셰이더가 읽는 전역 값
-        Shader.SetGlobalColor("_SkyTop", Grey(Color.Lerp(a.skyTop, b.skyTop, k), o * 0.8f, 1f - 0.1f * o));
+        Shader.SetGlobalColor("_SkyTop", Grey(Color.Lerp(a.skyTop, b.skyTop, k), o * 0.95f, 1f - 0.15f * o));
         Shader.SetGlobalColor("_SkyGlowColor", Color.Lerp(a.glow, b.glow, k));
         Shader.SetGlobalVector("_SunDir", -sun.transform.forward);
         Shader.SetGlobalFloat("_SkyGlow", Mathf.Lerp(a.skyGlow, b.skyGlow, k) * (1f - 0.8f * o));
         Night = Mathf.Lerp(a.stars, b.stars, k);
         Shader.SetGlobalFloat("_Stars", Night);
-        Shader.SetGlobalColor("_SeaShallow", Grey(Color.Lerp(a.seaShallow, b.seaShallow, k), o * 0.5f, 1f - 0.2f * o));
-        Shader.SetGlobalColor("_SeaDeep", Grey(Color.Lerp(a.seaDeep, b.seaDeep, k), o * 0.5f, 1f - 0.2f * o));
+        Shader.SetGlobalColor("_SeaShallow", Grey(Color.Lerp(a.seaShallow, b.seaShallow, k), o * 0.6f, 1f - 0.22f * o));
+        Shader.SetGlobalColor("_SeaDeep", Grey(Color.Lerp(a.seaDeep, b.seaDeep, k), o * 0.6f, 1f - 0.22f * o));
         Shader.SetGlobalColor("_SeaFoam", Color.Lerp(a.seaFoam, b.seaFoam, k));
         Shader.SetGlobalFloat("_SeaGlint", Mathf.Lerp(a.seaGlint, b.seaGlint, k) * (1f - 0.7f * o));
     }

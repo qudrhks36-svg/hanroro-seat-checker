@@ -50,6 +50,9 @@ public class HomeDecor : MonoBehaviour
     AudioSource chimeAudio; AudioClip chimeClip; float chimeTimer;
     Material roofMat, windowMat; Color roofBase, windowBase;
     int shownCabin = -1;
+    readonly bool[] cleared = new bool[Home.ItemCount];
+    // 장식을 사면 그 둘레의 풀·꽃·덤불·바위(섬 소품 "Decor")를 치운다. {x, z, 반폭 x, 반폭 z}
+    static readonly float[][] Clear = { new[] { -9.8f, 2.4f, 0.6f, 0.6f }, new[] { -4.6f, 1.0f, 1.5f, 1.5f }, null, new[] { -7.5f, -1.2f, 1.0f, 1.0f }, new[] { -11.4f, -3.5f, 1.0f, 2.0f } };
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Init() { new GameObject("HomeDecor").AddComponent<HomeDecor>(); }
@@ -68,7 +71,11 @@ public class HomeDecor : MonoBehaviour
 
     void Update()
     {
-        for (int i = 0; i < items.Length; i++) if (items[i].activeSelf != Home.Owns(i)) items[i].SetActive(Home.Owns(i));
+        for (int i = 0; i < items.Length; i++)
+        {
+            if (items[i].activeSelf != Home.Owns(i)) items[i].SetActive(Home.Owns(i));
+            if (Home.Owns(i) && !cleared[i]) { cleared[i] = true; ClearNear(i); }
+        }
         if (Home.CabinLevel != shownCabin) ApplyCabin(Home.CabinLevel);
 
         float t = Time.time, night = Mathf.Clamp01(TimeOfDay.Night);
@@ -287,6 +294,18 @@ public class HomeDecor : MonoBehaviour
     }
 
     // ---------------- 공통 ----------------
+    void ClearNear(int item)
+    {
+        var box = Clear[item]; var decor = GameObject.Find("Decor");
+        if (box == null || decor == null) return;
+        foreach (Transform group in decor.transform)
+        {
+            if (group.name == "Beach") continue;   // 해변 조개 등은 그대로
+            foreach (Transform t in group)
+                if (Mathf.Abs(t.position.x - box[0]) < box[2] && Mathf.Abs(t.position.z - box[1]) < box[3]) t.gameObject.SetActive(false);
+        }
+    }
+
     // 블렌더 모델(Resources/Models/<이름>.fbx)을 부모 아래에 놓는다. 없으면 null(임시 도형으로 대신).
     // 재질 이름 "C_RRGGBB"에서 색을 읽어 구름 재질 복사본(Tint)으로 바꾼다(웹 빌드에서 셰이더가 빠지지 않게).
     Transform SpawnModel(string res, Transform parent)
