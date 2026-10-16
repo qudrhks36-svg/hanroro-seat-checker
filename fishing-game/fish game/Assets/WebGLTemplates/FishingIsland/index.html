@@ -54,6 +54,20 @@
     <script>
       var canvas = document.querySelector("#unity-canvas");
 
+      // 마우스 잠금 요청이 브라우저에서 거절돼도(처음 클릭 직후 등) 게임이 멈추지 않게: 거절 오류를 받아 넘김.
+      // (안 받아 두면 유니티가 "처리 안 된 오류"로 보고 게임 전체를 멈춤 → 던진 찌가 그 자리에서 굳음)
+      (function () {
+        var orig = HTMLElement.prototype.requestPointerLock;
+        if (!orig) return;
+        HTMLElement.prototype.requestPointerLock = function (opts) {
+          try {
+            var p = orig.call(this, opts);
+            if (p && typeof p.catch === "function") p.catch(function () {});
+            return p;
+          } catch (e) { /* 잠금을 못 받아도 계속 진행 */ }
+        };
+      })();
+
       // 알림(경고·오류) 띠
       function unityShowBanner(msg, type) {
         var warningBanner = document.querySelector("#unity-warning");

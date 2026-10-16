@@ -30,6 +30,14 @@ public class FishingRod : MonoBehaviour
     public enum State { Idle, Flying, Floating, Biting, Reeling }
     State state = State.Idle;
     public State Current { get { return state; } }   // 안내 판(GuideHint)이 읽음
+
+    // 웹: 처음 클릭은 시작(마우스 잠금)만 하고 던지지 않는다 (GDD 4번). 그 밖의 실행에서는 처음부터 켜져 있음.
+#if UNITY_WEBGL && !UNITY_EDITOR
+    static bool armed;
+#else
+    static bool armed = true;
+#endif
+    public static bool Armed { get { return armed; } }
     FishData hooked;
     float zonePos, fishPos, fishTarget, retargetTimer, gauge;
     GameObject reelRoot;
@@ -66,6 +74,7 @@ public class FishingRod : MonoBehaviour
             else if (kb.digit3Key.wasPressedThisFrame) SelectBait(Bait.Bread);
         }
         bool click = mouse.leftButton.wasPressedThisFrame && Cursor.lockState == CursorLockMode.Locked;
+        if (!armed) { if (mouse.leftButton.wasPressedThisFrame) armed = true; click = false; }   // 시작 클릭은 먹음
 
         switch (state)
         {

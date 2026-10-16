@@ -60,7 +60,7 @@ public class GuideHint : MonoBehaviour
         string a = null, b = null;
         if (rod != null && !busy)
         {
-            if (Cursor.lockState != CursorLockMode.Locked) { a = "화면을 한 번 클릭하면 시작해요"; }
+            if (Cursor.lockState != CursorLockMode.Locked || !FishingRod.Armed) { a = "화면을 한 번 클릭하면 시작해요"; }
             else switch (rod.Current)
             {
                 case FishingRod.State.Idle:
