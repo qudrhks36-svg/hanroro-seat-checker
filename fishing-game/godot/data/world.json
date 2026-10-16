@@ -1,0 +1,228 @@
+{
+  "day_cycle": {
+    "length_sec": 600,
+    "start_clock": 0,
+    "period_at": {
+      "day": [
+        0,
+        240
+      ],
+      "sunset": [
+        240,
+        360
+      ],
+      "night": [
+        360,
+        600
+      ]
+    },
+    "keyframes_sec": [
+      0,
+      210,
+      270,
+      330,
+      390,
+      570,
+      600
+    ],
+    "keyframe_looks": [
+      "day",
+      "day",
+      "sunset",
+      "sunset",
+      "night",
+      "night",
+      "day"
+    ],
+    "blend": "키프레임 사이를 smoothstep으로 보간"
+  },
+  "looks": {
+    "day": {
+      "sun_pitch": 55,
+      "sun_intensity": 2.0,
+      "sun_color": [
+        1,
+        0.97,
+        0.92
+      ],
+      "ambient": [
+        0.45,
+        0.5,
+        0.6
+      ],
+      "sky_top": [
+        0.3,
+        0.58,
+        0.96
+      ],
+      "sky_glow_color": [
+        1,
+        0.97,
+        0.85
+      ],
+      "fog": [
+        0.8,
+        0.91,
+        0.97
+      ],
+      "sea_shallow": [
+        0.38,
+        0.82,
+        0.8
+      ],
+      "sea_deep": [
+        0.12,
+        0.45,
+        0.65
+      ],
+      "sea_foam": [
+        1,
+        1,
+        0.96
+      ],
+      "sky_glow": 0.7,
+      "stars": 0,
+      "sea_glint": 0.9
+    },
+    "sunset": {
+      "sun_pitch": 11,
+      "sun_intensity": 2.0,
+      "sun_color": [
+        1,
+        0.58,
+        0.32
+      ],
+      "ambient": [
+        0.62,
+        0.46,
+        0.48
+      ],
+      "sky_top": [
+        0.36,
+        0.34,
+        0.7
+      ],
+      "sky_glow_color": [
+        1,
+        0.62,
+        0.3
+      ],
+      "fog": [
+        0.99,
+        0.68,
+        0.52
+      ],
+      "sea_shallow": [
+        0.95,
+        0.64,
+        0.56
+      ],
+      "sea_deep": [
+        0.36,
+        0.32,
+        0.56
+      ],
+      "sea_foam": [
+        1,
+        0.88,
+        0.75
+      ],
+      "sky_glow": 1.3,
+      "stars": 0,
+      "sea_glint": 1.3
+    },
+    "night": {
+      "sun_pitch": -25,
+      "sun_intensity": 0.0,
+      "sun_color": [
+        0.4,
+        0.5,
+        0.9
+      ],
+      "ambient": [
+        0.14,
+        0.18,
+        0.36
+      ],
+      "sky_top": [
+        0.03,
+        0.05,
+        0.17
+      ],
+      "sky_glow_color": [
+        0.5,
+        0.6,
+        1
+      ],
+      "fog": [
+        0.09,
+        0.12,
+        0.26
+      ],
+      "sea_shallow": [
+        0.14,
+        0.27,
+        0.44
+      ],
+      "sea_deep": [
+        0.04,
+        0.08,
+        0.21
+      ],
+      "sea_foam": [
+        0.62,
+        0.72,
+        0.96
+      ],
+      "sky_glow": 0.0,
+      "stars": 1,
+      "sea_glint": 0.5
+    }
+  },
+  "sun_yaw": 330,
+  "fog": {
+    "mode": "exp2",
+    "density": 0.01
+  },
+  "overcast_effects": "o = overcast(0~1). sun_intensity *(1-0.5o); fog 회색 섞기 o*0.9, 밝기 *(1-0.15o); sky_top 회색 o*0.95, 밝기 *(1-0.15o); sky_glow *(1-0.8o); sea_shallow/deep 회색 o*0.6, 밝기 *(1-0.22o); sea_glint *(1-0.7o). 회색 섞기 = 밝기(0.3r+0.59g+0.11b)쪽으로 lerp",
+  "weather": {
+    "change_sec": [
+      70,
+      130
+    ],
+    "fade_sec": 10,
+    "start": "clear",
+    "saved": false,
+    "overcast_target": {
+      "clear": 0.0,
+      "cloudy": 0.6,
+      "rain": 1.0
+    },
+    "transitions": {
+      "clear": {
+        "clear": 0.4,
+        "cloudy": 0.6
+      },
+      "cloudy": {
+        "clear": 0.4,
+        "cloudy": 0.2,
+        "rain": 0.4
+      },
+      "rain": {
+        "cloudy": 0.7,
+        "rain": 0.3
+      }
+    },
+    "rain_particles": {
+      "rate_at_full": 1000,
+      "lifetime": 0.8,
+      "fall_speed": 17,
+      "wind_x": 1.5,
+      "box": 36,
+      "above_camera": 9,
+      "ahead_of_camera": 6
+    },
+    "rain_sound_volume": 0.06,
+    "fishing_effect": "없음(분위기만)"
+  }
+}

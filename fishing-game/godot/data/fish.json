@@ -1,0 +1,256 @@
+{
+  "note": "순서(id)는 저장 파일(collection/inventory/best 배열)의 칸 순서와 같다. 크기는 (난수+난수)/2로 가운데가 잘 나옴.",
+  "size_roll": "t = (random() + random()) / 2; cm = round(lerp(min, max, t))",
+  "price_rule": "흔함 10 / 보통 30 / 희귀 100, 먼 바다 물고기는 x1.5(정수 나눗셈 p*3/2). 상인 돌쇠는 합계에 x1.2 후 반올림.",
+  "fish": [
+    {
+      "id": 1,
+      "name": "고등어",
+      "rarity": "common",
+      "periods": [
+        "day",
+        "sunset",
+        "night"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 25,
+        "max": 45
+      },
+      "price": 10,
+      "image": "Fish_01"
+    },
+    {
+      "id": 2,
+      "name": "도미",
+      "rarity": "common",
+      "periods": [
+        "day"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 30,
+        "max": 60
+      },
+      "price": 10,
+      "image": "Fish_02"
+    },
+    {
+      "id": 3,
+      "name": "가자미",
+      "rarity": "common",
+      "periods": [
+        "day",
+        "sunset"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 20,
+        "max": 40
+      },
+      "price": 10,
+      "image": "Fish_03"
+    },
+    {
+      "id": 4,
+      "name": "복어",
+      "rarity": "uncommon",
+      "periods": [
+        "sunset"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 15,
+        "max": 35
+      },
+      "price": 30,
+      "image": "Fish_04"
+    },
+    {
+      "id": 5,
+      "name": "오징어",
+      "rarity": "uncommon",
+      "periods": [
+        "night"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 20,
+        "max": 50
+      },
+      "price": 30,
+      "image": "Fish_05"
+    },
+    {
+      "id": 6,
+      "name": "구름고기",
+      "rarity": "rare",
+      "periods": [
+        "day"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 40,
+        "max": 90
+      },
+      "price": 100,
+      "image": "Fish_06"
+    },
+    {
+      "id": 7,
+      "name": "노을별고기",
+      "rarity": "rare",
+      "periods": [
+        "sunset"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 40,
+        "max": 90
+      },
+      "price": 100,
+      "image": "Fish_07"
+    },
+    {
+      "id": 8,
+      "name": "별똥고기",
+      "rarity": "rare",
+      "periods": [
+        "night"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 40,
+        "max": 90
+      },
+      "price": 100,
+      "image": "Fish_08"
+    },
+    {
+      "id": 9,
+      "name": "해마",
+      "rarity": "uncommon",
+      "periods": [
+        "day",
+        "sunset"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 10,
+        "max": 25
+      },
+      "price": 30,
+      "image": "Fish_09"
+    },
+    {
+      "id": 10,
+      "name": "해파리",
+      "rarity": "uncommon",
+      "periods": [
+        "night"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 15,
+        "max": 45
+      },
+      "price": 30,
+      "image": "Fish_10"
+    },
+    {
+      "id": 11,
+      "name": "달빛고기",
+      "rarity": "rare",
+      "periods": [
+        "night"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 40,
+        "max": 90
+      },
+      "price": 100,
+      "image": "Fish_11"
+    },
+    {
+      "id": 12,
+      "name": "무지개고기",
+      "rarity": "rare",
+      "periods": [
+        "day",
+        "sunset"
+      ],
+      "far_sea": false,
+      "size_cm": {
+        "min": 40,
+        "max": 90
+      },
+      "price": 100,
+      "image": "Fish_12"
+    },
+    {
+      "id": 13,
+      "name": "참치",
+      "rarity": "common",
+      "periods": [
+        "day",
+        "sunset",
+        "night"
+      ],
+      "far_sea": true,
+      "size_cm": {
+        "min": 60,
+        "max": 150
+      },
+      "price": 15,
+      "image": "Fish_13"
+    },
+    {
+      "id": 14,
+      "name": "청새치",
+      "rarity": "uncommon",
+      "periods": [
+        "day",
+        "sunset"
+      ],
+      "far_sea": true,
+      "size_cm": {
+        "min": 80,
+        "max": 200
+      },
+      "price": 45,
+      "image": "Fish_14"
+    },
+    {
+      "id": 15,
+      "name": "초롱아귀",
+      "rarity": "uncommon",
+      "periods": [
+        "night"
+      ],
+      "far_sea": true,
+      "size_cm": {
+        "min": 30,
+        "max": 80
+      },
+      "price": 45,
+      "image": "Fish_15"
+    },
+    {
+      "id": 16,
+      "name": "별고래",
+      "rarity": "rare",
+      "periods": [
+        "sunset",
+        "night"
+      ],
+      "far_sea": true,
+      "size_cm": {
+        "min": 100,
+        "max": 300
+      },
+      "price": 150,
+      "image": "Fish_16"
+    }
+  ]
+}

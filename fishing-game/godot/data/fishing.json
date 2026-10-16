@@ -1,0 +1,99 @@
+{
+  "baits": [
+    {
+      "key": "worm",
+      "name": "지렁이",
+      "key_bind": "1",
+      "wait_sec": [
+        3.0,
+        8.0
+      ],
+      "tier_weights_percent": {
+        "common": 70,
+        "uncommon": 25,
+        "rare": 5
+      }
+    },
+    {
+      "key": "shrimp",
+      "name": "새우",
+      "key_bind": "2",
+      "wait_sec": [
+        5.0,
+        10.0
+      ],
+      "tier_weights_percent": {
+        "common": 65,
+        "uncommon": 25,
+        "rare": 10
+      }
+    },
+    {
+      "key": "bread",
+      "name": "빵 조각",
+      "key_bind": "3",
+      "wait_sec": [
+        1.5,
+        4.0
+      ],
+      "tier_weights_percent": {
+        "common": 72.5,
+        "uncommon": 25,
+        "rare": 2.5
+      }
+    }
+  ],
+  "pick_rule": "같은 시간대·같은 지역(섬 근처/먼 바다)의 물고기만 후보. 등급을 가중치로 뽑고, 그 등급 안에서는 균등. 그 시간대에 보통/희귀 물고기가 없으면 그 확률은 흔함으로 합침.",
+  "cast": {
+    "distance": 12.0,
+    "fly_time": 0.8,
+    "arc_height": 3.0,
+    "water_y": -0.1,
+    "land_rule": "찌가 닿은 곳 위에서 아래로 쏴서 이름이 Sea인 바다가 먼저 맞으면 물 위(입질 대기), 아니면 땅이라 바로 회수"
+  },
+  "bite": {
+    "window_sec": 1.6,
+    "click_in_window_to_hook": true,
+    "float_click_retracts": true,
+    "fly_click_ignored": true
+  },
+  "reel": {
+    "bar_width_px": 600,
+    "zone_speed": 0.7,
+    "start_gauge": 0.4,
+    "gain_per_sec_inside": 0.4,
+    "loss_per_sec_outside": 0.2,
+    "fish_speed_by_rarity": {
+      "common": 0.3,
+      "uncommon": 0.5,
+      "rare": 0.75
+    },
+    "fish_retarget_sec": [
+      0.6,
+      1.2
+    ],
+    "hold_left_button_moves_zone_right": true,
+    "success": "게이지 1 이상",
+    "fail": "게이지 0 이하 = 도망감"
+  },
+  "rods": [
+    {
+      "level": 0,
+      "name": "기본 낚싯대",
+      "zone_width": 0.3,
+      "cost": 0
+    },
+    {
+      "level": 1,
+      "name": "튼튼한 낚싯대",
+      "zone_width": 0.36,
+      "cost": 200
+    },
+    {
+      "level": 2,
+      "name": "반짝 낚싯대",
+      "zone_width": 0.43,
+      "cost": 600
+    }
+  ]
+}

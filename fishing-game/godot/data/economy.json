@@ -1,0 +1,115 @@
+{
+  "goal": {
+    "target_catches": 3,
+    "reward": 50,
+    "repeat": true
+  },
+  "sell": {
+    "npc_bottle_multiplier": 1.0,
+    "npc_dolsoe_multiplier": 1.2,
+    "dolsoe_only_at": "sunset"
+  },
+  "home": {
+    "items": [
+      {
+        "name": "화분",
+        "price": 80,
+        "info": "오두막 문 옆에 꽃이 피어요"
+      },
+      {
+        "name": "해변 파라솔",
+        "price": 100,
+        "info": "오두막 앞에 그늘이 생겨요"
+      },
+      {
+        "name": "풍경",
+        "price": 120,
+        "info": "처마에서 바람 따라 딸랑딸랑"
+      },
+      {
+        "name": "모닥불",
+        "price": 150,
+        "info": "밤이면 불빛이 따뜻해요"
+      },
+      {
+        "name": "해먹",
+        "price": 200,
+        "info": "느긋하게 살랑살랑 흔들려요"
+      }
+    ],
+    "cabins": [
+      {
+        "level": 0,
+        "name": "낡은 오두막",
+        "price": 0
+      },
+      {
+        "level": 1,
+        "name": "튼튼한 오두막",
+        "price": 300
+      },
+      {
+        "level": 2,
+        "name": "예쁜 오두막",
+        "price": 800
+      }
+    ],
+    "cabin_position": [
+      -8,
+      0,
+      6
+    ],
+    "clear_grass_near_item": "장식을 사면 둘레의 풀·꽃·덤불·바위를 치움. {x, z, 반폭x, 반폭z}",
+    "clear_zones": [
+      [
+        -9.8,
+        2.4,
+        0.6,
+        0.6
+      ],
+      [
+        -4.6,
+        1.0,
+        1.5,
+        1.5
+      ],
+      null,
+      [
+        -7.5,
+        -1.2,
+        1.0,
+        1.0
+      ],
+      [
+        -11.4,
+        -3.5,
+        1.0,
+        2.0
+      ]
+    ]
+  },
+  "contest": {
+    "duration_sec": 180,
+    "start": "바틀이 대화 중 C (낚싯대를 거두고 있을 때만)",
+    "score": "대회 중 잡은 가장 큰 물고기의 크기(cm)",
+    "prize_by_best_cm": [
+      {
+        "max_cm_exclusive": 50,
+        "prize": 20
+      },
+      {
+        "max_cm_exclusive": 100,
+        "prize": 50
+      },
+      {
+        "min_cm": 100,
+        "prize": 100
+      }
+    ],
+    "new_record_bonus": 30,
+    "no_catch_prize": 10,
+    "finish_rule": "시간이 0이 돼도 입질·릴 감기 중이면 그 한 마리까지만 끝내고 마감",
+    "result_card_sec": 7,
+    "saved": "최고 기록(cm)만 저장. 진행 중인 대회는 저장 안 함"
+  }
+}
