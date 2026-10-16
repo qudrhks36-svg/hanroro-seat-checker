@@ -99,7 +99,7 @@ public class CatalogUI : MonoBehaviour
         }
         caughtValue.text = seen ? Collection.Counts[selected] + "마리" : "—";
         bestValue.text = seen ? Collection.BestCm[selected] + "cm" : "—";
-        priceValue.text = seen ? Inventory.Price(f.rarity) + "원" : "—";
+        priceValue.text = seen ? Inventory.Price(f) + "원" : "—";
         hintText.text = seen ? "칸을 클릭하면 물고기를 볼 수 있어요      Tab / Esc: 닫기" : "아직 못 잡았어요. 낚아서 도감을 채워 보세요      Tab / Esc: 닫기";
     }
 

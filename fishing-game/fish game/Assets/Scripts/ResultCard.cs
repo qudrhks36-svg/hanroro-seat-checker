@@ -95,7 +95,7 @@ public class ResultCard : MonoBehaviour
         iconBgImg.color = rc; icon.sprite = sp; jumpImg.sprite = sp;
         nameText.text = fish.name;
         chipImg.color = Color.Lerp(rc, Color.white, 0.25f); chipText.text = FishTable.RarityName(fish.rarity);
-        priceText.text = "판매 값 " + Inventory.Price(fish.rarity) + "원";
+        priceText.text = "판매 값 " + Inventory.Price(fish) + "원";
         showNew = isNew || goalDone || isRecord; rare = fish.rarity == Rarity.Rare;
         sizeText.text = cm > 0 ? cm + "cm" : "";
         newText.text = isNew ? "NEW! 도감 등록" : "기록 갱신!";

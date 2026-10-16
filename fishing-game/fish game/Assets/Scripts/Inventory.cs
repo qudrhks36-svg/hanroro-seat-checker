@@ -13,14 +13,10 @@ public static class Inventory
     public static void Add(FishData f) { Counts[Collection.IndexOf(f)]++; }
 
     // GDD [제안] 임시 가격
-    public static int Price(Rarity r)
+    public static int Price(FishData f)
     {
-        switch (r)
-        {
-            case Rarity.Common: return 10;
-            case Rarity.Uncommon: return 30;
-            default: return 100;
-        }
+        int p = f.rarity == Rarity.Common ? 10 : f.rarity == Rarity.Uncommon ? 30 : 100;
+        return f.farSea ? p * 3 / 2 : p;   // 먼 바다 물고기는 1.5배 (GDD 3번)
     }
 
     public static int TotalCount { get { int n = 0; foreach (var c in Counts) n += c; return n; } }
@@ -30,7 +26,7 @@ public static class Inventory
         get
         {
             int v = 0;
-            for (int i = 0; i < Counts.Length; i++) v += Counts[i] * Price(FishTable.All[i].rarity);
+            for (int i = 0; i < Counts.Length; i++) v += Counts[i] * Price(FishTable.All[i]);
             return v;
         }
     }
