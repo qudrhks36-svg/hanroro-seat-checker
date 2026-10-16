@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+        Time.timeScale = 1f;   // 시작할 때는 항상 보통 속도 (프로젝트 설정이 0으로 저장돼 있어도 게임이 멈춘 채 시작하지 않게)
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
