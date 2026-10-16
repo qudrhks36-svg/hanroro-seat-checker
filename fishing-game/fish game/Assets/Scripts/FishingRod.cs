@@ -191,6 +191,7 @@ public class FishingRod : MonoBehaviour
         bool isRecord = Collection.Register(lastCatch, cm);   // 이미 잡아 본 물고기의 최고 크기를 넘었나 (GDD 9번)
         Inventory.Add(lastCatch);
         bool goalDone = Goal.OnCatch();   // 오늘의 목표 (GDD 9번)
+        Contest.OnCatch(lastCatch, cm);   // 진행 중인 낚시 대회의 최고 크기 (GDD 9번)
         SaveData.Save();
         Sfx.Play(SfxKind.Catch);
         if (isNew) Sfx.Play(SfxKind.NewFish);   // 새 물고기 도감 등록 (GDD 2번)

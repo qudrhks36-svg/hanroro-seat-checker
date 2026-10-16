@@ -50,6 +50,7 @@ public class ShopNPC : MonoBehaviour
         {
             if (DecorShop.IsOpen || Time.frameCount == DecorShop.ClosedFrame) return;   // 꾸미기 창이 열려 있는 동안·닫은 프레임엔 입력을 그쪽이 처리
             if (kb.fKey.wasPressedThisFrame) { DecorShop.Open(); return; }
+            if (kb.cKey.wasPressedThisFrame && Contest.CanStart) { SetOpen(false); Contest.Begin(); return; }
             if (kb.eKey.wasPressedThisFrame || kb.escapeKey.wasPressedThisFrame) { SetOpen(false); return; }
             if (mouse.leftButton.wasPressedThisFrame && Inventory.TotalCount > 0)
             {
@@ -121,6 +122,7 @@ public class ShopNPC : MonoBehaviour
             sb.Append("   —   다음: ").Append(RodUpgrade.NextName).Append(" ").Append(RodUpgrade.NextCost).Append("원");
             hints.Add("오른쪽 클릭|낚싯대 " + RodUpgrade.NextCost + "원");
         }
+        if (Contest.CanStart) hints.Add("C|대회 3분");
         hints.Add("F|꾸미기");
         hints.Add("E / Esc|닫기");
         view.Set(message, sb.ToString(), hints.ToArray());

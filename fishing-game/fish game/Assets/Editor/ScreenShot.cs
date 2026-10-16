@@ -197,6 +197,57 @@ public static class ScreenShot
         Debug.Log("VIEWS done");
     }
 
+    // 낚시 대회 사진(편집 중 장면은 저장하지 않음): 바틀이 대화창(안내 알약 5개), 진행 중 알약, 결과 카드(신기록 / 한 마리도 못 잡음)
+    public static void Contests()
+    {
+        string outDir = Environment.GetEnvironmentVariable("FG_OUT");
+        Directory.CreateDirectory(outDir);
+        EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        UnityEngine.Object.FindFirstObjectByType<TimeOfDay>().Apply(0f);
+        var cam = Camera.main;
+        UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = false;
+        cam.transform.SetPositionAndRotation(new Vector3(-15, 1.7f, 0), Quaternion.Euler(8, 270, 0));
+        SaveData.FilePath = Path.Combine(Path.GetTempPath(), "contest_test_save.json");   // 진짜 저장 파일은 건드리지 않음
+        var bf = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static;
+        var hud = new GameObject("TmpHud").AddComponent<HudPanel>(); hud.SendMessage("Awake"); hud.SendMessage("Update");
+        var ct = new GameObject("TmpContest").AddComponent<Contest>(); ct.SendMessage("Awake");
+        var rt = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        var tex = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        Action<string> shot = name =>
+        {
+            foreach (var cv in UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None))
+                if (cv.isRootCanvas && cv.renderMode == RenderMode.ScreenSpaceOverlay) { cv.renderMode = RenderMode.ScreenSpaceCamera; cv.worldCamera = cam; cv.planeDistance = 1f; }
+            cam.targetTexture = rt; Canvas.ForceUpdateCanvases(); cam.Render();
+            RenderTexture.active = rt; tex.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0); tex.Apply(); RenderTexture.active = null;
+            File.WriteAllBytes(Path.Combine(outDir, name + ".png"), tex.EncodeToPNG());
+            cam.targetTexture = null;
+        };
+        // 1) 대화창: 안내 알약 5개가 폭 안에 들어가는지
+        var dcv = new GameObject("TmpDialogCanvas").AddComponent<Canvas>(); dcv.renderMode = RenderMode.ScreenSpaceOverlay; dcv.overrideSorting = true; dcv.sortingOrder = 5;
+        var view = DialogView.Build(dcv.transform, "바틀이", true);
+        view.Set("저, 저기… 물고기 잡으셨네요.", "끼룩이 x2   모카 x1\n합계 90원\n낚싯대: 기본 낚싯대   —   다음: 튼튼한 낚싯대 200원", "왼쪽 클릭|팔기", "오른쪽 클릭|낚싯대 200원", "C|대회 3분", "F|꾸미기", "E / Esc|닫기");
+        shot("contest_dialog");
+        UnityEngine.Object.DestroyImmediate(dcv.gameObject);
+        // 2) 진행 중 알약
+        typeof(Contest).GetProperty("Active").GetSetMethod(true).Invoke(null, new object[] { true });
+        typeof(Contest).GetField("timeLeft", bf).SetValue(null, 151f);
+        typeof(Contest).GetField("bestFish", bf).SetValue(null, FishTable.All[15]);
+        typeof(Contest).GetField("bestCm", bf).SetValue(null, 187);
+        ct.SendMessage("Update");
+        shot("contest_pill");
+        // 3) 결과 카드: 신기록 (이번 최고 187cm, 이전 기록 120cm)
+        Contest.BestEver = 120;
+        typeof(Contest).GetMethod("Finish", bf).Invoke(ct, null);
+        shot("contest_card_record");
+        // 4) 한 마리도 못 잡음
+        typeof(Contest).GetProperty("Active").GetSetMethod(true).Invoke(null, new object[] { true });
+        typeof(Contest).GetField("bestFish", bf).SetValue(null, null);
+        typeof(Contest).GetField("bestCm", bf).SetValue(null, 0);
+        typeof(Contest).GetMethod("Finish", bf).Invoke(ct, null);
+        shot("contest_card_none");
+        Debug.Log("CONTEST SHOTS done, money=" + Inventory.Money + " best=" + Contest.BestEver);
+    }
+
     // 안내 판 사진(편집 중 장면은 저장하지 않음): 위쪽 안내 판, E 안내 알약, 소리 꺼짐 알약
     public static void Hints()
     {

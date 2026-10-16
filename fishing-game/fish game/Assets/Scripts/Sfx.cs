@@ -16,6 +16,7 @@ public static class Sfx
 
     public static void Play(SfxKind kind)
     {
+        if (!Application.isPlaying) return;   // 편집 모드(사진 찍기 시험)에서는 소리를 내지 않음
         if (source == null)
         {
             var go = new GameObject("SfxPlayer");

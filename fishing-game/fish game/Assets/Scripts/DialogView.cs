@@ -6,7 +6,7 @@ using UnityEngine.UI;
 // ShopNPC·TalkNPC가 같이 쓴다. 내용(말·판매·구매)은 각 NPC가 정하고, 여기는 보이는 모양만 맡는다.
 public class DialogView
 {
-    const float W = 900f, MaxChips = 4;
+    const float W = 1080f, MaxChips = 5;
     static readonly Color Cream = new Color(0.99f, 0.95f, 0.86f, 0.97f);
     static readonly Color CreamDark = new Color(0.96f, 0.87f, 0.70f, 1f);
     static readonly Color Ink = new Color(0.22f, 0.15f, 0.10f);
@@ -67,7 +67,7 @@ public class DialogView
             v.info.resizeTextForBestFit = true; v.info.resizeTextMinSize = 17; v.info.resizeTextMaxSize = 24;
         }
 
-        // 키 안내 알약(최대 3개)
+        // 키 안내 알약(최대 5개)
         for (int i = 0; i < MaxChips; i++)
         {
             var c = new Chip();
@@ -91,6 +91,7 @@ public class DialogView
     public void Set(string msg, string infoText, params string[] hints)
     {
         message.text = msg;
+        root.transform.localScale = Vector3.one * Mathf.Min(1f, Screen.width / (W + 40f));   // 화면(웹 상자)이 대화창보다 좁으면 줄여서 안 잘리게
         if (info != null) info.text = infoText ?? "";
         float x = 30f;
         for (int i = 0; i < chips.Count; i++)

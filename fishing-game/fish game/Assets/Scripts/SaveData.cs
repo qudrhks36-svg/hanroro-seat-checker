@@ -7,7 +7,7 @@ using UnityEngine;
 public static class SaveData
 {
     [Serializable]
-    class Data { public int[] collection, inventory, best; public int money, rod, goal, notes, decor, cabin; }
+    class Data { public int[] collection, inventory, best; public int money, rod, goal, notes, decor, cabin, contestBest; }
 
     public static string FilePath; // 비어 있으면 기본 위치(게임 데이터 폴더). 시험할 때 다른 파일로 바꿔 쓴다.
 
@@ -40,6 +40,7 @@ public static class SaveData
                 notes = SeaEvents.NotesFound,
                 decor = Home.OwnedMask,
                 cabin = Home.CabinLevel,
+                contestBest = Contest.BestEver,
             };
             Write(JsonUtility.ToJson(d));
         }
@@ -63,6 +64,7 @@ public static class SaveData
             SeaEvents.NotesFound = d.notes & ((1 << SeaEvents.NoteCount) - 1);
             Home.OwnedMask = d.decor & ((1 << Home.ItemCount) - 1);
             Home.CabinLevel = Mathf.Clamp(d.cabin, 0, Home.MaxCabin);
+            Contest.BestEver = Mathf.Max(0, d.contestBest);
         }
         catch (Exception e) { Debug.LogWarning("save.json을 읽지 못해 새로 시작해요: " + e.Message); }
     }
