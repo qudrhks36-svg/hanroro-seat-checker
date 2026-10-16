@@ -6,7 +6,7 @@
 - 모델: FBX는 그대로 복사(고닷이 FBX를 바로 읽음). 블렌더 원본 작업 파일은 blender/ 에 있음.
 - BGM: 원곡은 131초지만 게임은 앞 16.5초만 반복하므로 ffmpeg로 16.5초만 잘라 ogg로 저장(약 0.2MB). ffmpeg가 없으면 원곡을 복사하고 알려 줌.
 - 글꼴: 주아(OFL). 라이선스 문구 파일도 같이 복사.
-- 효과음: 파일이 없음 — 코드(SfxSynth.cs)가 숫자로 만들어 냄. docs/GODOT_PORT.md 의 '효과음' 참고.
+- 효과음: 파일이 아니라 코드(SfxSynth.cs)가 만드는 소리라서 여기서 복사하지 않음. 이미 godot/assets/audio/sfx/ 에 WAV로 뽑아 둠(유니티에서 GodotExport.DumpSfx).
 """
 import os, shutil, subprocess, sys
 

@@ -8,7 +8,7 @@ BOTTLE ISLAND를 유니티에서 고닷으로 옮길 때 보는 문서예요. **
 |---|---|---|
 | 게임 숫자·글 (JSON) | `godot/data/` : `fish.json`(16종 표·크기·값) `fishing.json`(미끼·던지기·릴·낚싯대) `world.json`(하루·조명 색·날씨) `economy.json`(목표·판매·집 꾸미기·대회) `events.json`(갈매기·병·쪽지 10종·먼 바다·사진) `dialog.json`(NPC 대사) `save.json.example`(저장 칸) | `python tools/extract_godot_data.py`로 다시 만들 수 있음. 물고기 표·크기는 C# 코드를 읽어서 옮겨 적은 실수가 없음 |
 | 섬 배치 (JSON) | `godot/data/scene.json` (물체 333개: 이름·부모·위치·회전·크기·FBX 출처·재질 이름·충돌 모양·조명) | 유니티에서 `-executeMethod GodotExport.Dump` (`fish game/Assets/Editor/GodotExport.cs`) |
-| 효과음 14개 (WAV) | `godot/assets/audio/sfx/` : cast bite catch miss sell splash new_fish goal_done upgrade shutter chime voice_seagull voice_cat voice_merchant rain_loop | 코드가 숫자로 만들던 소리를 파일로 뽑음 (`GodotExport.DumpSfx`). 44100Hz 모노, 빗소리만 22050Hz 4초(이음새 없이 반복) |
+| 효과음 15개 (WAV) | `godot/assets/audio/sfx/` : cast bite catch miss sell splash new_fish goal_done upgrade shutter chime voice_seagull voice_cat voice_merchant rain_loop | 코드가 숫자로 만들던 소리를 파일로 뽑음 (`GodotExport.DumpSfx`). 44100Hz 모노 14개 + 빗소리(22050Hz 4초, 이음새 없이 반복) 1개. **빗소리는 22050Hz라 고닷에서 두 배 빠르게 재생되지 않는지 확인할 것** |
 | 에셋 모으는 스크립트 | `tools/export_assets_for_godot.py` (`--dry-run`으로 목록만 보기) | 아직 **실행 안 함**. 모델 36개·물고기 그림 16장·글꼴·BGM(16.5초만 잘라 ogg, 약 0.2MB)을 `godot/assets/`로 복사 |
 | 이 문서 | `docs/GODOT_PORT.md` | |
 
