@@ -30,14 +30,16 @@ BOTTLE ISLAND를 유니티에서 고닷으로 옮길 때 보는 문서예요. **
 |---|---|---|
 | 엔진 코드(wasm) 압축 후 | 약 6.9MB (원본 39.5MB) | 약 12.0MB |
 | 전체 압축 후 | 약 10.2MB (데이터 3.2MB 포함: 모델·그림·글꼴·BGM 전부) | 약 21.9MB (BGM 4.2MB·글꼴 2.1MB 포함) |
+| **Vercel에서 실제 전송(측정)** | **약 12.9MB** (wasm 9.55MB + 데이터 3.32MB + js 0.07MB, 모두 brotli) | 약 21.9MB (이미 압축된 파일 그대로) |
 | 로딩 | 몇 초 안에 뜸 | 20초 안팎 |
 
-압축 크기는 `brotli -q 11`로 잰 값이에요. Vercel이 실제로 어떻게 압축해 주는지는 배포 후 확인 필요. 게임이 커지면 데이터 쪽이 늘어나요.
+위 두 줄은 `brotli -q 11`로 잰 값이고, 굵게 쓴 줄이 Vercel에 올려서 `Accept-Encoding: br`로 받아 본 실제 전송 크기예요(고닷 시험 주소 `https://fishing-game-godot.vercel.app`). Vercel은 압축을 덜 세게 해서 wasm이 6.9MB가 아니라 9.55MB로 전송돼요. 게임이 커지면 데이터 쪽이 늘어나요.
 
 - **웹 내보내기**: 내보내기 템플릿은 4.7.2 정식판의 웹용 8개만 `%APPDATA%\Godot\export_templates\4.7.2.stable\`에 설치했어요(공식 파일 체크섬 확인). 프리셋은 `godot/export_presets.cfg`(Web, 스레드 끔 → 특별한 서버 설정 없이 Vercel에서 돌아감). 내보내기 명령: `godot --headless --path godot --export-release "Web"` → `C:\Users\qudrh\fishing-game-build\godot-web\`(저장소 밖).
 - **글꼴 함정(중요)**: 주아에는 `· … — × →` 같은 기호가 없어요. 웹에는 시스템 대체 글꼴이 없어서 네모(□)로 나왔어요. 해결: `jua.fallbacks = [ThemeDB.fallback_font]`(고닷 기본 글꼴을 대체로) → `· … —`은 나와요. 유니티 UI 문자열이 쓰는 비한글 기호는 `—` `·` `…` 세 가지뿐이라 충분해요. `→ ♪ ✓ ▶ ₩`는 여전히 안 나오니 새로 쓰지 말 것(★은 주아에 있음). **모든 글꼴 설정(테마)에 이 대체 글꼴을 붙일 것.**
 - **마우스 잠금**: 첫 클릭 이벤트는 받고 `Input.mouse_mode = CAPTURED`를 요청해요. 브라우저가 잠금을 거절해도(앱 안 브라우저) 게임은 멈추지 않고 오류만 로그에 남아요 → 유니티처럼 따로 막을 필요가 없어요. 단, 잠금이 실제로 되는지는 진짜 크롬에서 확인 전(앱 안 브라우저는 잠금 미지원).
-- **1단계에 남은 것**: 진짜 크롬에서 마우스 잠금·소리·로딩 확인, Vercel에서 실제 전송 크기 확인.
+- **1단계에 남은 것**: 진짜 크롬에서 마우스 잠금·소리·로딩 확인(사용자 확인 대기). Vercel 실제 전송 크기는 확인함.
+- **배포**: 시험 장면은 새 Vercel 프로젝트 `fishing-game-godot`(scope `bottlepipe`)로 올렸어요. 기존 유니티 주소(`fishing-game-web`)는 그대로. 올리는 법: 빌드 폴더(`fishing-game-build/godot-web`)에서 `npx vercel deploy --prod --yes --scope bottlepipe`. 처음 연결할 때 `vercel link`가 만드는 `.env.local`(인증 토큰)은 올라가지 않게 지울 것.
 
 ## 3. 유니티 → 고닷 대응표
 | 유니티에서 | 고닷에서 |
