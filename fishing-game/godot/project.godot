@@ -1,0 +1,17 @@
+; BOTTLE ISLAND 고닷 버전 (docs/GODOT_PORT.md). 언어: GDScript (2026-10-19 사용자 선택).
+config_version=5
+
+[application]
+
+config/name="BOTTLE ISLAND"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
