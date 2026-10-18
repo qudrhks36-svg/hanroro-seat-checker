@@ -33,7 +33,9 @@ func _ready() -> void:
 	var layer := CanvasLayer.new()
 	add_child(layer)
 	label = Label.new()
-	label.add_theme_font_override("font", load("res://assets/fonts/Jua-Regular.ttf"))
+	var jua: FontFile = load("res://assets/fonts/Jua-Regular.ttf")
+	jua.fallbacks = [ThemeDB.fallback_font]   # 주아에 없는 기호(· … — × → 등)는 고닷 기본 글꼴로 (웹에는 시스템 대체 글꼴이 없음)
+	label.add_theme_font_override("font", jua)
 	label.add_theme_font_size_override("font_size", 28)
 	label.add_theme_color_override("font_color", Color(0.33, 0.23, 0.16))
 	label.position = Vector2(24, 24)
@@ -49,4 +51,4 @@ func _input(event: InputEvent) -> void:
 
 func _process(_delta: float) -> void:
 	var mode := "잠김" if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else "풀림"
-	label.text = "화면을 한 번 클릭하면 시작해요\n마우스: %s · 시작함: %s · %d fps" % [mode, "예" if started else "아니오", Engine.get_frames_per_second()]
+	label.text = "화면을 한 번 클릭하면 시작해요\n마우스: %s · 시작함: %s · %d fps\n기호 시험: · … — × → ♪ ✓ ▶ ★ ₩ 저, 저기…" % [mode, "예" if started else "아니오", Engine.get_frames_per_second()]
