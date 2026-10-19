@@ -362,6 +362,8 @@ func _physics_process(_delta: float) -> void:
 
 func _process(_delta: float) -> void:
 	frames += 1
+	if frames == 8 and OS.has_feature("web"):   # 몇 프레임 그린 뒤 웹 페이지의 "섬으로 가는 중" 화면을 걷음 (web/shell.html)
+		JavaScriptBridge.eval("window.fgGameReady && window.fgGameReady()")
 	if _arg("log", "") != "" and frames % 10 == 0:
 		print("[FG] frame ", frames, " player=", player.position, " floor=", player.is_on_floor(), " hit=", player.dbg)
 
