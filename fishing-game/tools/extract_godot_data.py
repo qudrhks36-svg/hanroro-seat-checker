@@ -33,6 +33,8 @@ assert len(rows) == len(sizes) == 16, (len(rows), len(sizes))
 PERIOD = {"D": "day", "S": "sunset", "N": "night"}
 RARITY = {"Common": "common", "Uncommon": "uncommon", "Rare": "rare"}
 BASE_PRICE = {"common": 10, "uncommon": 30, "rare": 100}
+IMAGES = sorted(f for f in os.listdir(os.path.join(ROOT, "fish game", "Assets", "Fish")) if f.endswith(".png"))
+assert len(IMAGES) == 16, IMAGES
 fish = []
 for i, (name, rarity, far, periods) in enumerate(rows):
     r = RARITY[rarity]
@@ -47,6 +49,7 @@ for i, (name, rarity, far, periods) in enumerate(rows):
         "size_cm": {"min": sizes[i][0], "max": sizes[i][1]},
         "price": price,
         "image": "Fish_%02d" % (i + 1),    # fish game/Assets/Fish/Fish_01_*.png 처럼 번호로 시작하는 파일
+        "image_file": IMAGES[i],           # 실제 파일 이름 (웹 빌드에서는 폴더 목록을 믿을 수 없어서 이름을 직접 적어 둠)
     })
 dump("fish.json", {
     "note": "순서(id)는 저장 파일(collection/inventory/best 배열)의 칸 순서와 같다. 크기는 (난수+난수)/2로 가운데가 잘 나옴.",

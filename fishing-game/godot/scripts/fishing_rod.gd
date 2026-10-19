@@ -7,6 +7,7 @@ const ThemeUI := preload("res://scripts/ui_theme.gd")
 const TimeScript := preload("res://scripts/time_of_day.gd")
 const WorldScript := preload("res://scripts/world.gd")
 const SfxScript := preload("res://scripts/sfx.gd")
+const SaveScript := preload("res://scripts/save_data.gd")
 
 enum S { IDLE, FLYING, FLOATING, BITING, REELING }
 
@@ -55,7 +56,7 @@ var guide1: Label
 var guide2: Label
 var toast: PanelContainer
 var toast_label: Label
-var bait_label: Label
+var result_card                        # 결과 카드 (main이 넣어 줌)
 var bang: Label
 var reel_root: Control
 var zone_rect: ColorRect
@@ -70,7 +71,6 @@ func setup(camera: Camera3D, world_node: Node3D) -> void:
 	_build_bobber_and_line()
 	_build_ui()
 	_set_casting(false)
-	_update_bait_label()
 
 # ---- 낚싯대 모델 (카메라 아래, 유니티 RodLook과 같은 자리) ----
 func _build_rod(level: int) -> void:
@@ -173,12 +173,6 @@ func _build_ui() -> void:
 	ui.add_child(toast)
 	toast.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP, Control.PRESET_MODE_MINSIZE, 130)
 
-	var bait_panel := ThemeUI.panel()
-	bait_label = ThemeUI.label("", 24)
-	bait_panel.add_child(bait_label)
-	ui.add_child(bait_panel)
-	bait_panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 24)
-
 	bang = ThemeUI.label("!", 96, Color(1.0, 0.9, 0.3))
 	bang.add_theme_color_override("font_outline_color", Color(0.3, 0.15, 0.05))
 	bang.add_theme_constant_override("outline_size", 10)
@@ -200,9 +194,6 @@ func _build_ui() -> void:
 	reel_root.visible = false
 	ui.add_child(reel_root)
 
-func _update_bait_label() -> void:
-	bait_label.text = "미끼: %s  (1·2·3)" % Game.baits[selected_bait]["name"]
-
 # ---- 입력 ----
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -215,7 +206,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _select_bait(i: int) -> void:
 	selected_bait = i
-	_update_bait_label()
 
 # ---- 매 프레임 ----
 func _process(delta: float) -> void:
@@ -342,12 +332,9 @@ func _catch() -> void:
 	if was_new:
 		SfxScript.play("new_fish")
 	var f: Dictionary = Game.fish[hooked]
-	var msg := "%s %dcm 잡았어요!  (판매 값 %d원)" % [f["name"], cm, Game.price(hooked)]
-	if was_new:
-		msg = "NEW! " + msg
-	elif record:
-		msg += "  기록 갱신!"
-	_show_toast(msg)
+	SaveScript.save_game()
+	if result_card != null:
+		result_card.show_result(hooked, was_new, cm, record, cam.unproject_position(bobber.global_position))
 	print("[FG] catch #", catches, " ", f["name"], " ", cm, "cm ", f["rarity"], " period=", TimeScript.period, " bait=", cast_bait)
 	_end_reel()
 

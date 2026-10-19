@@ -18,7 +18,8 @@
         "max": 45
       },
       "price": 10,
-      "image": "Fish_01"
+      "image": "Fish_01",
+      "image_file": "Fish_01_Mackerel.png"
     },
     {
       "id": 2,
@@ -33,7 +34,8 @@
         "max": 60
       },
       "price": 10,
-      "image": "Fish_02"
+      "image": "Fish_02",
+      "image_file": "Fish_02_Bream.png"
     },
     {
       "id": 3,
@@ -49,7 +51,8 @@
         "max": 40
       },
       "price": 10,
-      "image": "Fish_03"
+      "image": "Fish_03",
+      "image_file": "Fish_03_Flounder.png"
     },
     {
       "id": 4,
@@ -64,7 +67,8 @@
         "max": 35
       },
       "price": 30,
-      "image": "Fish_04"
+      "image": "Fish_04",
+      "image_file": "Fish_04_Puffer.png"
     },
     {
       "id": 5,
@@ -79,7 +83,8 @@
         "max": 50
       },
       "price": 30,
-      "image": "Fish_05"
+      "image": "Fish_05",
+      "image_file": "Fish_05_Squid.png"
     },
     {
       "id": 6,
@@ -94,7 +99,8 @@
         "max": 90
       },
       "price": 100,
-      "image": "Fish_06"
+      "image": "Fish_06",
+      "image_file": "Fish_06_Cloud.png"
     },
     {
       "id": 7,
@@ -109,7 +115,8 @@
         "max": 90
       },
       "price": 100,
-      "image": "Fish_07"
+      "image": "Fish_07",
+      "image_file": "Fish_07_Sunset.png"
     },
     {
       "id": 8,
@@ -124,7 +131,8 @@
         "max": 90
       },
       "price": 100,
-      "image": "Fish_08"
+      "image": "Fish_08",
+      "image_file": "Fish_08_Comet.png"
     },
     {
       "id": 9,
@@ -140,7 +148,8 @@
         "max": 25
       },
       "price": 30,
-      "image": "Fish_09"
+      "image": "Fish_09",
+      "image_file": "Fish_09_Seahorse.png"
     },
     {
       "id": 10,
@@ -155,7 +164,8 @@
         "max": 45
       },
       "price": 30,
-      "image": "Fish_10"
+      "image": "Fish_10",
+      "image_file": "Fish_10_Jelly.png"
     },
     {
       "id": 11,
@@ -170,7 +180,8 @@
         "max": 90
       },
       "price": 100,
-      "image": "Fish_11"
+      "image": "Fish_11",
+      "image_file": "Fish_11_Moonfish.png"
     },
     {
       "id": 12,
@@ -186,7 +197,8 @@
         "max": 90
       },
       "price": 100,
-      "image": "Fish_12"
+      "image": "Fish_12",
+      "image_file": "Fish_12_Rainbow.png"
     },
     {
       "id": 13,
@@ -203,7 +215,8 @@
         "max": 150
       },
       "price": 15,
-      "image": "Fish_13"
+      "image": "Fish_13",
+      "image_file": "Fish_13_Tuna.png"
     },
     {
       "id": 14,
@@ -219,7 +232,8 @@
         "max": 200
       },
       "price": 45,
-      "image": "Fish_14"
+      "image": "Fish_14",
+      "image_file": "Fish_14_Marlin.png"
     },
     {
       "id": 15,
@@ -234,7 +248,8 @@
         "max": 80
       },
       "price": 45,
-      "image": "Fish_15"
+      "image": "Fish_15",
+      "image_file": "Fish_15_Angler.png"
     },
     {
       "id": 16,
@@ -250,7 +265,8 @@
         "max": 300
       },
       "price": 150,
-      "image": "Fish_16"
+      "image": "Fish_16",
+      "image_file": "Fish_16_StarWhale.png"
     }
   ]
 }

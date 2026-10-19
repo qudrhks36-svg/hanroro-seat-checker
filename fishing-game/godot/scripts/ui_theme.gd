@@ -50,3 +50,46 @@ static func rect(color: Color, size: Vector2, pos: Vector2) -> ColorRect:
 	r.position = pos
 	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return r
+
+# 유니티 UGUI처럼 "부모 가운데 기준 좌표(위쪽이 +y)"로 놓는다: 가운데 (cx, cy), 크기 (w, h)
+static func at(c: Control, parent_size: Vector2, cx: float, cy: float, w: float, h: float) -> void:
+	c.size = Vector2(w, h)
+	c.position = Vector2(parent_size.x * 0.5 + cx - w * 0.5, parent_size.y * 0.5 - cy - h * 0.5)
+	c.pivot_offset = c.size * 0.5
+
+# 둥근 모서리 상자 (색, 모서리 반지름, 테두리색, 테두리 두께)
+static func box(color: Color, radius: int = 12, border: Color = Color(0, 0, 0, 0), border_w: int = 0) -> Panel:
+	var p := Panel.new()
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = color
+	sb.set_corner_radius_all(radius)
+	sb.border_color = border
+	sb.set_border_width_all(border_w)
+	p.add_theme_stylebox_override("panel", sb)
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return p
+
+static func set_box_color(p: Panel, color: Color) -> void:
+	(p.get_theme_stylebox("panel") as StyleBoxFlat).bg_color = color
+
+static func set_box_border(p: Panel, color: Color, w: int) -> void:
+	var sb := p.get_theme_stylebox("panel") as StyleBoxFlat
+	sb.border_color = color
+	sb.set_border_width_all(w)
+
+# 칸 안에서 세로 가운데로 맞춘 글자
+static func text(t: String, size: int, color: Color, align: HorizontalAlignment = HORIZONTAL_ALIGNMENT_CENTER) -> Label:
+	var l := label(t, size, color)
+	l.horizontal_alignment = align
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	return l
+
+# 물고기 등급 색 (도감 칸 테두리·결과 카드)
+static func rarity_color(rarity_index: int) -> Color:
+	match rarity_index:
+		0: return Color(0.70, 0.85, 0.95)
+		1: return Color(0.75, 0.90, 0.60)
+		_: return Color(1.0, 0.85, 0.45)
+
+static func rarity_name(rarity_index: int) -> String:
+	return ["흔함", "보통", "희귀"][rarity_index]

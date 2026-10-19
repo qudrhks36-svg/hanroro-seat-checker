@@ -9,6 +9,10 @@ const TimeScript := preload("res://scripts/time_of_day.gd")
 const WeatherScript := preload("res://scripts/weather.gd")
 const FishingScript := preload("res://scripts/fishing_rod.gd")
 const SfxScript := preload("res://scripts/sfx.gd")
+const SaveScript := preload("res://scripts/save_data.gd")
+const HudScript := preload("res://scripts/hud.gd")
+const CatalogScript := preload("res://scripts/catalog.gd")
+const ResultCardScript := preload("res://scripts/result_card.gd")
 
 # 유니티 사진 시험(ScreenShot.cs)과 같은 카메라: 눈 위치(유니티 좌표)와 오일러 각도(x=아래로 숙임, y=좌우)
 const DEBUG_CAMS := {
@@ -98,13 +102,34 @@ func _ready() -> void:
 	weather.follow = player.cam
 	_apply_test_args()
 
-	# 낚시: 낚싯대·찌·줄·안내 판·릴 화면 (4단계)
+	# 저장 불러오기(도감·보유·기록·소지금), 낚시: 낚싯대·찌·줄·안내 판·릴 화면 (4단계)
+	if _arg("nosave", "") == "":
+		SaveScript.load_game()
 	SfxScript.host = self
 	fishing = Node3D.new()
 	fishing.set_script(FishingScript)
 	fishing.name = "Fishing"
 	add_child(fishing)
 	fishing.setup(player.cam, world)
+	# 상태창·결과 카드·도감 (5단계)
+	var hud := CanvasLayer.new()
+	hud.set_script(HudScript)
+	hud.name = "Hud"
+	hud.fishing = fishing
+	add_child(hud)
+	var result_card := CanvasLayer.new()
+	result_card.set_script(ResultCardScript)
+	result_card.name = "ResultCard"
+	add_child(result_card)
+	fishing.result_card = result_card
+	var catalog := CanvasLayer.new()
+	catalog.set_script(CatalogScript)
+	catalog.name = "Catalog"
+	add_child(catalog)
+	if _arg("catalog", "") != "":   # 시험용: 도감을 열고 이 번호 칸을 고른다
+		catalog.debug = true
+		catalog.selected = int(_arg("catalog", "0"))
+		catalog.set_open(true, false)
 	fishing.auto = _arg("auto", "") != ""
 	if _arg("rodcheck", "") != "":
 		fishing.debug_rod()
