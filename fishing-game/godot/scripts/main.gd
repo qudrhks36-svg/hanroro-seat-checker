@@ -7,6 +7,8 @@ const PlayerScript := preload("res://scripts/player.gd")
 const AtmosphereScript := preload("res://scripts/atmosphere.gd")
 const TimeScript := preload("res://scripts/time_of_day.gd")
 const WeatherScript := preload("res://scripts/weather.gd")
+const FishingScript := preload("res://scripts/fishing_rod.gd")
+const SfxScript := preload("res://scripts/sfx.gd")
 
 # 유니티 사진 시험(ScreenShot.cs)과 같은 카메라: 눈 위치(유니티 좌표)와 오일러 각도(x=아래로 숙임, y=좌우)
 const DEBUG_CAMS := {
@@ -20,7 +22,7 @@ const DEBUG_CAMS := {
 	"j": [Vector3(-14, 2, -6), Vector3(4, 227, 0)],
 }
 
-var label: Label
+var fishing: Node3D
 var world: Node3D
 var player: CharacterBody3D
 var frames := 0
@@ -96,16 +98,20 @@ func _ready() -> void:
 	weather.follow = player.cam
 	_apply_test_args()
 
-	var layer := CanvasLayer.new()
-	add_child(layer)
-	label = Label.new()
-	var jua: FontFile = load("res://assets/fonts/Jua-Regular.ttf")
-	jua.fallbacks = [ThemeDB.fallback_font]   # 주아에 없는 기호(· … —)는 고닷 기본 글꼴로 (웹에는 시스템 대체 글꼴이 없음)
-	label.add_theme_font_override("font", jua)
-	label.add_theme_font_size_override("font_size", 28)
-	label.add_theme_color_override("font_color", Color(0.33, 0.23, 0.16))
-	label.position = Vector2(24, 24)
-	layer.add_child(label)
+	# 낚시: 낚싯대·찌·줄·안내 판·릴 화면 (4단계)
+	SfxScript.host = self
+	fishing = Node3D.new()
+	fishing.set_script(FishingScript)
+	fishing.name = "Fishing"
+	add_child(fishing)
+	fishing.setup(player.cam, world)
+	fishing.auto = _arg("auto", "") != ""
+	if _arg("rodcheck", "") != "":
+		fishing.debug_rod()
+	if _arg("bait", "") != "":
+		fishing.selected_bait = int(_arg("bait", "0"))
+	if _arg("timescale", "") != "":
+		Engine.time_scale = float(_arg("timescale", "1"))
 
 func _apply_test_args() -> void:
 	var key := _arg("cam", "")
@@ -114,6 +120,9 @@ func _apply_test_args() -> void:
 		var e: Vector3 = DEBUG_CAMS[key][1]
 		player.position = Vector3(p.x, p.y - player.EYE_HEIGHT, -p.z)
 		player.look(-e.y, -e.x)   # 유니티 오일러(x 숙임, y 좌우)를 고닷으로: 숙임은 -x, 좌우는 z 반전이라 부호 반대
+	var yaw := _arg("yaw", "")            # 시험용: 바라보는 방향(도, 0=유니티 +Z, 90=왼쪽(유니티 -X))
+	if yaw != "":
+		player.look(float(yaw), 0.0)
 	var pos := _arg("pos", "")   # 시험용 시작 자리(유니티 좌표 x,z)
 	if pos != "":
 		var q := pos.split(",")
@@ -122,6 +131,7 @@ func _apply_test_args() -> void:
 	if clock != "":
 		tod.clock = float(clock)
 		tod.apply(tod.clock)
+	tod.frozen = _arg("freeze", "") != ""
 	var wk := _arg("weather", "")        # 시험용: clear / cloudy / rain
 	if wk != "":
 		weather.force({"clear": WeatherScript.Kind.CLEAR, "cloudy": WeatherScript.Kind.CLOUDY, "rain": WeatherScript.Kind.RAIN}[wk])
@@ -132,7 +142,8 @@ func _apply_test_args() -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED   # 첫 클릭은 시작(마우스 잠금)만
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED   # 첫 클릭은 시작(마우스 잠금)만 하고, 낚시가 던지기로 받지 않게 먹는다
+		get_viewport().set_input_as_handled()
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
@@ -158,5 +169,3 @@ func _process(_delta: float) -> void:
 	frames += 1
 	if _arg("log", "") != "" and frames % 10 == 0:
 		print("[FG] frame ", frames, " player=", player.position, " floor=", player.is_on_floor(), " hit=", player.dbg)
-	var mode := "잠김" if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else "풀림"
-	label.text = "화면을 한 번 클릭하면 시작해요\n마우스: %s · %d fps" % [mode, Engine.get_frames_per_second()]

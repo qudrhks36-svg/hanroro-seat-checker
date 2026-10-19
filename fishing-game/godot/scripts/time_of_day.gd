@@ -13,12 +13,14 @@ static var night := 0.0                   # 0=낮 … 1=한밤 (반딧불 같은
 
 var atmo: Node
 var clock := 0.0
+var frozen := false   # 시험용: 시계를 멈춤
 
 static func period_at(t: float) -> Period:
 	return Period.DAY if t < 240.0 else (Period.SUNSET if t < 360.0 else Period.NIGHT)
 
 func _process(delta: float) -> void:
-	clock = fmod(clock + delta, DAY_LENGTH)
+	if not frozen:
+		clock = fmod(clock + delta, DAY_LENGTH)
 	apply(clock)
 
 # 두 look(색 배열·숫자)을 k(0~1)만큼 섞는다
