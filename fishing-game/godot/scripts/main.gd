@@ -115,20 +115,25 @@ func _input(event: InputEvent) -> void:
 
 var probed := false
 func _physics_process(_delta: float) -> void:
-	var probe := _arg("probe", "")   # 시험용: x1,x2,z (유니티 좌표) 사이를 0.25 간격으로 위에서 아래로 쏴 높이와 이름을 찍음
+	var probe := _arg("probe", "")   # 시험용: x1,x2,z1,z2 (유니티 좌표) 안을 0.25 간격으로 위에서 아래로 쏴 높이와 이름을 찍음
 	if probe != "" and not probed:
 		probed = true
 		var q := probe.split(",")
-		var x := float(q[0])
-		while x <= float(q[1]) + 0.01:
-			var from := Vector3(x, 10, -float(q[2]))
-			var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 20))
-			print("[FG] probe x=", x, " ", ("y=%.3f %s" % [hit.position.y, hit.collider.get_parent().name + "/" + hit.collider.name]) if hit else "none")
-			x += 0.25
+		var z := float(q[2])
+		while z <= float(q[3]) + 0.01:
+			var x := float(q[0])
+			var row := ""
+			while x <= float(q[1]) + 0.01:
+				var from := Vector3(x, 10, -z)
+				var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 20))
+				row += ("%5.2f " % hit.position.y) if hit else " none "
+				x += 0.25
+			print("[FG] probe z=", z, " | ", row)
+			z += 0.25
 
 func _process(_delta: float) -> void:
 	frames += 1
 	if _arg("log", "") != "" and frames % 10 == 0:
-		print("[FG] frame ", frames, " player=", player.position, " floor=", player.is_on_floor())
+		print("[FG] frame ", frames, " player=", player.position, " floor=", player.is_on_floor(), " hit=", player.dbg)
 	var mode := "잠김" if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED else "풀림"
 	label.text = "화면을 한 번 클릭하면 시작해요\n마우스: %s · %d fps" % [mode, Engine.get_frames_per_second()]

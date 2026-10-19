@@ -10,6 +10,7 @@ const STEP_HEIGHT := 0.4        # 유니티 CharacterController: 계단 0.3 + �
 
 var cam: Camera3D
 var pitch := 0.0                 # 위아래 각도(도)
+var dbg := ""                    # 시험용: 지금 닿은 것들
 var test_walk := Vector2.ZERO    # 시험용: 키 대신 이 방향으로 걷게 함(x=오른쪽, y=앞)
 
 func _ready() -> void:
@@ -19,6 +20,7 @@ func _ready() -> void:
 	cap.height = 1.8
 	shape.shape = cap
 	add_child(shape)
+	floor_snap_length = STEP_HEIGHT + 0.1   # 계단·부두 끝에서 내려올 때 바닥에 붙어서 떨어지지 않게
 	cam = Camera3D.new()
 	cam.position = Vector3(0, EYE_HEIGHT, 0)
 	cam.current = true
@@ -50,9 +52,16 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y -= GRAVITY * delta
 	# 올라서기: 땅 위에서 앞이 막혔는데, STEP_HEIGHT만큼 올려 보면 앞이 비어 있으면 그만큼 올라선다
+	# 막힌 곳이 "벽"(옆면이 거의 수직)일 때만 올라선다. 바닥의 작은 요철에 부딪힌 걸 벽으로 착각하면 위아래로 덜컹거림.
 	var motion := Vector3(velocity.x, 0.0, velocity.z) * delta
-	if is_on_floor() and motion.length() > 0.0001 and test_move(global_transform, motion):
-		var raised := global_transform.translated(Vector3.UP * STEP_HEIGHT)
-		if not test_move(raised, motion):
-			global_position.y += STEP_HEIGHT
+	if is_on_floor() and motion.length() > 0.0001:
+		var hit := KinematicCollision3D.new()
+		if test_move(global_transform, motion, hit) and absf(hit.get_normal().y) < 0.3:
+			var raised := global_transform.translated(Vector3.UP * STEP_HEIGHT)
+			if not test_move(raised, motion):
+				global_position.y += STEP_HEIGHT
 	move_and_slide()
+	dbg = ""
+	for i in get_slide_collision_count():
+		var c := get_slide_collision(i)
+		dbg += "%s n=%s | " % [(c.get_collider() as Node).name if c.get_collider() else "?", c.get_normal()]
