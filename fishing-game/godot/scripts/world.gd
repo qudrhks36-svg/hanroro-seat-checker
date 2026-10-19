@@ -4,6 +4,7 @@ extends Node3D
 # FBX 모델 안의 모양은 유니티·고닷 가져오기 방식이 달라 거울상이 될 수 있어서, 모델에만 MODEL_FIX를 곱해 맞춘다(사진으로 확인).
 
 const MODEL_FIX := Basis(Vector3.UP, PI)   # 모델에 곱하는 보정 (Y축 180도). 사진 비교 결과로 정함
+const SmoothScript := preload("res://scripts/mesh_smooth.gd")
 const SCENE_JSON := "res://data/scene.json"
 const MATERIALS_JSON := "res://data/materials.json"
 const CUSTOM_SHADER_MATS := ["Mat_Sea", "Mat_SkyGradient"]   # 따로 셰이더로 만드는 것(2-3)
@@ -17,6 +18,7 @@ var mat_defs: Dictionary = {}
 var mat_cache: Dictionary = {}
 var unmatched: Dictionary = {}
 var skipped_child := 0
+var smooth_angle := 55.0                # 이 각도 미만으로 만나는 면은 부드럽게 이음(0 = 끔). 시험용 --smooth=도
 
 static func to_godot_pos(p: Array) -> Vector3:
 	return Vector3(p[0], p[1], -p[2])
@@ -154,6 +156,10 @@ func add_sea_body() -> void:
 	add_child(mesh_node)
 
 func build() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--smooth="):
+			smooth_angle = float(a.trim_prefix("--smooth="))
+	var t0 := Time.get_ticks_msec()
 	var mf := FileAccess.open(MATERIALS_JSON, FileAccess.READ)
 	mat_defs = JSON.parse_string(mf.get_as_text())
 	var f := FileAccess.open(SCENE_JSON, FileAccess.READ)
@@ -179,6 +185,7 @@ func build() -> void:
 		var basis := to_godot_basis(it["quat"]) * MODEL_FIX
 		node.transform = Transform3D(basis.scaled(Vector3(s[0], s[1], s[2])), to_godot_pos(it["pos"]))
 		add_child(node)
+		SmoothScript.smooth_node(node, smooth_angle)   # 각진 면을 부드럽게 이어 보이게 (10단계)
 		apply_materials(node)
 		models_by_parent[it["parent"]] = node
 		nodes_by_path[it["path"]] = node   # 같은 경로가 여러 개면(풀·꽃 …) 마지막 것만 남으므로, 개별로 찾을 때는 항목의 "_node"를 씀
@@ -186,4 +193,5 @@ func build() -> void:
 		add_colliders(node, it)
 		spawned += 1
 	add_sea_body()
+	print("[FG] smooth angle=", smooth_angle, " meshes=", SmoothScript.cache.size(), " corners=", SmoothScript.stat_corners, " changed=", SmoothScript.stat_changed, " total ms=", Time.get_ticks_msec() - t0)
 	print("[FG] world built: ", spawned, " models (skipped child pieces: ", skipped_child, "), unmatched materials: ", unmatched.keys())
