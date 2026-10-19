@@ -25,6 +25,7 @@ const SplashScript := preload("res://scripts/splash_fx.gd")
 const CabinScript := preload("res://scripts/cabin.gd")
 const WardrobeScript := preload("res://scripts/wardrobe.gd")
 const OutfitViewScript := preload("res://scripts/outfit_view.gd")
+const FarmScript := preload("res://scripts/farm.gd")
 const LifeScript := preload("res://scripts/life.gd")
 const Game := preload("res://scripts/game_state.gd")
 const ResultCardScript := preload("res://scripts/result_card.gd")
@@ -218,6 +219,9 @@ func _ready() -> void:
 				Game.inventory[i] += int(_arg("give", "0"))
 		if _arg("money", "") != "":
 			Game.money = int(_arg("money", "0"))
+		if _arg("givecrop", "") != "":   # 시험용: 작물 가방에 넣기 (--givecrop=번호:N)
+			var cq := _arg("givecrop", "0:1").split(":")
+			Game.crops[int(cq[0])] += int(cq[1])
 		if _arg("givefish", "") != "":   # 시험용: 이 번호 물고기를 N마리 (--givefish=번호:N)
 			var gq := _arg("givefish", "0:1").split(":")
 			Game.inventory[int(gq[0])] += int(gq[1])
@@ -299,6 +303,11 @@ func _ready() -> void:
 	cabin.name = "Cabin"
 	add_child(cabin)
 	cabin.setup(player.cam, player, fishing, tod, weather, wardrobe)
+	var farm := Node3D.new()   # 미니 농장 (11단계)
+	farm.set_script(FarmScript)
+	farm.name = "Farm"
+	add_child(farm)
+	farm.setup(player.cam, world)
 	var photo := CanvasLayer.new()   # 사진 찍기 P (8단계). 다른 화면을 꺼야 하므로 맨 마지막에 만든다
 	photo.set_script(PhotoScript)
 	photo.name = "PhotoMode"
@@ -309,6 +318,7 @@ func _ready() -> void:
 	add_child(sound)
 	_run_step8_tests(contest, photo, sound, dialog)
 	_run_cabin_tests(cabin, wardrobe)
+	_run_farm_tests(farm)
 	if _arg("lifecheck", "") != "":   # 시험용: 흔들림 대상 수와 반딧불·구름·그림자 (밤이면 --clock=450 --freeze=1)
 		print("[FG] life sways=", life.sways.size(), " boats=", life.boats.size(), " clouds=", life.clouds.size(), " puffs=", life.clouds[0].get_child_count(), " fish=", life.fish.size())
 		await get_tree().create_timer(2.0).timeout
@@ -351,7 +361,7 @@ func _apply_test_args() -> void:
 		player.look(-e.y, -e.x)   # 유니티 오일러(x 숙임, y 좌우)를 고닷으로: 숙임은 -x, 좌우는 z 반전이라 부호 반대
 	var yaw := _arg("yaw", "")            # 시험용: 바라보는 방향(도, 0=유니티 +Z, 90=왼쪽(유니티 -X))
 	if yaw != "":
-		player.look(float(yaw), 0.0)
+		player.look(float(yaw), float(_arg("pitch", "0")))   # 시험용 --pitch=도(아래로 숙임은 음수)
 	var pos := _arg("pos", "")   # 시험용 시작 자리(유니티 좌표 x,z)
 	if pos != "":
 		var q := pos.split(",")
@@ -531,3 +541,41 @@ func cam_look_at(p: Vector3) -> void:
 	var yaw := rad_to_deg(atan2(-d.x, -d.z))
 	var pitch := rad_to_deg(atan2(d.y, Vector2(d.x, d.z).length()))
 	player.look(yaw, pitch)
+
+# 농장 시험용: --farm=plant:밭:작물,water:밭,day,harvest:밭,state (차례로) / --farmcheck=1 (밭 앞에서 E 안내) / --money=N
+func _run_farm_tests(farm: Node) -> void:
+	if _arg("farmcheck", "") != "":
+		farm.assume_captured = true
+		farm.debug = true
+		while farm.plots_nodes.is_empty():
+			await get_tree().process_frame
+		await get_tree().create_timer(0.3, true, false, true).timeout
+		print("[FG] farmcheck plot=", farm.current_plot, " action=[", farm.current_action, "] text=", farm.prompt_label.text, " pos=", farm.plots_nodes[0]["root"].position)
+	if _arg("farm", "") == "":
+		return
+	farm.debug = true
+	while farm.plots_nodes.is_empty():
+		await get_tree().process_frame
+	if _arg("money", "") != "":
+		Game.money = int(_arg("money", "0"))
+	for step in _arg("farm", "").split(",", false):
+		var q := step.split(":")
+		match q[0]:
+			"plant":
+				farm.plant(int(q[1]), int(q[2]))
+			"water":
+				var a: String = farm._action_of(int(q[1]))
+				print("[FG] farm water action=[", a, "] text=", farm._prompt_text(int(q[1])))
+				if a == "water":
+					farm.act(int(q[1]), "water")
+			"harvest":
+				var a2: String = farm._action_of(int(q[1]))
+				print("[FG] farm harvest action=[", a2, "] text=", farm._prompt_text(int(q[1])))
+				if a2 == "harvest":
+					farm.act(int(q[1]), "harvest")
+			"day":
+				Game.farm_day += 1
+				await get_tree().process_frame
+				print("[FG] farm day=", Game.farm_day)
+			"state":
+				print("[FG] farm state plots=", Game.plots, " crops=", Game.crops, " day=", Game.farm_day, " money=", Game.money)

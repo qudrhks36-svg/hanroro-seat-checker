@@ -6,6 +6,7 @@ const FISH_JSON := "res://data/fish.json"
 const FISHING_JSON := "res://data/fishing.json"
 const ECONOMY_JSON := "res://data/economy.json"
 const OUTFITS_JSON := "res://data/outfits.json"
+const FARM_JSON := "res://data/farm.json"
 const RARITY_INDEX := {"common": 0, "uncommon": 1, "rare": 2}
 const PERIOD_NAMES := ["day", "sunset", "night"]   # TimeOfDay.Period 순서와 같음
 
@@ -37,6 +38,12 @@ const FRIEND_LEVELS := [3, 8, 15]         # ♥1·♥2·♥3이 되는 점수
 static var quests: Array = [[], [], [], []]   # NPC별 부탁 [물고기 번호, 마릿수] (비어 있으면 새로 만듦, 저장됨)
 static var outfits: Array = []             # 옷장 옷 목록 (data/outfits.json)
 static var outfit := 0                      # 입은 옷 번호 (저장됨)
+static var crop_defs: Array = []            # 작물 종류 (data/farm.json)
+static var plot_pos: Array = []             # 밭 6칸 자리 (유니티 x,z)
+static var clear_box: Dictionary = {}       # 밭 자리에서 치울 소품 범위
+static var crops: Array = [0, 0, 0]         # 수확한 작물 가방(종류별, 저장됨)
+static var plots: Array = []                # 밭 칸마다 [작물 번호(-1 비어 있음), 물 준 횟수, 마지막으로 물 준 날]
+static var farm_day := 0                    # 날짜(하루 시계가 한 바퀴 돌 때마다 +1, 저장됨)
 static var _loaded := false
 
 static func ensure_loaded() -> void:
@@ -54,6 +61,15 @@ static func ensure_loaded() -> void:
 	goal_reward = int(g["reward"])
 	rods = f["rods"]
 	outfits = JSON.parse_string(FileAccess.get_file_as_string(OUTFITS_JSON))["outfits"]
+	var fm: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FARM_JSON))
+	crop_defs = fm["crops"]
+	plot_pos = fm["plots"]
+	clear_box = fm["clear_box"]
+	crops.resize(crop_defs.size())
+	crops.fill(0)
+	plots.clear()
+	for k in plot_pos.size():
+		plots.append([-1, 0, -1])
 	counts.resize(fish.size())
 	best_cm.resize(fish.size())
 	inventory.resize(fish.size())
@@ -103,6 +119,19 @@ static func register(i: int, cm: int) -> bool:
 		best_cm[i] = cm
 	inventory[i] += 1
 	return record
+
+# ---- 농장 (GDD 3번 [확정]) ----
+static func crop_value() -> int:
+	var v := 0
+	for i in crops.size():
+		v += int(crops[i]) * int(crop_defs[i]["sell_price"])
+	return v
+
+static func crop_count() -> int:
+	var n := 0
+	for c in crops:
+		n += int(c)
+	return n
 
 # 친밀도 ♥ 단계 0~3
 static func friend_level(i: int) -> int:

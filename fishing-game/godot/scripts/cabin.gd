@@ -241,6 +241,8 @@ func sleep() -> void:
 	busy = true
 	await _fade(0.0, 1.0)
 	var idx: int = int(TimeScript.period)
+	if idx == 2:
+		Game.farm_day += 1   # 밤에 자고 아침이 되면 하루가 넘어감
 	tod.clock = float(WAKE_CLOCKS[idx])
 	tod.apply(tod.clock)
 	if weather != null:

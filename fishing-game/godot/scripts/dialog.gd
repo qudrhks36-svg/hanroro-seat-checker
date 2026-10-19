@@ -385,10 +385,11 @@ func _can_buy_fish() -> bool:
 
 # 보유 물고기를 모두 판다 (바틀이 ×1.0, 돌쇠 ×1.2 반올림)
 func sell_all() -> void:
-	if current < 0 or not _can_buy_fish() or _inventory_count() == 0:
+	if current < 0 or not _can_buy_fish() or _inventory_count() + Game.crop_count() == 0:
 		return
-	var earned := roundi(_inventory_value() * _buy_multiplier())
+	var earned := roundi((_inventory_value() + Game.crop_value()) * _buy_multiplier())   # 물고기와 수확한 작물을 함께 판다
 	Game.inventory.fill(0)
+	Game.crops.fill(0)
 	Game.money += earned
 	SaveScript.save_game()
 	SfxScript.play("sell")
@@ -434,11 +435,14 @@ func _refresh() -> void:
 	var info := ""
 	var hints: Array = []
 	if has_info:
-		if _inventory_count() > 0:
+		if _inventory_count() + Game.crop_count() > 0:
 			for i in Game.inventory.size():
 				if Game.inventory[i] > 0:
 					info += "%s x%d   " % [Game.fish[i]["name"], Game.inventory[i]]
-			var total := roundi(_inventory_value() * (_buy_multiplier() if not shop else 1.0))
+			for i in Game.crops.size():
+				if Game.crops[i] > 0:
+					info += "%s x%d   " % [Game.crop_defs[i]["name"], Game.crops[i]]
+			var total := roundi((_inventory_value() + Game.crop_value()) * (_buy_multiplier() if not shop else 1.0))
 			info += "\n합계 %d원" % total
 			hints.append(["왼쪽 클릭", "팔기" if shop else "모두 팔기"])
 		elif not sold:

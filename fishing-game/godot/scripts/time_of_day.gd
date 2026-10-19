@@ -2,6 +2,8 @@ extends Node
 # 하루 10분: 낮 4분 → 노을 2분 → 밤 4분 (GDD 7번). 유니티 TimeOfDay의 고닷 버전.
 # 키프레임 사이를 부드럽게(smoothstep) 섞은 look을 Atmosphere.apply_look()에 매 프레임 넣는다. 시간은 delta로 세므로 get_tree().paused 일 때 멈춘다.
 
+const Game := preload("res://scripts/game_state.gd")
+
 enum Period { DAY, SUNSET, NIGHT }
 
 const DAY_LENGTH := 600.0
@@ -20,7 +22,10 @@ static func period_at(t: float) -> Period:
 
 func _process(delta: float) -> void:
 	if not frozen:
-		clock = fmod(clock + delta, DAY_LENGTH)
+		var nc := clock + delta
+		if nc >= DAY_LENGTH:
+			Game.farm_day += 1   # 하루 시계가 한 바퀴 돌면 날짜 +1 (밭 물주기 기준)
+		clock = fmod(nc, DAY_LENGTH)
 	apply(clock)
 
 # 두 look(색 배열·숫자)을 k(0~1)만큼 섞는다
