@@ -193,6 +193,10 @@ func _ready() -> void:
 		for kv in _arg("friend", "").split(",", false):
 			var q := kv.split(":")
 			Game.friend[int(q[0])] = int(q[1])
+	if _arg("setquest", "") != "":   # 시험용: 부탁을 정함 (--setquest=NPC번호:물고기번호:마릿수,…)
+		for kv in _arg("setquest", "").split(",", false):
+			var sq := kv.split(":")
+			Game.quests[int(sq[0])] = [int(sq[1]), int(sq[2])]
 	var dialog := CanvasLayer.new()   # NPC 대화·상점 (6단계)
 	dialog.set_script(DialogScript)
 	dialog.name = "Dialog"
@@ -222,6 +226,8 @@ func _ready() -> void:
 				dialog.buy_rod()
 			elif a == "gift":
 				dialog.give_gift()
+			elif a == "quest":
+				dialog.complete_quest()
 		print("[FG] after: money=", Game.money, " rod=", Game.rod_level, " zone=", Game.zone_width())
 		if _arg("keepopen", "") == "":   # 시험용 --keepopen=1: 대화창을 열어 둔 채(웹에서 화면 사진용)
 			dialog.close(false)

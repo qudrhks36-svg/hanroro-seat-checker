@@ -33,6 +33,7 @@ static var contest_cm := 0           # 이번 대회에서 가장 큰 물고기 
 static var contest_fish := -1        # 그 물고기 번호
 static var friend: Array = [0, 0, 0, 0]   # NPC 친밀도 점수(바틀이·끼룩이·모카·돌쇠 순, 0~15, 저장됨)
 const FRIEND_LEVELS := [3, 8, 15]         # ♥1·♥2·♥3이 되는 점수
+static var quests: Array = [[], [], [], []]   # NPC별 부탁 [물고기 번호, 마릿수] (비어 있으면 새로 만듦, 저장됨)
 static var _loaded := false
 
 static func ensure_loaded() -> void:
@@ -106,6 +107,39 @@ static func friend_level(i: int) -> int:
 		if friend[i] >= need:
 			lv += 1
 	return lv
+
+# ---- 부탁 (GDD 3번 [확정]): NPC마다 "물고기 N마리 가져다 주기". 보상 = 판매 값 × 마릿수 × 2 + 친밀도 +2 ----
+static func quest_reward(q: Array) -> int:
+	return roundi(2.0 * price(int(q[0])) * int(q[1]))
+
+# 이 NPC의 새 부탁을 건다. 잡아 본 물고기나 섬 근처 흔한 물고기 중에서, 다른 NPC가 건 것·직전 부탁과 겹치지 않게
+static func new_quest(who: int) -> void:
+	ensure_loaded()
+	var taken: Array = []
+	for k in quests.size():
+		if k != who and not quests[k].is_empty():
+			taken.append(int(quests[k][0]))
+	var last: int = int(quests[who][0]) if not quests[who].is_empty() else -1
+	var pool: Array = []
+	var any_ok: Array = []   # 겹침을 허용하는 후보(처음엔 흔한 물고기가 3종뿐이라 NPC 4명이 다 다르기 어려움)
+	for i in fish.size():
+		var ok: bool = counts[i] > 0 or (rarity_index(i) == 0 and not bool(fish[i]["far_sea"]))
+		if ok and i != last:
+			any_ok.append(i)
+			if not taken.has(i):
+				pool.append(i)
+	if pool.is_empty():
+		pool = any_ok
+	if pool.is_empty():
+		pool = range(fish.size())
+	var i: int = pool[randi() % pool.size()]
+	var n: int = [randi_range(1, 3), randi_range(1, 2), 1][rarity_index(i)]
+	quests[who] = [i, n]
+
+static func ensure_quests() -> void:
+	for who in quests.size():
+		if quests[who].size() != 2:
+			new_quest(who)
 
 # 오늘의 목표 (GDD 9번 [확정]): 한 마리 낚을 때마다 부른다. 목표를 채우면 상금을 주고 true, 바로 다음 목표가 시작.
 static func goal_on_catch() -> bool:

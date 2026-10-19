@@ -22,6 +22,7 @@ static func save_game() -> void:
 	d["decor"] = Game.decor_mask
 	d["cabin"] = Game.cabin_level
 	d["friend"] = Game.friend
+	d["quests"] = Game.quests
 	d["goal"] = Game.goal_progress
 	d["contestBest"] = Game.contest_best
 	var f := FileAccess.open(PATH, FileAccess.WRITE)
@@ -52,10 +53,16 @@ static func load_game() -> void:
 	if fr is Array:
 		for i in mini(4, fr.size()):
 			Game.friend[i] = clampi(int(fr[i]), 0, Game.FRIEND_LEVELS[2])
+	var qs = d.get("quests")
+	if qs is Array:
+		for i in mini(4, qs.size()):
+			var q = qs[i]
+			if q is Array and q.size() == 2 and int(q[0]) >= 0 and int(q[0]) < Game.fish.size() and int(q[1]) >= 1:
+				Game.quests[i] = [int(q[0]), int(q[1])]
 	Game.goal_progress = clampi(int(d.get("goal", 0)), 0, Game.goal_target - 1)
 	Game.contest_best = maxi(0, int(d.get("contestBest", 0)))
 	extra = d.duplicate()
-	for k in ["collection", "inventory", "best", "money", "rod", "mouseSens", "notes", "decor", "cabin", "goal", "contestBest", "friend"]:
+	for k in ["collection", "inventory", "best", "money", "rod", "mouseSens", "notes", "decor", "cabin", "goal", "contestBest", "friend", "quests"]:
 		extra.erase(k)
 
 # 물고기 종류 수가 바뀐 저장 파일도 읽을 수 있게 짧은 쪽에 맞춰 복사, 음수는 0으로

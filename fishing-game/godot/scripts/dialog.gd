@@ -53,6 +53,7 @@ func setup(camera: Camera3D, world_node: Node3D) -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS   # 시간이 멈춰도(일시정지) 입력을 받음
 	layer = 5
 	Game.ensure_loaded()
+	Game.ensure_quests()
 	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(DIALOG_JSON))
 	for n in d["npcs"]:
 		var item: Dictionary
@@ -134,6 +135,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 			elif event.keycode == KEY_G:
 				give_gift()
+				get_viewport().set_input_as_handled()
+			elif event.keycode == KEY_Q:
+				complete_quest()
 				get_viewport().set_input_as_handled()
 			elif event.keycode == KEY_E:
 				close(true)
@@ -266,12 +270,12 @@ func give_gift() -> void:
 		return
 	var love := idx == _favorite_index(who)
 	Game.inventory[idx] -= 1
-	Game.friend[who] = mini(Game.friend[who] + (3 if love else 1), Game.FRIEND_LEVELS[2])
+	var up := _add_friend(who, 3 if love else 1)
 	var lines: Array = g["love"] if love else g["like"]
 	message = String(lines[randi() % lines.size()]).replace("{fish}", Game.fish[idx]["name"])
 	var now := Game.friend_level(who)
-	if now > lvl:
-		message = String(g["levelup"][now - 1]) + _level_reward(who, now)
+	if up != "":
+		message = up
 		SfxScript.play("upgrade")
 	else:
 		SfxScript.play("sell")
@@ -280,6 +284,51 @@ func give_gift() -> void:
 	_refresh()
 	if debug:
 		print("[FG] gift ", n["name"], " fish=", Game.fish[idx]["name"], " love=", love, " points=", Game.friend[who], " level=", now)
+
+# 친밀도 점수를 더한다. ♥ 단계가 오르면 그 단계 대사 + 작은 선물 문장을, 아니면 ""를 돌려줌
+func _add_friend(who: int, points: int) -> String:
+	var lvl := Game.friend_level(who)
+	Game.friend[who] = mini(Game.friend[who] + points, Game.FRIEND_LEVELS[2])
+	var now := Game.friend_level(who)
+	var text := ""
+	for l in range(lvl + 1, now + 1):
+		text = String(npcs[who]["data"]["gift"]["levelup"][l - 1]) + _level_reward(who, l)
+	return text
+
+# ---- 부탁 (GDD 3번 [확정]) ----
+func _quest_have(who: int) -> int:
+	return int(Game.inventory[int(Game.quests[who][0])])
+
+func _quest_ready(who: int) -> bool:
+	return _quest_have(who) >= int(Game.quests[who][1])
+
+func _quest_line(who: int) -> String:
+	var q: Array = Game.quests[who]
+	return "부탁: %s %d마리 · 보상 %d원, 친밀도 +2 (가진 것 %d/%d)" % [Game.fish[int(q[0])]["name"], int(q[1]), Game.quest_reward(q), mini(_quest_have(who), int(q[1])), int(q[1])]
+
+func complete_quest() -> void:
+	if current < 0 or not _quest_ready(current):
+		return
+	var who := current
+	var q: Array = Game.quests[who]
+	Game.inventory[int(q[0])] -= int(q[1])
+	var reward := Game.quest_reward(q)
+	Game.money += reward
+	var up := _add_friend(who, 2)
+	var done: Array = npcs[who]["data"]["quest_done"]
+	var fish_name: String = Game.fish[int(q[0])]["name"]
+	if up != "":
+		message = up + "\n부탁 보상 +%d원" % reward
+		SfxScript.play("upgrade")
+	else:
+		message = String(done[randi() % done.size()]).replace("{fish}", fish_name) + " (+%d원)" % reward
+		SfxScript.play("goal_done")
+	Game.new_quest(who)
+	SaveScript.save_game()
+	sold = true
+	_refresh()
+	if debug:
+		print("[FG] quest done ", npcs[who]["name"], " fish=", fish_name, " reward=", reward, " points=", Game.friend[who], " next=", Game.quests[who], " money=", Game.money)
 
 # ♥ 단계가 오를 때 받는 작은 선물: ♥1 돈 30원, ♥2 도감 힌트(다 잡았으면 50원), ♥3 돈 100원
 func _level_reward(who: int, level: int) -> String:
@@ -374,10 +423,7 @@ func _refresh() -> void:
 	var shop: bool = npcs[current]["shop"]
 	var has_info: bool = shop or n.has("buy_multiplier")
 	message_label.text = message
-	info_box.visible = has_info
-	box.custom_minimum_size = Vector2(W, 346 if has_info else 196)
-	box.size = box.custom_minimum_size
-	_place_box()
+	info_box.visible = true
 	tag_label.text = n["name"]
 	tag.size = Vector2(maxf(170.0, 40.0 + String(n["name"]).length() * 34.0), 54)
 	tag.position = Vector2(28, -27)
@@ -407,12 +453,22 @@ func _refresh() -> void:
 			if contest != null and contest.can_start():
 				hints.append(["C", "대회 3분"])
 			hints.append(["F", "꾸미기"])
+	if _quest_ready(current):
+		hints.append(["Q", "부탁"])
 	if _inventory_count() > 0 and Game.friend_level(current) < 3:
 		hints.append(["G", "선물"])
 	hints.append(["E / Esc", "닫기"])
 	var lv := Game.friend_level(current)
 	for k in 3:
 		hearts[k].set_kind("heart" if k < lv else "heart_off")
+	info = info.strip_edges(true, false) + ("\n" if info.strip_edges() != "" else "") + _quest_line(current)   # 맨 아래 줄은 항상 이 NPC의 부탁
+	var lines := info.count("\n") + 1
+	var info_h := 28 + 30 * lines
+	info_box.size = Vector2(W - 60, info_h)
+	info_label.size = Vector2(W - 92, info_h - 18)
+	box.custom_minimum_size = Vector2(W, 246 + info_h)
+	box.size = box.custom_minimum_size
+	_place_box()
 	info_label.text = info
 	_set_chips(hints)
 	if debug:
@@ -500,7 +556,7 @@ func _build() -> void:
 	info_label.size = Vector2(W - 92, 100)
 	info_box.add_child(info_label)
 	chips = HBoxContainer.new()
-	chips.add_theme_constant_override("separation", 14)
+	chips.add_theme_constant_override("separation", 10)
 	chips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(chips)
 	chips.anchor_left = 0.0   # 아래쪽 왼쪽 모서리 기준, 글자 길이에 맞춰 오른쪽으로 늘어남
