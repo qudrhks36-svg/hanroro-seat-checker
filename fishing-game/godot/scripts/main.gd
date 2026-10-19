@@ -369,6 +369,26 @@ func _process(_delta: float) -> void:
 
 # 8단계 시험용 명령줄: --goalcheck=1 --contest=cm,cm,... (0 = 한 마리도 못 잡음; --contestbest=N 이전 기록) --photo=1 --photosave=폴더 --mute=1 --ckey=1
 func _run_step8_tests(contest: Node, photo: Node, sound: Node, dialog: Node) -> void:
+	if _arg("dex", "") != "":   # 시험용: 도감을 앞에서 N종 채운 것으로
+		for i in mini(int(_arg("dex", "0")), Game.counts.size()):
+			Game.counts[i] = 1
+	if _arg("rodlevel", "") != "":
+		Game.rod_level = int(_arg("rodlevel", "0"))
+	if _arg("best", "") != "":
+		Game.contest_best = int(_arg("best", "0"))
+	if _arg("talktest", "") != "":   # 시험용: 이 번호 NPC(0~3)의 대사를 N번 뽑아 어떤 말이 몇 번 나오는지 (--clock --weather --dex --rodlevel --best --money 로 상황을 정함)
+		if _arg("money", "") != "":
+			Game.money = int(_arg("money", "0"))
+		var who := int(_arg("talktest", "0"))
+		var n: Dictionary = dialog.npcs[who]["data"]
+		var key: String = "tips" if dialog.npcs[who]["shop"] else ("lines" if n.has("lines") else "no_fish")
+		var counts: Dictionary = {}
+		for i in 300:
+			var line: String = dialog.pick_line(n[key], n["name"])
+			counts[line] = counts.get(line, 0) + 1
+		print("[FG] talktest ", n["name"], " ctx=", dialog._context(), " kinds=", counts.size())
+		for line in counts:
+			print("[FG]   ", counts[line], " | ", line)
 	if _arg("goalcheck", "") != "":
 		for i in 7:
 			var before := Game.money

@@ -8,6 +8,7 @@ const ThemeUI := preload("res://scripts/ui_theme.gd")
 const SaveScript := preload("res://scripts/save_data.gd")
 const SfxScript := preload("res://scripts/sfx.gd")
 const TimeScript := preload("res://scripts/time_of_day.gd")
+const WeatherScript := preload("res://scripts/weather.gd")
 const DIALOG_JSON := "res://data/dialog.json"
 
 const TALK_DISTANCE := 3.0
@@ -154,15 +155,69 @@ func open(i: int) -> void:
 	sold = false
 	var n: Dictionary = npcs[i]["data"]
 	if npcs[i]["shop"]:
-		message = "저, 저기… 물고기 잡으셨네요." if _inventory_count() > 0 else n["tips"][randi() % n["tips"].size()]
+		message = "저, 저기… 물고기 잡으셨네요." if _inventory_count() > 0 else pick_line(n["tips"], n["name"])
 	elif n.has("lines"):
-		message = n["lines"][randi() % n["lines"].size()]
+		message = pick_line(n["lines"], n["name"])
 	else:   # 돌쇠
-		message = n["has_fish"] if _inventory_count() > 0 else n["no_fish"]
+		message = n["has_fish"] if _inventory_count() > 0 else pick_line(n["no_fish"], n["name"])
 	if VOICES.has(n["name"]):
 		SfxScript.play(VOICES[n["name"]], 0.5)
 	box.visible = true
 	_refresh()
+
+# ---- 상황별 대사 (8단계 후속, GDD 3번): 줄은 문자열(조건 없음) 또는 {t, when} ----
+var last_line: Dictionary = {}   # NPC → 바로 앞에 한 말(되도록 반복 안 함)
+
+func _context() -> Dictionary:
+	var found := 0
+	for c in Game.counts:
+		if c > 0:
+			found += 1
+	return {
+		"period": ["day", "sunset", "night"][TimeScript.period],
+		"weather": ["clear", "cloudy", "rain"][WeatherScript.current],
+		"dex": found, "rod": Game.rod_level, "money": Game.money, "best": Game.contest_best,
+	}
+
+func _matches(when: Dictionary, ctx: Dictionary) -> bool:
+	for k in when:
+		var v = when[k]
+		var ok := false
+		match k:
+			"period": ok = ctx["period"] == v
+			"weather": ok = ctx["weather"] == v
+			"dex_min": ok = ctx["dex"] >= int(v)
+			"dex_full": ok = (ctx["dex"] >= Game.fish.size()) == bool(v)
+			"rod_max": ok = (ctx["rod"] >= Game.rods.size() - 1) == bool(v)
+			"money_min": ok = ctx["money"] >= int(v)
+			"contest_done": ok = (ctx["best"] > 0) == bool(v)
+		if not ok:
+			return false
+	return true
+
+# 맞는 조건 대사가 있으면 70%로 그 중에서, 아니면 조건 없는 대사에서 고른다. 바로 앞에 한 말은 다른 후보가 있으면 뺀다.
+func pick_line(lines: Array, who: String) -> String:
+	var ctx := _context()
+	var plain: Array = []
+	var cond: Array = []
+	for l in lines:
+		if l is String:
+			plain.append(l)
+		elif _matches(l.get("when", {}), ctx):
+			cond.append(l["t"])
+	var last: String = last_line.get(who, "")
+	var cond2: Array = cond.filter(func(x): return x != last)    # 바로 앞에 한 말은 다른 후보가 있으면 뺀다
+	var plain2: Array = plain.filter(func(x): return x != last)
+	var pool: Array
+	if not cond2.is_empty() and (plain2.is_empty() or randf() < 0.7):
+		pool = cond2
+	elif not plain2.is_empty():
+		pool = plain2
+	else:
+		pool = cond if not cond.is_empty() else plain
+	var text: String = pool[randi() % pool.size()]
+	last_line[who] = text
+	return text.replace("{best}", str(ctx["best"]))
 
 func close(relock: bool) -> void:
 	is_open = false
