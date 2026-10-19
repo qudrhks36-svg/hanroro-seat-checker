@@ -70,6 +70,12 @@ static func next(k: Kind) -> Kind:
 		_:
 			return Kind.CLOUDY if v < 0.7 else Kind.RAIN
 
+# 잠자고 일어났을 때: 날씨를 새로 정함(맑음 50%·흐림 30%·비 20%), 색·비는 천천히 따라감
+func reroll() -> void:
+	var v := randf()
+	current = Kind.CLEAR if v < 0.5 else (Kind.CLOUDY if v < 0.8 else Kind.RAIN)
+	timer = randf_range(CHANGE_MIN, CHANGE_MAX)
+
 func force(k: Kind) -> void:
 	# 시험용: 이 날씨로 바로 바꾸고(천천히 따라가지 않고) 오래 유지
 	current = k

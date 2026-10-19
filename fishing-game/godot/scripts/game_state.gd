@@ -5,6 +5,7 @@ extends RefCounted
 const FISH_JSON := "res://data/fish.json"
 const FISHING_JSON := "res://data/fishing.json"
 const ECONOMY_JSON := "res://data/economy.json"
+const OUTFITS_JSON := "res://data/outfits.json"
 const RARITY_INDEX := {"common": 0, "uncommon": 1, "rare": 2}
 const PERIOD_NAMES := ["day", "sunset", "night"]   # TimeOfDay.Period 순서와 같음
 
@@ -34,6 +35,8 @@ static var contest_fish := -1        # 그 물고기 번호
 static var friend: Array = [0, 0, 0, 0]   # NPC 친밀도 점수(바틀이·끼룩이·모카·돌쇠 순, 0~15, 저장됨)
 const FRIEND_LEVELS := [3, 8, 15]         # ♥1·♥2·♥3이 되는 점수
 static var quests: Array = [[], [], [], []]   # NPC별 부탁 [물고기 번호, 마릿수] (비어 있으면 새로 만듦, 저장됨)
+static var outfits: Array = []             # 옷장 옷 목록 (data/outfits.json)
+static var outfit := 0                      # 입은 옷 번호 (저장됨)
 static var _loaded := false
 
 static func ensure_loaded() -> void:
@@ -50,6 +53,7 @@ static func ensure_loaded() -> void:
 	goal_target = int(g["target_catches"])
 	goal_reward = int(g["reward"])
 	rods = f["rods"]
+	outfits = JSON.parse_string(FileAccess.get_file_as_string(OUTFITS_JSON))["outfits"]
 	counts.resize(fish.size())
 	best_cm.resize(fish.size())
 	inventory.resize(fish.size())

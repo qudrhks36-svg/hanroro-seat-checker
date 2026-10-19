@@ -9,6 +9,7 @@ const WorldScript := preload("res://scripts/world.gd")
 const SfxScript := preload("res://scripts/sfx.gd")
 const SaveScript := preload("res://scripts/save_data.gd")
 const FarSeaScript := preload("res://scripts/far_sea.gd")
+const CabinScript := preload("res://scripts/cabin.gd")
 
 enum S { IDLE, FLYING, FLOATING, BITING, REELING }
 
@@ -221,8 +222,12 @@ func is_hooked() -> bool:   # 입질 중이거나 릴 감는 중 (낚시 대회�
 
 # ---- 매 프레임 ----
 func _process(delta: float) -> void:
-	if FarSeaScript.busy:
-		return   # 배로 이동하는 동안(화면이 어두워지는 사이)엔 던지기 등 입력을 막음
+	if FarSeaScript.busy or CabinScript.busy:
+		return   # 배·집으로 이동하는 동안(화면이 어두워지는 사이)엔 던지기 등 입력을 막음
+	if CabinScript.inside:
+		guide.visible = false   # 집 안에서는 낚시를 못 함(안내도 숨김)
+		click_pending = false
+		return
 	if shown_rod != Game.rod_level:
 		shown_rod = Game.rod_level
 		_build_rod(shown_rod)   # 업그레이드하거나 저장을 불러오면 낚싯대 모양을 바꿈

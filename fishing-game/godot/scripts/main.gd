@@ -22,6 +22,9 @@ const ContestScript := preload("res://scripts/contest.gd")
 const PhotoScript := preload("res://scripts/photo_mode.gd")
 const SoundScript := preload("res://scripts/sound.gd")
 const SplashScript := preload("res://scripts/splash_fx.gd")
+const CabinScript := preload("res://scripts/cabin.gd")
+const WardrobeScript := preload("res://scripts/wardrobe.gd")
+const OutfitViewScript := preload("res://scripts/outfit_view.gd")
 const LifeScript := preload("res://scripts/life.gd")
 const Game := preload("res://scripts/game_state.gd")
 const ResultCardScript := preload("res://scripts/result_card.gd")
@@ -282,6 +285,20 @@ func _ready() -> void:
 	life.name = "Life"
 	add_child(life)
 	life.setup(world)
+	var outfit_view := Node3D.new()   # 1인칭 소매와 손 (10단계)
+	outfit_view.set_script(OutfitViewScript)
+	outfit_view.name = "OutfitView"
+	player.cam.add_child(outfit_view)
+	outfit_view.setup(fishing)
+	var wardrobe := CanvasLayer.new()   # 옷장 창
+	wardrobe.set_script(WardrobeScript)
+	wardrobe.name = "Wardrobe"
+	add_child(wardrobe)
+	var cabin := Node3D.new()   # 집 안: 문·방·침대·옷장 (10단계)
+	cabin.set_script(CabinScript)
+	cabin.name = "Cabin"
+	add_child(cabin)
+	cabin.setup(player.cam, player, fishing, tod, weather, wardrobe)
 	var photo := CanvasLayer.new()   # 사진 찍기 P (8단계). 다른 화면을 꺼야 하므로 맨 마지막에 만든다
 	photo.set_script(PhotoScript)
 	photo.name = "PhotoMode"
@@ -291,6 +308,7 @@ func _ready() -> void:
 	sound.name = "Sound"
 	add_child(sound)
 	_run_step8_tests(contest, photo, sound, dialog)
+	_run_cabin_tests(cabin, wardrobe)
 	if _arg("lifecheck", "") != "":   # 시험용: 흔들림 대상 수와 반딧불·구름·그림자 (밤이면 --clock=450 --freeze=1)
 		print("[FG] life sways=", life.sways.size(), " boats=", life.boats.size(), " clouds=", life.clouds.size(), " puffs=", life.clouds[0].get_child_count(), " fish=", life.fish.size())
 		await get_tree().create_timer(2.0).timeout
@@ -405,6 +423,29 @@ func _run_step8_tests(contest: Node, photo: Node, sound: Node, dialog: Node) -> 
 		print("[FG] talktest ", n["name"], " ctx=", dialog._context(), " kinds=", counts.size())
 		for line in counts:
 			print("[FG]   ", counts[line], " | ", line)
+	if _arg("cabininfo", "") != "":   # 시험용: 오두막 모델의 조각 이름·자리(고닷 월드 좌표)
+		var cab: Node3D = world.nodes_by_path.get("Island/Cabin")
+		print("[FG] cabin node pos=", cab.global_position, " basis.y=", cab.global_basis.get_euler())
+		for n in cab.find_children("*", "Node3D", true, false):
+			var extra := ""
+			if n is MeshInstance3D:
+				var bb: AABB = (n as MeshInstance3D).get_aabb()
+				var gp: Vector3 = (n as Node3D).global_transform * (bb.position + bb.size * 0.5)
+				extra = " center=" + str(gp) + " size=" + str(bb.size)
+			print("[FG]   ", n.name, extra)
+			if n is MeshInstance3D and (n as MeshInstance3D).mesh != null:
+				var mesh: Mesh = (n as MeshInstance3D).mesh
+				for si in mesh.get_surface_count():
+					var arr: Array = mesh.surface_get_arrays(si)
+					var vs: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+					var lo := Vector3(1e9, 1e9, 1e9)
+					var hi := Vector3(-1e9, -1e9, -1e9)
+					for v in vs:
+						var w: Vector3 = (n as Node3D).global_transform * v
+						lo = lo.min(w)
+						hi = hi.max(w)
+					var mat: Material = mesh.surface_get_material(si)
+					print("[FG]     surf ", si, " mat=", mat.resource_name if mat != null else "", " lo=", lo, " hi=", hi)
 	if _arg("goalcheck", "") != "":
 		for i in 7:
 			var before := Game.money
@@ -445,3 +486,48 @@ func _run_step8_tests(contest: Node, photo: Node, sound: Node, dialog: Node) -> 
 		print("[FG] mute after M=", AudioServer.is_bus_mute(bus), " label=", sound.muted)
 		sound.toggle()
 		print("[FG] mute after M again=", AudioServer.is_bus_mute(bus))
+
+# 집 안 시험용 명령줄: --cabin=enter,sleep,wear:3,exit (차례로 실행) / --cabincheck=1 (오두막 문 앞에서 E 안내가 뜨는지)
+func _run_cabin_tests(cabin: Node, wardrobe: Node) -> void:
+	if _arg("cabincheck", "") != "":
+		cabin.assume_captured = true
+		await get_tree().create_timer(0.3, true, false, true).timeout
+		print("[FG] cabincheck outside target=", cabin.current_target, " prompt=", cabin.prompt.visible, " text=", cabin.prompt_label.text)
+	if _arg("cabin", "") != "":
+		cabin.debug = true
+		wardrobe.debug = true
+		cabin.assume_captured = true
+		for step in _arg("cabin", "").split(",", false):
+			if step == "enter":
+				await cabin.enter()
+				await get_tree().create_timer(0.3, true, false, true).timeout
+				print("[FG] inside=", CabinScript.inside, " target=", cabin.current_target, " pos=", player.global_position, " floor=", player.is_on_floor())
+			elif step == "sleep":
+				await cabin.sleep()
+			elif step == "exit":
+				await cabin.leave()
+				await get_tree().create_timer(0.3, true, false, true).timeout
+				print("[FG] inside=", CabinScript.inside, " pos=", player.global_position, " floor=", player.is_on_floor())
+			elif step.begins_with("wear:"):
+				wardrobe.open()
+				wardrobe.wear(int(step.trim_prefix("wear:")))
+				print("[FG] outfit=", Game.outfit, " modal=", Game.modal, " paused=", get_tree().paused)
+				wardrobe.close(false)
+			elif step == "target":   # 방 안에서 침대·옷장·문을 바라볼 때 E 안내가 뜨는지
+				for tg in cabin.targets:
+					var p: Vector3 = tg["pos"]
+					player.global_position = p + Vector3(0, 0, 1.6) if tg["id"] != "exit" else p + Vector3(0, 0, -1.6)
+					player.look(0.0 if tg["id"] != "exit" else 180.0, 0.0)
+					cam_look_at(p)
+					await get_tree().create_timer(0.25, true, false, true).timeout
+					print("[FG] target ", tg["id"], " -> current=", cabin.current_target, " text=", cabin.prompt_label.text)
+	if _arg("openwardrobe", "") != "":   # 시험용(웹 화면 사진): 옷장 창을 열어 둔다
+		wardrobe.open()
+		wardrobe.wear(int(_arg("openwardrobe", "0")))
+
+# 시험용: 카메라가 이 자리(월드)를 향하게 플레이어 시점을 돌림
+func cam_look_at(p: Vector3) -> void:
+	var d: Vector3 = p - player.cam.global_position
+	var yaw := rad_to_deg(atan2(-d.x, -d.z))
+	var pitch := rad_to_deg(atan2(d.y, Vector2(d.x, d.z).length()))
+	player.look(yaw, pitch)

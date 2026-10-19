@@ -1,0 +1,11 @@
+{
+  "outfits": [
+    {"name": "기본", "top": [0.45, 0.70, 0.95], "bottom": [0.20, 0.25, 0.50], "hat": null, "dress": false},
+    {"name": "노란 비옷", "top": [0.98, 0.82, 0.25], "bottom": [0.30, 0.34, 0.45], "hat": {"shape": "cap", "color": [0.98, 0.82, 0.25]}, "dress": false},
+    {"name": "초록 스웨터", "top": [0.38, 0.65, 0.42], "bottom": [0.45, 0.35, 0.25], "hat": null, "dress": false},
+    {"name": "빨간 후드", "top": [0.88, 0.32, 0.30], "bottom": [0.25, 0.25, 0.30], "hat": {"shape": "beanie", "color": [0.88, 0.32, 0.30]}, "dress": false},
+    {"name": "줄무늬 어부복", "top": [0.20, 0.30, 0.55], "bottom": [0.92, 0.90, 0.85], "hat": {"shape": "cap", "color": [0.95, 0.94, 0.90]}, "dress": false},
+    {"name": "분홍 원피스", "top": [0.95, 0.62, 0.72], "bottom": [0.95, 0.62, 0.72], "hat": null, "dress": true}
+  ],
+  "rule": "옷장(집 안)에서 입음. 모두 무료. top=윗옷·소매, bottom=바지, hat=모자(cap 챙 있는 모자, beanie 둥근 모자), dress=치마"
+}
