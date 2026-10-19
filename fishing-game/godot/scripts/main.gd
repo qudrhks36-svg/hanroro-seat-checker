@@ -5,6 +5,8 @@ extends Node3D
 const WorldScript := preload("res://scripts/world.gd")
 const PlayerScript := preload("res://scripts/player.gd")
 const AtmosphereScript := preload("res://scripts/atmosphere.gd")
+const TimeScript := preload("res://scripts/time_of_day.gd")
+const WeatherScript := preload("res://scripts/weather.gd")
 
 # 유니티 사진 시험(ScreenShot.cs)과 같은 카메라: 눈 위치(유니티 좌표)와 오일러 각도(x=아래로 숙임, y=좌우)
 const DEBUG_CAMS := {
@@ -22,6 +24,8 @@ var label: Label
 var world: Node3D
 var player: CharacterBody3D
 var frames := 0
+var weather: Node
+var tod: Node
 
 func _arg(key: String, default: String) -> String:
 	for a in OS.get_cmdline_user_args():
@@ -45,7 +49,7 @@ func _ready() -> void:
 	env.adjustment_enabled = true
 	env.adjustment_brightness = 1.07
 	env.adjustment_contrast = float(_arg("con", "1.1"))
-	env.adjustment_saturation = float(_arg("sat", "1.25"))
+	env.adjustment_saturation = float(_arg("sat", "1.15"))
 	var we := WorldEnvironment.new()
 	we.environment = env
 	add_child(we)
@@ -64,13 +68,24 @@ func _ready() -> void:
 	atmo.name = "Atmosphere"
 	add_child(atmo)
 	atmo.load_looks()
-	atmo.sun_energy_per_intensity = float(_arg("energy", "0.36"))
-	atmo.ambient_energy = float(_arg("amb", "0.1"))
+	atmo.sun_energy_per_intensity = float(_arg("energy", "0.08"))
+	atmo.ambient_energy = float(_arg("amb", "1.0"))
 	atmo.fog_density_objects = float(_arg("fd", "0.001"))
+	AtmosphereScript.color_power = float(_arg("cp", "1.3"))
 	atmo.setup(env, sun)
 	if _arg("fog", "1") == "0":
 		env.fog_enabled = false
-	atmo.apply_look(atmo.looks[_arg("look", "day")])
+	atmo.apply_look(atmo.looks[_arg("look", "day")])   # 시간·날씨 노드가 매 프레임 덮어씀
+
+	weather = Node.new()
+	weather.set_script(WeatherScript)
+	weather.name = "Weather"
+	add_child(weather)
+	tod = Node.new()
+	tod.set_script(TimeScript)
+	tod.name = "TimeOfDay"
+	tod.atmo = atmo
+	add_child(tod)
 
 	# 플레이어: 유니티 시작 자리 (0, 1.1, 0), 앞은 -Z
 	player = CharacterBody3D.new()
@@ -78,6 +93,7 @@ func _ready() -> void:
 	player.name = "Player"
 	player.position = Vector3(0, 1.1, 0)
 	add_child(player)
+	weather.follow = player.cam
 	_apply_test_args()
 
 	var layer := CanvasLayer.new()
@@ -102,6 +118,13 @@ func _apply_test_args() -> void:
 	if pos != "":
 		var q := pos.split(",")
 		player.position = Vector3(float(q[0]), 1.1, -float(q[1]))
+	var clock := _arg("clock", "")        # 시험용: 시각(초, 0=낮 300=노을 450=밤)
+	if clock != "":
+		tod.clock = float(clock)
+		tod.apply(tod.clock)
+	var wk := _arg("weather", "")        # 시험용: clear / cloudy / rain
+	if wk != "":
+		weather.force({"clear": WeatherScript.Kind.CLEAR, "cloudy": WeatherScript.Kind.CLOUDY, "rain": WeatherScript.Kind.RAIN}[wk])
 	var walk := _arg("walk", "")
 	if walk != "":
 		var w := walk.split(",")

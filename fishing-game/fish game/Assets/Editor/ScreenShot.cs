@@ -16,6 +16,8 @@ public static class ScreenShot
         float clock = float.Parse(Environment.GetEnvironmentVariable("FG_CLOCK") ?? "0");
         Directory.CreateDirectory(outDir);
         EditorSceneManager.OpenScene("Assets/Scenes/SampleScene.unity");
+        var oc = Environment.GetEnvironmentVariable("FG_OVERCAST");   // 시험용: 흐림 정도(0~1)를 미리 정해 둠(고닷 포팅 3단계 비교용)
+        if (oc != null) typeof(Weather).GetProperty("Overcast").GetSetMethod(true).Invoke(null, new object[] { float.Parse(oc) });
         var tod = UnityEngine.Object.FindFirstObjectByType<TimeOfDay>(); tod.Apply(clock);
         var cam = Camera.main;
         UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = true;
