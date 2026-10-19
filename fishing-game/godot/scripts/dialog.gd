@@ -8,6 +8,7 @@ const ThemeUI := preload("res://scripts/ui_theme.gd")
 const SaveScript := preload("res://scripts/save_data.gd")
 const SfxScript := preload("res://scripts/sfx.gd")
 const TimeScript := preload("res://scripts/time_of_day.gd")
+const IconScript := preload("res://scripts/icons.gd")
 const WeatherScript := preload("res://scripts/weather.gd")
 const DIALOG_JSON := "res://data/dialog.json"
 
@@ -44,6 +45,7 @@ var message_label: Label
 var info_box: Panel
 var info_label: Label
 var chips: HBoxContainer
+var hearts: Array = []               # 친밀도 ♥ 3개 (대화창 오른쪽 위)
 
 func setup(camera: Camera3D, world_node: Node3D) -> void:
 	cam = camera
@@ -130,6 +132,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				close(true)
 				contest.begin()
 				get_viewport().set_input_as_handled()
+			elif event.keycode == KEY_G:
+				give_gift()
+				get_viewport().set_input_as_handled()
 			elif event.keycode == KEY_E:
 				close(true)
 				get_viewport().set_input_as_handled()
@@ -168,7 +173,7 @@ func open(i: int) -> void:
 # ---- 상황별 대사 (8단계 후속, GDD 3번): 줄은 문자열(조건 없음) 또는 {t, when} ----
 var last_line: Dictionary = {}   # NPC → 바로 앞에 한 말(되도록 반복 안 함)
 
-func _context() -> Dictionary:
+func _context(who_name: String = "") -> Dictionary:
 	var found := 0
 	for c in Game.counts:
 		if c > 0:
@@ -176,7 +181,7 @@ func _context() -> Dictionary:
 	return {
 		"period": ["day", "sunset", "night"][TimeScript.period],
 		"weather": ["clear", "cloudy", "rain"][WeatherScript.current],
-		"dex": found, "rod": Game.rod_level, "money": Game.money, "best": Game.contest_best,
+		"friend": Game.friend_level(_index_of(who_name)), "dex": found, "rod": Game.rod_level, "money": Game.money, "best": Game.contest_best,
 	}
 
 func _matches(when: Dictionary, ctx: Dictionary) -> bool:
@@ -186,6 +191,7 @@ func _matches(when: Dictionary, ctx: Dictionary) -> bool:
 		match k:
 			"period": ok = ctx["period"] == v
 			"weather": ok = ctx["weather"] == v
+			"friend_min": ok = ctx["friend"] >= int(v)
 			"dex_min": ok = ctx["dex"] >= int(v)
 			"dex_full": ok = (ctx["dex"] >= Game.fish.size()) == bool(v)
 			"rod_max": ok = (ctx["rod"] >= Game.rods.size() - 1) == bool(v)
@@ -197,7 +203,7 @@ func _matches(when: Dictionary, ctx: Dictionary) -> bool:
 
 # 맞는 조건 대사가 있으면 70%로 그 중에서, 아니면 조건 없는 대사에서 고른다. 바로 앞에 한 말은 다른 후보가 있으면 뺀다.
 func pick_line(lines: Array, who: String) -> String:
-	var ctx := _context()
+	var ctx := _context(who)
 	var plain: Array = []
 	var cond: Array = []
 	for l in lines:
@@ -218,6 +224,88 @@ func pick_line(lines: Array, who: String) -> String:
 	var text: String = pool[randi() % pool.size()]
 	last_line[who] = text
 	return text.replace("{best}", str(ctx["best"]))
+
+# ---- 선물과 친밀도 (GDD 3번 [확정]): G = 물고기 1마리 선물. 좋아하는 물고기 +3, 아니면 가장 싼 물고기 +1. ♥ 3·8·15점에서 오르며 작은 선물 ----
+func _index_of(who_name: String) -> int:
+	for i in npcs.size():
+		if npcs[i]["name"] == who_name:
+			return i
+	return 0
+
+func _favorite_index(who: int) -> int:
+	var fav: String = npcs[who]["data"].get("favorite", "")
+	for i in Game.fish.size():
+		if Game.fish[i]["name"] == fav:
+			return i
+	return -1
+
+func _gift_fish(who: int) -> int:
+	var fav := _favorite_index(who)
+	if fav >= 0 and Game.inventory[fav] > 0:
+		return fav
+	var best := -1
+	for i in Game.inventory.size():
+		if Game.inventory[i] > 0 and (best < 0 or Game.price(i) < Game.price(best)):
+			best = i
+	return best
+
+func give_gift() -> void:
+	if current < 0:
+		return
+	var who := current
+	var n: Dictionary = npcs[who]["data"]
+	var g: Dictionary = n["gift"]
+	var lvl := Game.friend_level(who)
+	if lvl >= 3:
+		message = g["max"]   # 이미 가장 친함: 물고기는 안 받고 마음만
+		sold = true
+		_refresh()
+		return
+	var idx := _gift_fish(who)
+	if idx < 0:
+		return
+	var love := idx == _favorite_index(who)
+	Game.inventory[idx] -= 1
+	Game.friend[who] = mini(Game.friend[who] + (3 if love else 1), Game.FRIEND_LEVELS[2])
+	var lines: Array = g["love"] if love else g["like"]
+	message = String(lines[randi() % lines.size()]).replace("{fish}", Game.fish[idx]["name"])
+	var now := Game.friend_level(who)
+	if now > lvl:
+		message = String(g["levelup"][now - 1]) + _level_reward(who, now)
+		SfxScript.play("upgrade")
+	else:
+		SfxScript.play("sell")
+	SaveScript.save_game()
+	sold = true
+	_refresh()
+	if debug:
+		print("[FG] gift ", n["name"], " fish=", Game.fish[idx]["name"], " love=", love, " points=", Game.friend[who], " level=", now)
+
+# ♥ 단계가 오를 때 받는 작은 선물: ♥1 돈 30원, ♥2 도감 힌트(다 잡았으면 50원), ♥3 돈 100원
+func _level_reward(who: int, level: int) -> String:
+	if level == 1:
+		Game.money += 30
+		return " (+30원)"
+	if level == 3:
+		Game.money += 100
+		return " (+100원)"
+	var left: Array = []
+	for i in Game.fish.size():
+		if Game.counts[i] == 0:
+			left.append(i)
+	if left.is_empty():
+		Game.money += 50
+		return " (+50원)"
+	var f: Dictionary = Game.fish[left[randi() % left.size()]]
+	var names := {"day": "낮", "sunset": "노을", "night": "밤"}
+	var times: Array = []
+	for p in f["periods"]:
+		times.append(names[p])
+	var when := "하루 종일" if times.size() == 3 else "·".join(times)
+	var where := "먼 바다에서" if bool(f["far_sea"]) else "섬 근처에서"
+	var nm: String = f["name"]
+	var eun := "은" if (nm.unicode_at(nm.length() - 1) - 0xAC00) % 28 != 0 else "는"
+	return "\n" + String(npcs[who]["data"]["hint_prefix"]) + "%s%s %s %s 나온대." % [nm, eun, when, where]
 
 func close(relock: bool) -> void:
 	is_open = false
@@ -319,7 +407,12 @@ func _refresh() -> void:
 			if contest != null and contest.can_start():
 				hints.append(["C", "대회 3분"])
 			hints.append(["F", "꾸미기"])
+	if _inventory_count() > 0 and Game.friend_level(current) < 3:
+		hints.append(["G", "선물"])
 	hints.append(["E / Esc", "닫기"])
+	var lv := Game.friend_level(current)
+	for k in 3:
+		hearts[k].set_kind("heart" if k < lv else "heart_off")
 	info_label.text = info
 	_set_chips(hints)
 	if debug:
@@ -385,6 +478,11 @@ func _build() -> void:
 	tag_label.add_theme_color_override("font_outline_color", Color(0.2, 0.12, 0.06, 0.8))
 	tag_label.add_theme_constant_override("outline_size", 4)
 	tag.add_child(tag_label)
+	for k in 3:   # 친밀도 ♥ (대화창 오른쪽 위)
+		var h = IconScript.new()
+		h.position = Vector2(W - 30 - (3 - k) * 40, 8)
+		box.add_child(h)
+		hearts.append(h)
 	message_label = ThemeUI.text("", 28, INK, HORIZONTAL_ALIGNMENT_LEFT)
 	message_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

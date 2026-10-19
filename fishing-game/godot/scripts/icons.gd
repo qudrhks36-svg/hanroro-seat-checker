@@ -1,6 +1,6 @@
 extends Control
 # 상태창 아이콘 (유니티는 코드로 그린 작은 그림): 이미지 파일 없이 36x36 칸에 도형으로 그린다.
-# 종류: sun sunset moon / worm shrimp bread / coin book flag / cloud rain
+# 종류: sun sunset moon / worm shrimp bread / coin book flag heart heart_off / cloud rain
 
 var kind := ""
 
@@ -57,6 +57,11 @@ func _draw() -> void:
 			draw_rect(Rect2(10, 8, 17, 20), Color(1.0, 0.96, 0.88))
 			draw_line(Vector2(13, 13), Vector2(24, 13), Color(0.74, 0.3, 0.28), 2.0)
 			draw_line(Vector2(13, 18), Vector2(24, 18), Color(0.74, 0.3, 0.28), 2.0)
+		"heart", "heart_off":
+			var hc := Color(0.93, 0.35, 0.42) if kind == "heart" else Color(0.82, 0.74, 0.68)
+			draw_circle(Vector2(12, 14), 7.5, hc)
+			draw_circle(Vector2(24, 14), 7.5, hc)
+			draw_colored_polygon(PackedVector2Array([Vector2(5.2, 16.5), Vector2(30.8, 16.5), Vector2(18, 31)]), hc)
 		"flag":
 			draw_rect(Rect2(9, 4, 3, 28), Color(0.72, 0.55, 0.35))
 			draw_rect(Rect2(12, 4, 19, 13), Color(0.95, 0.4, 0.3))

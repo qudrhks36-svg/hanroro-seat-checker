@@ -189,6 +189,10 @@ func _ready() -> void:
 			if sea_events.gull != null and sea_events.gull_wing_l != null:
 				max_flap = maxf(max_flap, absf(sea_events.gull_wing_l.rotation_degrees.x))
 		print("[FG] gull finished=", sea_events.gull == null, " max_flap=", max_flap)
+	if _arg("friend", "") != "":   # 시험용: 친밀도 점수 미리 정하기 (--friend=NPC번호:점수,…)
+		for kv in _arg("friend", "").split(",", false):
+			var q := kv.split(":")
+			Game.friend[int(q[0])] = int(q[1])
 	var dialog := CanvasLayer.new()   # NPC 대화·상점 (6단계)
 	dialog.set_script(DialogScript)
 	dialog.name = "Dialog"
@@ -207,14 +211,20 @@ func _ready() -> void:
 				Game.inventory[i] += int(_arg("give", "0"))
 		if _arg("money", "") != "":
 			Game.money = int(_arg("money", "0"))
+		if _arg("givefish", "") != "":   # 시험용: 이 번호 물고기를 N마리 (--givefish=번호:N)
+			var gq := _arg("givefish", "0:1").split(":")
+			Game.inventory[int(gq[0])] += int(gq[1])
 		dialog.open(int(_arg("npc", "0")))
 		for a in _arg("act", "").split(",", false):
 			if a == "sell":
 				dialog.sell_all()
 			elif a == "rod":
 				dialog.buy_rod()
+			elif a == "gift":
+				dialog.give_gift()
 		print("[FG] after: money=", Game.money, " rod=", Game.rod_level, " zone=", Game.zone_width())
-		dialog.close(false)
+		if _arg("keepopen", "") == "":   # 시험용 --keepopen=1: 대화창을 열어 둔 채(웹에서 화면 사진용)
+			dialog.close(false)
 	var home := Node3D.new()   # 집 꾸미기 모습: 장식 5종·오두막 단계 (7-3)
 	home.set_script(HomeDecorScript)
 	home.name = "HomeDecor"

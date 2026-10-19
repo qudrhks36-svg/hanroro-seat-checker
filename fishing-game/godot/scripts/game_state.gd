@@ -31,6 +31,8 @@ static var contest_best := 0         # 낚시 대회 최고 기록(cm, 저장됨
 static var contest_active := false   # 대회 진행 중
 static var contest_cm := 0           # 이번 대회에서 가장 큰 물고기 크기
 static var contest_fish := -1        # 그 물고기 번호
+static var friend: Array = [0, 0, 0, 0]   # NPC 친밀도 점수(바틀이·끼룩이·모카·돌쇠 순, 0~15, 저장됨)
+const FRIEND_LEVELS := [3, 8, 15]         # ♥1·♥2·♥3이 되는 점수
 static var _loaded := false
 
 static func ensure_loaded() -> void:
@@ -96,6 +98,14 @@ static func register(i: int, cm: int) -> bool:
 		best_cm[i] = cm
 	inventory[i] += 1
 	return record
+
+# 친밀도 ♥ 단계 0~3
+static func friend_level(i: int) -> int:
+	var lv := 0
+	for need in FRIEND_LEVELS:
+		if friend[i] >= need:
+			lv += 1
+	return lv
 
 # 오늘의 목표 (GDD 9번 [확정]): 한 마리 낚을 때마다 부른다. 목표를 채우면 상금을 주고 true, 바로 다음 목표가 시작.
 static func goal_on_catch() -> bool:
