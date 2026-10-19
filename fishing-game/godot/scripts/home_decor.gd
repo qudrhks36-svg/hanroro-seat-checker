@@ -25,7 +25,6 @@ var chime_timer := 0.0
 var hammock: Node3D
 var fire_light: OmniLight3D
 var chimney: Node3D
-var roof_cover: MeshInstance3D
 var smoke: CPUParticles3D
 var flag_group: Node3D
 var flag: Node3D
@@ -155,20 +154,11 @@ func _light(parent: Node3D, local: Vector3, color: Color, range_m: float) -> Omn
 
 # ---- 오두막 단계 ----
 func _build_cabin_extras() -> void:
-	# 1단계: 새 지붕 색. 오두막 모델의 지붕 윗면이 벽과 같은 재질이라 색만 바꿀 수 없어, 지붕 위에 살짝 덮는 판을 얹는다.
-	roof_cover = MeshInstance3D.new()
-	roof_cover.mesh = _gable_mesh(-11.58, -4.42, -8.0, 2.94, 9.06, 3.46, 5.56)
-	var rm := StandardMaterial3D.new()
-	rm.albedo_color = ROOF_NEW
-	rm.roughness = 0.9
-	rm.cull_mode = BaseMaterial3D.CULL_DISABLED
-	roof_cover.material_override = rm
-	roof_cover.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(roof_cover)
+	# 1단계: 새 지붕 색은 둥근 지붕(Mat_Roof)의 색만 바꿔서 낸다(_apply_cabin).
 	# 1단계: 굴뚝(+ 연기)
 	chimney = Node3D.new()
 	chimney.name = "Chimney"
-	chimney.position = _g(Vector3(-9.6, 4.75, 7.4))
+	chimney.position = _g(Vector3(-9.6, 5.5, 7.4))   # 둥근 지붕 위(지붕 높이 약 5.35)
 	add_child(chimney)
 	var cm := _spawn("Home_Chimney", chimney)
 	cm.position = Vector3(0, -0.4, 0)
@@ -202,7 +192,7 @@ func _build_cabin_extras() -> void:
 	# 2단계: 지붕 깃발 + 문 옆 등불 + 창문 불빛
 	flag_group = Node3D.new()
 	flag_group.name = "Flag"
-	flag_group.position = _g(Vector3(-8.0, 5.5, 6.0))
+	flag_group.position = _g(Vector3(-8.0, 5.8, 6.0))   # 둥근 지붕 꼭대기(5.85)
 	add_child(flag_group)
 	var fm := _spawn("Home_Flag", flag_group)
 	flag = fm.find_child("FlagCloth", true, false)   # 천(원점 = 깃대)만 살랑
@@ -216,26 +206,6 @@ func _build_cabin_extras() -> void:
 	window_light_l = _light(lantern_group, _g(Vector3(-11.9 + 6.7, -0.7, 6.0 - 2.8)), LIGHT_COLOR, 5.0)   # 서쪽 창 앞
 	window_light_r = _light(lantern_group, _g(Vector3(-3.9 + 6.7, -0.7, 6.0 - 2.8)), LIGHT_COLOR, 5.0)    # 동쪽 창 앞
 
-# 박공지붕(앞뒤가 삼각형 벽, 지붕면은 서쪽·동쪽 두 장)에 덮는 얇은 판 두 장. 어느 쪽에서 봐도 보이게 앞뒤 면을 모두 넣는다. (유니티 좌표로 받아 고닷 좌표로 바꿈)
-func _gable_mesh(x0: float, x1: float, xm: float, z0: float, z1: float, y_eave: float, y_ridge: float) -> ArrayMesh:
-	var st := SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	var quads := [
-		[Vector3(x0, y_eave, z0), Vector3(xm, y_ridge, z0), Vector3(xm, y_ridge, z1), Vector3(x0, y_eave, z1)],   # 서쪽 지붕면
-		[Vector3(x1, y_eave, z1), Vector3(xm, y_ridge, z1), Vector3(xm, y_ridge, z0), Vector3(x1, y_eave, z0)],   # 동쪽 지붕면
-	]
-	for q in quads:
-		var a := _g(q[0])
-		var b := _g(q[1])
-		var c := _g(q[2])
-		var d := _g(q[3])
-		for tri in [[a, b, c], [a, c, d], [a, c, b], [a, d, c]]:   # 앞면 두 장 + 뒷면 두 장
-			for v in tri:
-				st.add_vertex(v)
-	st.generate_normals()
-	return st.commit()
-
-# ---- 매 프레임 ----
 func _process(delta: float) -> void:
 	for i in 5:
 		var own := Game.owns(i)
@@ -281,7 +251,6 @@ func _apply_cabin(level: int) -> void:
 	shown_cabin = level
 	roof_mat.albedo_color = ROOF_NEW if level >= 1 else roof_base
 	chimney.visible = level >= 1
-	roof_cover.visible = level >= 1
 	flag_group.visible = level >= 2
 	lantern_group.visible = level >= 2
 	smoke.emitting = level >= 1
@@ -331,4 +300,4 @@ func debug_state() -> String:
 	var parts: Array = []
 	for i in 5:
 		parts.append("%s=%s" % [Game.home_items[i]["name"], "보임" if items[i].visible else "숨김"])
-	return "장식[%s] 오두막=%d 굴뚝=%s 지붕덮개=%s 깃발=%s 등불=%s 지붕색=%s | 흔들 부분 찾음: 풍경=%s 해먹=%s 깃발천=%s" % [", ".join(parts), Game.cabin_level, chimney.visible, roof_cover.visible, flag_group.visible, lantern_group.visible, roof_mat.albedo_color, chime != null, hammock != null, flag != null]
+	return "장식[%s] 오두막=%d 굴뚝=%s 깃발=%s 등불=%s 지붕색=%s | 흔들 부분 찾음: 풍경=%s 해먹=%s 깃발천=%s" % [", ".join(parts), Game.cabin_level, chimney.visible, flag_group.visible, lantern_group.visible, roof_mat.albedo_color, chime != null, hammock != null, flag != null]
