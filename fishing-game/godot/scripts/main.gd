@@ -12,6 +12,8 @@ const SfxScript := preload("res://scripts/sfx.gd")
 const SaveScript := preload("res://scripts/save_data.gd")
 const HudScript := preload("res://scripts/hud.gd")
 const CatalogScript := preload("res://scripts/catalog.gd")
+const SettingsScript := preload("res://scripts/settings_ui.gd")
+const Game := preload("res://scripts/game_state.gd")
 const ResultCardScript := preload("res://scripts/result_card.gd")
 
 # 유니티 사진 시험(ScreenShot.cs)과 같은 카메라: 눈 위치(유니티 좌표)와 오일러 각도(x=아래로 숙임, y=좌우)
@@ -126,6 +128,22 @@ func _ready() -> void:
 	catalog.set_script(CatalogScript)
 	catalog.name = "Catalog"
 	add_child(catalog)
+	var settings := CanvasLayer.new()
+	settings.set_script(SettingsScript)
+	settings.name = "Settings"
+	add_child(settings)
+	print("[FG] mouse_scale=", Game.mouse_scale)
+	if _arg("sens", "") != "":   # 시험용: 설정 창을 열어 감도를 바꾸고 닫는다(저장됨)
+		settings.set_open(true, false)
+		settings.set_sensitivity(float(_arg("sens", "1.0")))
+		settings.set_open(false, false)
+		print("[FG] sens set -> ", Game.mouse_scale)
+	if _arg("lookcheck", "") != "":   # 시험용: 마우스를 오른쪽으로 100픽셀 움직였을 때 몇 도 도는지 (감도 1.0, 2.0 비교)
+		for sc in [1.0, 2.0, 0.5]:
+			Game.mouse_scale = sc
+			player.rotation_degrees.y = 0.0
+			player.turn(Vector2(100, 0))
+			print("[FG] lookcheck scale=", sc, " yaw=", player.rotation_degrees.y)
 	if _arg("catalog", "") != "":   # 시험용: 도감을 열고 이 번호 칸을 고른다
 		catalog.debug = true
 		catalog.selected = int(_arg("catalog", "0"))

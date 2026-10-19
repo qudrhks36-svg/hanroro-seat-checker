@@ -2,6 +2,8 @@ extends CharacterBody3D
 # 플레이어 (포팅 2-2): WASD 이동, 마우스 시점, 중력. 유니티 PlayerController와 같은 값(속도 4, 감도 0.1도/픽셀, 중력 -20).
 # 몸(캡슐) 중심이 땅에서 약 1.02 위, 눈은 몸 중심에서 0.7 위(유니티: 몸 y 1.1, 눈 y 1.8).
 
+const Game := preload("res://scripts/game_state.gd")
+
 const SPEED := 4.0
 const GRAVITY := 20.0
 const MOUSE_SENS := 0.1          # 도/픽셀
@@ -29,9 +31,14 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotate_y(deg_to_rad(-event.relative.x * MOUSE_SENS))
-		pitch = clampf(pitch - event.relative.y * MOUSE_SENS, -80.0, 80.0)
-		cam.rotation_degrees.x = pitch
+		turn(event.relative)
+
+# 마우스가 움직인 픽셀(relative)만큼 몸(좌우)과 카메라(위아래)를 돌린다. 감도 = 0.1도/픽셀 × 설정 창의 배율.
+func turn(relative: Vector2) -> void:
+	var k := MOUSE_SENS * Game.mouse_scale
+	rotate_y(deg_to_rad(-relative.x * k))
+	pitch = clampf(pitch - relative.y * k, -80.0, 80.0)
+	cam.rotation_degrees.x = pitch
 
 func look(yaw_deg: float, pitch_deg: float) -> void:
 	rotation_degrees.y = yaw_deg

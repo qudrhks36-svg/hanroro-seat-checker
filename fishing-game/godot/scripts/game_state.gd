@@ -15,6 +15,7 @@ static var best_cm: Array = []       # 종류별 최고 크기(0 = 아직 없음
 static var inventory: Array = []     # 종류별 보유(판매 대기) 마릿수
 static var money := 0
 static var rod_level := 0
+static var mouse_scale := 1.0        # 마우스 감도 배율 (설정 창, 기본 1.0 = 0.1도/픽셀)
 static var _loaded := false
 
 static func ensure_loaded() -> void:
