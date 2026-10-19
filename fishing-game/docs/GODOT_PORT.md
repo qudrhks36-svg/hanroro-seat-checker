@@ -59,8 +59,15 @@ BOTTLE ISLAND를 유니티에서 고닷으로 옮길 때 보는 문서예요. **
 - **걷기 덜컹거림 수정(2026-10-19, 사용자 제보 "전진할 때 너무 덜컹거린다")**: 계단 올라서기 판정이 바닥의 작은 요철도 "벽"으로 착각해 0.4m씩 올라섰다 떨어졌음(높이 1.07~1.9로 튐). 막힌 면의 기울기가 수직에 가까울 때(`normal.y < 0.3`)만 올라서도록 고치고, 내려올 때 바닥에 붙도록 `floor_snap_length`를 줌 → 평지 높이 0.99~1.01로 안정. 모니터 주사율이 60Hz보다 높을 때를 위해 물리 보간(`physics/common/physics_interpolation=true`)도 켬. **교훈**: `KinematicCollision3D`에는 `get_normal()`이 있고 `get_collision_normal()`은 없음. 스크립트 오류가 물리 함수 안에서 나면 그 프레임의 이동이 통째로 멈추므로, 시험 때 `grep SCRIPT ERROR` 개수를 꼭 볼 것.
 - **성능**: 모델 262개 + 그림자로 웹에서 fps가 어떤지 아직 모름(앱 안 브라우저는 느려서 못 잼) → 진짜 크롬에서 확인 필요.
 
-## 2-3. 작업 방식 규칙: 창을 띄우지 않기 (사용자 요청 2026-10-19)
-고닷으로 사진을 찍을 때 창이 켜졌다 꺼지면 작업 중인 사용자에게 방해가 돼요. **사진은 반드시 `--no-window`로** 찍어요: `godot --no-window --path godot --write-movie 파일.png --fixed-fps 10 --quit-after 6 -- --cam=a` (창이 생기지 않고도 화면이 제대로 그려짐, 색 값으로 확인함). 그 밖의 검사(스크립트 오류, 걷기, 내보내기, 가져오기)는 `--headless`. `--write-movie`만 단독으로 쓰면 창이 뜨니 쓰지 말 것. 사용자가 직접 열어 둔 고닷 편집기는 건드리지 않음.
+## 2-3. 작업 방식 규칙: 창을 띄우지 않기 (사용자 요청 2026-10-19, 확인 완료)
+고닷을 실행할 때 창이 켜졌다 꺼지면 작업 중인 사용자에게 방해가 돼요. `_console.exe`와 `--write-movie`/`--no-window`는 창이 떠서 **쓰지 않아요**. 사용자가 "화면 안 뜬다"고 확인한 방식:
+
+```powershell
+$g = "C:\Users\qudrh\OneDrive\바탕 화면\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe"   # 콘솔 아닌 일반 실행 파일
+Start-Process -FilePath $g -ArgumentList @("--headless","--path","<godot 폴더>","--quit-after","900","--log-file",$log,"--","--clock=450","--walk=0,1","--log=1") -WindowStyle Hidden -Wait
+```
+
+출력은 화면에 안 나오므로 `--log-file`로 파일에 받아서 읽음(`SCRIPT ERROR` 개수, `[FG]` 줄). 이 방식은 **그리지 않는 실행**이라 스크립트 오류·걷기·충돌·내보내기·가져오기는 되지만 **화면 사진은 못 찍음**. 사진이 꼭 필요하면 사용자에게 먼저 물어볼 것(숨김 실행으로 그림이 그려지는지 미확인). 사용자가 직접 열어 둔 고닷 편집기는 건드리지 않음.
 
 ## 2-4. 3단계 결과 (2026-10-19): 시간대·날씨
 - **시간대**(`scripts/time_of_day.gd`): 하루 600초, 키프레임 [0,210,270,330,390,570,600]의 look(낮·낮·노을·노을·밤·밤·낮)을 smoothstep으로 섞어 매 프레임 `Atmosphere.apply_look(look, overcast)`에 넣음. 시간대(낮 <240, 노을 <360, 밤)와 밤 정도(별)는 `TimeOfDay.period`, `TimeOfDay.night`(정적 변수)로 읽음 → 4단계 낚시가 `TimeOfDay.period`를 씀. 시간은 `delta`로 세므로 `get_tree().paused`면 멈춤.
