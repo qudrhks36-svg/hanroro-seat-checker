@@ -48,6 +48,7 @@ var retarget_timer := 0.0
 var gauge := 0.0
 var toast_until := 0.0
 var catches := 0
+var shown_rod := -1                    # 지금 보이는 낚싯대 단계
 
 # 화면
 var ui: CanvasLayer
@@ -67,7 +68,8 @@ func setup(camera: Camera3D, world_node: Node3D) -> void:
 	cam = camera
 	world = world_node
 	Game.ensure_loaded()
-	_build_rod(0)
+	_build_rod(Game.rod_level)
+	shown_rod = Game.rod_level
 	_build_bobber_and_line()
 	_build_ui()
 	_set_casting(false)
@@ -165,6 +167,7 @@ func _build_ui() -> void:
 	guide.add_child(v)
 	ui.add_child(guide)
 	guide.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP, Control.PRESET_MODE_MINSIZE, 24)
+	guide.grow_horizontal = Control.GROW_DIRECTION_BOTH   # 글자가 길어져도 가운데 기준으로 커짐
 
 	toast = ThemeUI.panel()
 	toast_label = ThemeUI.label("", 30)
@@ -172,6 +175,7 @@ func _build_ui() -> void:
 	toast.visible = false
 	ui.add_child(toast)
 	toast.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP, Control.PRESET_MODE_MINSIZE, 130)
+	toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
 
 	bang = ThemeUI.label("!", 96, Color(1.0, 0.9, 0.3))
 	bang.add_theme_color_override("font_outline_color", Color(0.3, 0.15, 0.05))
@@ -209,6 +213,9 @@ func _select_bait(i: int) -> void:
 
 # ---- 매 프레임 ----
 func _process(delta: float) -> void:
+	if shown_rod != Game.rod_level:
+		shown_rod = Game.rod_level
+		_build_rod(shown_rod)   # 업그레이드하거나 저장을 불러오면 낚싯대 모양을 바꿈
 	var click := click_pending
 	click_pending = false
 	var captured := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED

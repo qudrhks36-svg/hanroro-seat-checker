@@ -5,7 +5,6 @@ extends CanvasLayer
 const Game := preload("res://scripts/game_state.gd")
 const ThemeUI := preload("res://scripts/ui_theme.gd")
 const SaveScript := preload("res://scripts/save_data.gd")
-const CatalogScript := preload("res://scripts/catalog.gd")
 
 const PANEL := Vector2(560, 300)
 const SENS_MIN := 0.3
@@ -26,8 +25,8 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
-	if CatalogScript.is_open:
-		return   # 도감이 열려 있으면 도감이 Esc·Tab을 처리
+	if Game.modal != "" and Game.modal != "settings":
+		return   # 다른 창(도감·대화)이 열려 있으면 그 창이 Esc를 처리
 	if event.keycode == KEY_O:
 		set_open(not is_open, true)
 		get_viewport().set_input_as_handled()
@@ -39,6 +38,7 @@ func set_open(open: bool, relock: bool) -> void:
 	if open == is_open:
 		return
 	is_open = open
+	Game.modal = "settings" if open else ""
 	root.visible = open
 	get_tree().paused = open
 	if open:

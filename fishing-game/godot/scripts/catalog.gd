@@ -48,6 +48,8 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+		if Game.modal != "" and Game.modal != "catalog":
+			return   # 다른 창(설정·대화)이 열려 있으면 무시
 		if event.keycode == KEY_TAB:
 			set_open(not is_open, true)
 			get_viewport().set_input_as_handled()
@@ -57,6 +59,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func set_open(open: bool, relock: bool) -> void:
 	is_open = open
+	Game.modal = "catalog" if open else ""
 	root.visible = open
 	get_tree().paused = open
 	if open:

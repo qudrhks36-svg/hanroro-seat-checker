@@ -11,6 +11,7 @@ const CUSTOM_SHADER_MATS := ["Mat_Sea", "Mat_SkyGradient"]   # 따로 셰이더�
 var items: Array = []
 var by_path: Dictionary = {}
 var spawned := 0
+var models_by_parent: Dictionary = {}   # 부모 경로 → 그 아래 모델 노드 (예: "Island/Merchant" → 돌쇠 모델)
 var mat_defs: Dictionary = {}
 var mat_cache: Dictionary = {}
 var unmatched: Dictionary = {}
@@ -161,6 +162,7 @@ func build() -> void:
 		node.transform = Transform3D(basis.scaled(Vector3(s[0], s[1], s[2])), to_godot_pos(it["pos"]))
 		add_child(node)
 		apply_materials(node)
+		models_by_parent[it["parent"]] = node
 		add_colliders(node, it)
 		spawned += 1
 	add_sea_body()

@@ -13,6 +13,7 @@ const SaveScript := preload("res://scripts/save_data.gd")
 const HudScript := preload("res://scripts/hud.gd")
 const CatalogScript := preload("res://scripts/catalog.gd")
 const SettingsScript := preload("res://scripts/settings_ui.gd")
+const DialogScript := preload("res://scripts/dialog.gd")
 const Game := preload("res://scripts/game_state.gd")
 const ResultCardScript := preload("res://scripts/result_card.gd")
 
@@ -128,6 +129,29 @@ func _ready() -> void:
 	catalog.set_script(CatalogScript)
 	catalog.name = "Catalog"
 	add_child(catalog)
+	var dialog := CanvasLayer.new()   # NPC 대화·상점 (6단계)
+	dialog.set_script(DialogScript)
+	dialog.name = "Dialog"
+	add_child(dialog)
+	dialog.setup(player.cam, world)
+	if _arg("nearcheck", "") != "":   # 시험용: 마우스 잠금 없이 "바라보면 E 안내" 판정만 확인
+		dialog.debug = true
+		dialog.assume_captured = true
+	if _arg("npc", "") != "":   # 시험용: 이 번호의 NPC와 대화(0 바틀이, 1 끼룩이, 2 모카, 3 돌쇠). --give=N 물고기 N마리씩 주기, --money=N, --act=sell,rod,...
+		dialog.debug = true
+		if _arg("give", "") != "":
+			for i in mini(3, Game.inventory.size()):
+				Game.inventory[i] += int(_arg("give", "0"))
+		if _arg("money", "") != "":
+			Game.money = int(_arg("money", "0"))
+		dialog.open(int(_arg("npc", "0")))
+		for a in _arg("act", "").split(",", false):
+			if a == "sell":
+				dialog.sell_all()
+			elif a == "rod":
+				dialog.buy_rod()
+		print("[FG] after: money=", Game.money, " rod=", Game.rod_level, " zone=", Game.zone_width())
+		dialog.close(false)
 	var settings := CanvasLayer.new()
 	settings.set_script(SettingsScript)
 	settings.name = "Settings"
