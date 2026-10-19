@@ -11,6 +11,7 @@ const CUSTOM_SHADER_MATS := ["Mat_Sea", "Mat_SkyGradient"]   # 따로 셰이더�
 var items: Array = []
 var by_path: Dictionary = {}
 var spawned := 0
+var nodes_by_path: Dictionary = {}      # 항목 경로 → 놓은 노드 (예: "Decor/Grass/Grass (3)")
 var models_by_parent: Dictionary = {}   # 부모 경로 → 그 아래 모델 노드 (예: "Island/Merchant" → 돌쇠 모델)
 var mat_defs: Dictionary = {}
 var mat_cache: Dictionary = {}
@@ -22,6 +23,23 @@ static func to_godot_pos(p: Array) -> Vector3:
 
 static func to_godot_basis(q: Array) -> Basis:
 	return Basis(Quaternion(-q[0], -q[1], q[2], q[3]))
+
+# 재질 이름 "C_RRGGBB"를 그 색으로 (유니티 RodLook·FarSea·HomeDecor의 ColorMaterial). 그림자는 끔.
+static func tint_c_materials(root: Node, roughness: float = 0.9) -> void:
+	for n in root.find_children("*", "MeshInstance3D", true, false):
+		var mi: MeshInstance3D = n
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		for i in mi.mesh.get_surface_count():
+			var orig: Material = mi.mesh.surface_get_material(i)
+			var nm: String = orig.resource_name if orig != null else ""
+			var k := nm.find("C_")
+			var col := Color(0.8, 0.8, 0.8)
+			if k >= 0 and nm.length() >= k + 8:
+				col = Color.html("#" + nm.substr(k + 2, 6))
+			var m := StandardMaterial3D.new()
+			m.albedo_color = col
+			m.roughness = roughness
+			mi.set_surface_override_material(i, m)
 
 static func model_path(source: String) -> String:
 	# 유니티 Assets/Models/X.fbx → assets/models/X.fbx, Assets/Resources/Models/Y.fbx → assets/models/extra/Y.fbx
@@ -163,6 +181,7 @@ func build() -> void:
 		add_child(node)
 		apply_materials(node)
 		models_by_parent[it["parent"]] = node
+		nodes_by_path[it["path"]] = node
 		add_colliders(node, it)
 		spawned += 1
 	add_sea_body()

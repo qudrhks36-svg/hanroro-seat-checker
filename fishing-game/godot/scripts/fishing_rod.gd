@@ -8,6 +8,7 @@ const TimeScript := preload("res://scripts/time_of_day.gd")
 const WorldScript := preload("res://scripts/world.gd")
 const SfxScript := preload("res://scripts/sfx.gd")
 const SaveScript := preload("res://scripts/save_data.gd")
+const FarSeaScript := preload("res://scripts/far_sea.gd")
 
 enum S { IDLE, FLYING, FLOATING, BITING, REELING }
 
@@ -213,6 +214,8 @@ func _select_bait(i: int) -> void:
 
 # ---- 매 프레임 ----
 func _process(delta: float) -> void:
+	if FarSeaScript.busy:
+		return   # 배로 이동하는 동안(화면이 어두워지는 사이)엔 던지기 등 입력을 막음
 	if shown_rod != Game.rod_level:
 		shown_rod = Game.rod_level
 		_build_rod(shown_rod)   # 업그레이드하거나 저장을 불러오면 낚싯대 모양을 바꿈
@@ -297,7 +300,7 @@ func _start_bite() -> void:
 
 # 입질 타이밍 성공 → 물고기를 정하고 릴 감기 시작
 func _hook() -> void:
-	hooked = Game.pick(TimeScript.period, cast_bait, false)   # 먼 바다는 7단계에서
+	hooked = Game.pick(TimeScript.period, cast_bait, FarSeaScript.active)   # 먼 바다에서는 먼 바다 전용 물고기만
 	bang.visible = false
 	zone_pos = 0.5
 	fish_pos = 0.5
@@ -384,7 +387,7 @@ func _update_guide() -> void:
 		match state:
 			S.IDLE:
 				a = "왼쪽 클릭: 바다 쪽으로 낚싯대 던지기"
-				b = "WASD 이동 · 마우스 시점 · 1·2·3 미끼 · Tab 도감 · O 설정"
+				b = "E: 배 가까이에서 부두로 돌아가기 · 1·2·3 미끼 · Tab 도감 · O 설정" if FarSeaScript.active else "WASD 이동 · 마우스 시점 · 1·2·3 미끼 · Tab 도감 · O 설정"
 			S.FLOATING:
 				a = "찌를 지켜보세요… 느낌표(!)가 뜨면 바로 왼쪽 클릭!"
 				b = "기다리다 마음이 바뀌면 왼쪽 클릭: 낚싯대 거두기"

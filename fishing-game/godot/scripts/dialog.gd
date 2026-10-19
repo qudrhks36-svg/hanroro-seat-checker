@@ -19,6 +19,7 @@ const INK := Color(0.22, 0.15, 0.10)
 
 static var is_open := false
 var debug := false                   # 시험용: 상태를 로그로 찍음
+var decor_shop                       # 꾸미기 창 (main이 넣어 줌)
 
 var cam: Camera3D
 var world: Node3D
@@ -116,9 +117,14 @@ func _looking_at(i: int) -> bool:
 
 # ---- 입력 ----
 func _unhandled_input(event: InputEvent) -> void:
+	if Game.decor_open:
+		return   # 꾸미기 창이 열려 있으면 그 창이 입력을 처리
 	if event is InputEventKey and event.pressed and not event.echo:
 		if is_open:
-			if event.keycode == KEY_E:
+			if event.keycode == KEY_F and npcs[current]["shop"] and decor_shop != null:
+				decor_shop.open()
+				get_viewport().set_input_as_handled()
+			elif event.keycode == KEY_E:
 				close(true)
 				get_viewport().set_input_as_handled()
 			elif event.keycode == KEY_ESCAPE:
@@ -249,6 +255,8 @@ func _refresh() -> void:
 				var nx: Dictionary = Game.rods[Game.rod_level + 1]
 				info += "   —   다음: %s %d원" % [nx["name"], int(nx["cost"])]
 				hints.append(["오른쪽 클릭", "낚싯대 %d원" % int(nx["cost"])])
+		if shop:
+			hints.append(["F", "꾸미기"])
 	hints.append(["E / Esc", "닫기"])
 	info_label.text = info
 	_set_chips(hints)

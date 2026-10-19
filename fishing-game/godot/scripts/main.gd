@@ -14,6 +14,10 @@ const HudScript := preload("res://scripts/hud.gd")
 const CatalogScript := preload("res://scripts/catalog.gd")
 const SettingsScript := preload("res://scripts/settings_ui.gd")
 const DialogScript := preload("res://scripts/dialog.gd")
+const FarSeaScript := preload("res://scripts/far_sea.gd")
+const SeaEventsScript := preload("res://scripts/sea_events.gd")
+const HomeDecorScript := preload("res://scripts/home_decor.gd")
+const DecorShopScript := preload("res://scripts/decor_shop.gd")
 const Game := preload("res://scripts/game_state.gd")
 const ResultCardScript := preload("res://scripts/result_card.gd")
 
@@ -129,6 +133,47 @@ func _ready() -> void:
 	catalog.set_script(CatalogScript)
 	catalog.name = "Catalog"
 	add_child(catalog)
+	var far_sea := Node3D.new()   # 먼 바다 낚시터: 배 2척, E로 이동 (7-1)
+	far_sea.set_script(FarSeaScript)
+	far_sea.name = "FarSea"
+	add_child(far_sea)
+	far_sea.setup(player.cam, player, fishing)
+	if _arg("travel", "") != "":   # 시험용: 먼 바다로 이동(--travel=1) / 이동 후 부두로 돌아오기(--travel=2)
+		far_sea.debug = true
+		far_sea.travel(true)
+		if _arg("travel", "") == "2":
+			await get_tree().create_timer(1.6, true, false, true).timeout
+			far_sea.debug = true
+			far_sea.travel(false)
+	var sea_events := Node3D.new()   # 병 쪽지와 갈매기 (7-2)
+	sea_events.set_script(SeaEventsScript)
+	sea_events.name = "SeaEvents"
+	add_child(sea_events)
+	sea_events.setup(player.cam, player)
+	if _arg("bottle", "") != "":   # 시험용: 병을 N번 놓고 줍는다(쪽지 첫 읽기/반복, 돈)
+		sea_events.debug = true
+		for i in int(_arg("bottle", "1")):
+			if sea_events.spawn_bottle():
+				sea_events.pick_up()
+	if _arg("bottlenear", "") != "":   # 시험용: 병 옆 1.5m에서 병을 바라보게 서서 줍기 안내가 뜨는지
+		sea_events.debug = true
+		sea_events.assume_captured = true
+		if sea_events.spawn_bottle():
+			var b: Vector3 = sea_events.bottle.global_position
+			player.global_position = b + Vector3(1.5, 1.0, 0.0)
+			player.look(rad_to_deg(atan2(1.5, 0.0)), 0.0)
+			await get_tree().process_frame
+			await get_tree().process_frame
+			print("[FG] bottle prompt=", sea_events.prompt.visible, " reachable=", sea_events._reachable())
+	if _arg("gull", "") != "":   # 시험용: 갈매기가 한쪽 끝에서 반대쪽 끝까지 나는 것(날개 퍼덕임)
+		sea_events.debug = true
+		sea_events.start_gull(Vector3(90, 15, 0), Vector3(-90, 15, 10))
+		var max_flap := 0.0
+		for i in 80:
+			sea_events._update_gull(0.5)
+			if sea_events.gull != null and sea_events.gull_wing_l != null:
+				max_flap = maxf(max_flap, absf(sea_events.gull_wing_l.rotation_degrees.x))
+		print("[FG] gull finished=", sea_events.gull == null, " max_flap=", max_flap)
 	var dialog := CanvasLayer.new()   # NPC 대화·상점 (6단계)
 	dialog.set_script(DialogScript)
 	dialog.name = "Dialog"
@@ -137,6 +182,8 @@ func _ready() -> void:
 	if _arg("nearcheck", "") != "":   # 시험용: 마우스 잠금 없이 "바라보면 E 안내" 판정만 확인
 		dialog.debug = true
 		dialog.assume_captured = true
+		far_sea.debug = true
+		far_sea.assume_captured = true
 	if _arg("npc", "") != "":   # 시험용: 이 번호의 NPC와 대화(0 바틀이, 1 끼룩이, 2 모카, 3 돌쇠). --give=N 물고기 N마리씩 주기, --money=N, --act=sell,rod,...
 		dialog.debug = true
 		if _arg("give", "") != "":
@@ -152,6 +199,47 @@ func _ready() -> void:
 				dialog.buy_rod()
 		print("[FG] after: money=", Game.money, " rod=", Game.rod_level, " zone=", Game.zone_width())
 		dialog.close(false)
+	var home := Node3D.new()   # 집 꾸미기 모습: 장식 5종·오두막 단계 (7-3)
+	home.set_script(HomeDecorScript)
+	home.name = "HomeDecor"
+	add_child(home)
+	home.setup(world)
+	var decor_shop := CanvasLayer.new()   # 꾸미기 창(바틀이 대화창에서 F). 대화창보다 뒤에 만들어야 Esc·숫자 키를 먼저 받음
+	decor_shop.set_script(DecorShopScript)
+	decor_shop.name = "DecorShop"
+	add_child(decor_shop)
+	dialog.decor_shop = decor_shop
+	if _arg("decorbuy", "") != "":   # 시험용: 이 번호들을 차례로 산다(0~4 장식, 5 오두막). --money=N
+		decor_shop.debug = true
+		if _arg("money", "") != "":
+			Game.money = int(_arg("money", "0"))
+		for s in _arg("decorbuy", "").split(",", false):
+			decor_shop.buy(int(s))
+		await get_tree().process_frame
+		await get_tree().process_frame
+		print("[FG] home ", home.debug_state())
+	if _arg("fcheck", "") != "":   # 시험용: 바틀이 대화창 → F → 꾸미기 창 → 숫자 키 → F로 닫기 → E로 대화창 닫기
+		Game.money = 1000
+		dialog.open(0)
+		var k := InputEventKey.new()
+		k.pressed = true
+		k.keycode = KEY_F
+		dialog._unhandled_input(k)
+		print("[FG] fcheck F in dialog -> decor_open=", Game.decor_open, " dialog_open=", dialog.is_open)
+		var e := InputEventKey.new()
+		e.pressed = true
+		e.keycode = KEY_E
+		dialog._unhandled_input(e)   # 꾸미기 창이 열려 있으면 대화창은 E를 무시해야 함
+		print("[FG] fcheck E while decor open -> dialog_open=", dialog.is_open)
+		var d1 := InputEventKey.new()
+		d1.pressed = true
+		d1.keycode = KEY_1
+		decor_shop._unhandled_input(d1)
+		print("[FG] fcheck key 1 -> owns pot=", Game.owns(0), " money=", Game.money)
+		decor_shop._unhandled_input(k)   # F로 닫기
+		print("[FG] fcheck F in shop -> decor_open=", Game.decor_open, " dialog_open=", dialog.is_open)
+		dialog._unhandled_input(e)
+		print("[FG] fcheck E in dialog -> dialog_open=", dialog.is_open, " modal=[", Game.modal, "]")
 	var settings := CanvasLayer.new()
 	settings.set_script(SettingsScript)
 	settings.name = "Settings"

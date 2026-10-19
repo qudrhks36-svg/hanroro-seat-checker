@@ -4,6 +4,7 @@ extends RefCounted
 
 const FISH_JSON := "res://data/fish.json"
 const FISHING_JSON := "res://data/fishing.json"
+const ECONOMY_JSON := "res://data/economy.json"
 const RARITY_INDEX := {"common": 0, "uncommon": 1, "rare": 2}
 const PERIOD_NAMES := ["day", "sunset", "night"]   # TimeOfDay.Period 순서와 같음
 
@@ -16,6 +17,12 @@ static var inventory: Array = []     # 종류별 보유(판매 대기) 마릿수
 static var money := 0
 static var rod_level := 0
 static var modal := ""               # 지금 열려 있는 창("catalog", "settings", "dialog"), 없으면 ""  — 한 번에 하나만 열림
+static var notes_found := 0         # 읽은 병 속 쪽지(비트 마스크, 저장됨)
+static var decor_mask := 0           # 산 장식(비트 i = items[i]를 샀음, 저장됨)
+static var cabin_level := 0          # 오두막 단계 0~2 (저장됨)
+static var decor_open := false       # 꾸미기 창이 열려 있나 (바틀이 대화창 위에 열림)
+static var home_items: Array = []    # economy.json home.items (이름·값·설명)
+static var cabins: Array = []        # economy.json home.cabins
 static var mouse_scale := 1.0        # 마우스 감도 배율 (설정 창, 기본 1.0 = 0.1도/픽셀)
 static var _loaded := false
 
@@ -26,6 +33,9 @@ static func ensure_loaded() -> void:
 	fish = JSON.parse_string(FileAccess.get_file_as_string(FISH_JSON))["fish"]
 	var f: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(FISHING_JSON))
 	baits = f["baits"]
+	var e: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ECONOMY_JSON))["home"]
+	home_items = e["items"]
+	cabins = e["cabins"]
 	rods = f["rods"]
 	counts.resize(fish.size())
 	best_cm.resize(fish.size())
@@ -76,3 +86,26 @@ static func register(i: int, cm: int) -> bool:
 		best_cm[i] = cm
 	inventory[i] += 1
 	return record
+
+# ---- 집 꾸미기 (GDD 9번 [확정]: 장식 5종 + 오두막 3단계) ----
+static func owns(i: int) -> bool:
+	return (decor_mask >> i) & 1 != 0
+
+static func cabin_max() -> bool:
+	return cabin_level >= cabins.size() - 1
+
+# 성공하면 true (이미 샀거나 돈이 모자라면 false)
+static func buy_item(i: int) -> bool:
+	var price := int(home_items[i]["price"])
+	if owns(i) or money < price:
+		return false
+	money -= price
+	decor_mask |= 1 << i
+	return true
+
+static func buy_cabin() -> bool:
+	if cabin_max() or money < int(cabins[cabin_level + 1]["price"]):
+		return false
+	money -= int(cabins[cabin_level + 1]["price"])
+	cabin_level += 1
+	return true

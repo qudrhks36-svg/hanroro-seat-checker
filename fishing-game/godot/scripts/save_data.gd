@@ -18,6 +18,9 @@ static func save_game() -> void:
 	d["money"] = Game.money
 	d["rod"] = Game.rod_level
 	d["mouseSens"] = Game.mouse_scale
+	d["notes"] = Game.notes_found
+	d["decor"] = Game.decor_mask
+	d["cabin"] = Game.cabin_level
 	var f := FileAccess.open(PATH, FileAccess.WRITE)
 	if f == null:
 		push_warning("저장하지 못했어요: %s" % error_string(FileAccess.get_open_error()))
@@ -38,9 +41,12 @@ static func load_game() -> void:
 	_copy_counts(d.get("best"), Game.best_cm)
 	Game.money = maxi(0, int(d.get("money", 0)))
 	Game.rod_level = clampi(int(d.get("rod", 0)), 0, Game.rods.size() - 1)
+	Game.notes_found = int(d.get("notes", 0)) & ((1 << 10) - 1)   # 쪽지 10종 칸만
+	Game.decor_mask = int(d.get("decor", 0)) & ((1 << Game.home_items.size()) - 1)
+	Game.cabin_level = clampi(int(d.get("cabin", 0)), 0, Game.cabins.size() - 1)
 	Game.mouse_scale = clampf(float(d.get("mouseSens", 1.0)), 0.3, 3.0)   # 옛 저장에는 없음 → 1.0
 	extra = d.duplicate()
-	for k in ["collection", "inventory", "best", "money", "rod", "mouseSens"]:
+	for k in ["collection", "inventory", "best", "money", "rod", "mouseSens", "notes", "decor", "cabin"]:
 		extra.erase(k)
 
 # 물고기 종류 수가 바뀐 저장 파일도 읽을 수 있게 짧은 쪽에 맞춰 복사, 음수는 0으로
