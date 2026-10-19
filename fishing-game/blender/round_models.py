@@ -8,13 +8,24 @@ import bpy, math, os, sys
 OUT = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else os.path.join(os.path.dirname(bpy.data.filepath), "round_out")
 os.makedirs(OUT, exist_ok=True)
 
-# 오브젝트 → (FBX 파일 이름, {재질 이름: ("bevel", 너비, 조각 수) | ("subsurf", 단계) | None})
+# 오브젝트 → (내보낼 파일(OUT 아래 상대 경로), {재질 이름: ("bevel", 너비, 조각 수) | ("subsurf", 단계) | None})
+# 재질 이름 끝에 *가 있으면 그 이름으로 시작하는 재질 모두. "__whole__" 키가 있으면 재질별로 나누지 않고 통째로 한 번에(서로 붙은 조각 사이가 벌어지지 않게).
 PLAN = {
     "Palm_Model":   ("Palm.fbx",  {"Mat_Trunk": ("subsurf", 2), "Mat_Leaf": ("subsurf", 1), "Mat_WoodDark": ("subsurf", 1)}),
     "Cabin_Model":  ("Cabin.fbx", {"Mat_Wall": ("bevel", 0.14, 3), "Mat_Roof": ("bevel", 0.09, 3), "Mat_WoodDark": ("bevel", 0.04, 2), "Mat_Window": ("bevel", 0.03, 2)}),
     "Pier_Model":   ("Pier.fbx",  {"Mat_Wood": ("bevel", 0.05, 2), "Mat_WoodDark": ("bevel", 0.05, 2)}),
     "Boat_Model":   ("Boat.fbx",  {"Mat_Boat": ("subsurf", 1), "Mat_Wood": ("bevel", 0.04, 2), "Mat_WoodDark": ("bevel", 0.04, 2), "Mat_Wall": None}),
-}
+    "Bush":         ("Props/Bush.fbx",       {"__whole__": ("subsurf", 2)}),
+    "RockA":        ("Props/RockA.fbx",      {"__whole__": ("subsurf", 1)}),
+    "RockB":        ("Props/RockB.fbx",      {"__whole__": ("subsurf", 1)}),
+    "IsletA":       ("Props/IsletA.fbx",     {"__whole__": ("subsurf", 1)}),
+    "IsletB":       ("Props/IsletB.fbx",     {"__whole__": ("subsurf", 1)}),
+    "FlowerPink":   ("Props/FlowerPink.fbx",   {"Mat_Petal*": ("subsurf", 1), "Mat_FlowerCenter": ("subsurf", 1)}),
+    "FlowerWhite":  ("Props/FlowerWhite.fbx",  {"Mat_Petal*": ("subsurf", 1), "Mat_FlowerCenter": ("subsurf", 1)}),
+    "FlowerYellow": ("Props/FlowerYellow.fbx", {"Mat_Petal*": ("subsurf", 1), "Mat_FlowerCenter": ("subsurf", 1)}),
+    "Lighthouse":   ("Props/Lighthouse.fbx", {"Mat_LHWhite": ("bevel", 0.08, 3), "Mat_LHRed": ("bevel", 0.06, 2), "Mat_LHDark": ("bevel", 0.05, 2), "Mat_LHGlass": None}),
+    "FenceSeg":     ("Props/FenceSeg.fbx",   {"Mat_Fence": ("bevel", 0.025, 2), "Mat_FenceCap": ("bevel", 0.02, 2)}),
+}   # 풀(Grass)은 얇은 풀잎, 조개(Shell)·불가사리(Starfish)는 작고 납작해서 Subdivision이 절반으로 줄여 버리므로 그대로 둔다
 SMOOTH_ANGLE = math.radians(40)
 
 
@@ -29,6 +40,15 @@ def part_material(o):
     mats = [m.name if m else "" for m in o.data.materials]
     used = {p.material_index for p in o.data.polygons}
     return mats[min(used)] if used else ""
+
+
+def find_rule(rules, mat):
+    if mat in rules:
+        return rules[mat]
+    for k, v in rules.items():
+        if k.endswith("*") and mat.startswith(k[:-1]):
+            return v
+    return None
 
 
 def apply_rule(o, rule):
@@ -65,20 +85,26 @@ for name, (fbx, rules) in PLAN.items():
     work = src.copy()
     work.data = src.data.copy()
     bpy.context.collection.objects.link(work)
-    select_only([work], work)
-    bpy.ops.object.mode_set(mode="EDIT")
-    bpy.ops.mesh.select_all(action="SELECT")
-    bpy.ops.mesh.separate(type="MATERIAL")
-    bpy.ops.object.mode_set(mode="OBJECT")
-    parts = [o for o in bpy.context.selected_objects]
-    before = sum(len(o.data.vertices) for o in parts)
-    for o in parts:
-        mat = part_material(o)
-        apply_rule(o, rules.get(mat))
-        smooth(o)
+    if "__whole__" in rules:   # 통째로 한 번에
+        parts = [work]
+        before = len(work.data.vertices)
+        apply_rule(work, rules["__whole__"])
+        smooth(work)
+    else:
+        select_only([work], work)
+        bpy.ops.object.mode_set(mode="EDIT")
+        bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.mesh.separate(type="MATERIAL")
+        bpy.ops.object.mode_set(mode="OBJECT")
+        parts = [o for o in bpy.context.selected_objects]
+        before = sum(len(o.data.vertices) for o in parts)
+        for o in parts:
+            apply_rule(o, find_rule(rules, part_material(o)))
+            smooth(o)
     after = sum(len(o.data.vertices) for o in parts)
     select_only(parts, parts[0])
-    bpy.ops.object.join()
+    if len(parts) > 1:
+        bpy.ops.object.join()
     joined = bpy.context.view_layer.objects.active
     src.data.name = name + "_orig"
     src.name = name + "_orig"   # 이름이 겹치면 ".001"이 붙으니 원본 이름을 비켜 둔다(FBX 안의 이름을 그대로 유지)
@@ -86,6 +112,7 @@ for name, (fbx, rules) in PLAN.items():
     joined.data.name = name
     select_only([joined], joined)
     path = os.path.join(OUT, fbx)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     bpy.ops.export_scene.fbx(filepath=path, axis_forward="-Z", axis_up="Y", bake_space_transform=True, apply_scale_options="FBX_SCALE_ALL",
                              object_types={"MESH"}, mesh_smooth_type="FACE", use_selection=True)
     d = joined.dimensions
