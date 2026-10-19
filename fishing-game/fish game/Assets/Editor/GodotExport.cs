@@ -14,7 +14,7 @@ public static class GodotExport
     {
         public string path, name, parent, source, mesh;
         public bool active;
-        public float[] pos, euler, scale;   // 세계 좌표(유니티: 왼손, Y 위, 단위 m), 회전은 오일러 각도(도)
+        public float[] pos, euler, quat, scale;   // 세계 좌표(유니티: 왼손, Y 위, 단위 m), 회전은 오일러 각도(도)
         public string[] materials, colliders, components;
         public string light;                // "Directional color=… intensity=…" 같은 한 줄
     }
@@ -92,6 +92,7 @@ public static class GodotExport
                 {
                     path = PathOf(t), name = go.name, parent = t.parent != null ? PathOf(t.parent) : "",
                     active = go.activeInHierarchy, pos = V(t.position), euler = V(t.rotation.eulerAngles), scale = V(t.lossyScale),
+                    quat = new[] { Round(t.rotation.x), Round(t.rotation.y), Round(t.rotation.z), Round(t.rotation.w) },
                 };
                 var src = PrefabUtility.GetCorrespondingObjectFromOriginalSource(go);
                 if (src != null) it.source = AssetDatabase.GetAssetPath(src);

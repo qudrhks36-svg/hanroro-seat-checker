@@ -1,0 +1,888 @@
+{
+ "Mat_Beak": {
+  "base_color": [
+   1.0,
+   0.6,
+   0.15,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Beak.mat"
+ },
+ "Mat_Beard": {
+  "base_color": [
+   0.42,
+   0.3,
+   0.2,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Beard.mat"
+ },
+ "Mat_Blade": {
+  "base_color": [
+   0.42,
+   0.72,
+   0.28,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Blade.mat"
+ },
+ "Mat_BladeLight": {
+  "base_color": [
+   0.58,
+   0.8,
+   0.36,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_BladeLight.mat"
+ },
+ "Mat_Boat": {
+  "base_color": [
+   0.85,
+   0.35,
+   0.35,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Boat.mat"
+ },
+ "Mat_Bobber": {
+  "base_color": [
+   0.95,
+   0.25,
+   0.25,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Bobber.mat"
+ },
+ "Mat_Boots": {
+  "base_color": [
+   0.25,
+   0.17,
+   0.12,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Boots.mat"
+ },
+ "Mat_Bush": {
+  "base_color": [
+   0.33,
+   0.6,
+   0.3,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Bush.mat"
+ },
+ "Mat_BushLight": {
+  "base_color": [
+   0.5,
+   0.75,
+   0.36,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_BushLight.mat"
+ },
+ "Mat_Cat": {
+  "base_color": [
+   0.75,
+   0.52,
+   0.32,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Cat.mat"
+ },
+ "Mat_CatBeige": {
+  "base_color": [
+   0.93,
+   0.82,
+   0.65,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_CatBeige.mat"
+ },
+ "Mat_CatBrown": {
+  "base_color": [
+   0.55,
+   0.38,
+   0.22,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_CatBrown.mat"
+ },
+ "Mat_CatDark": {
+  "base_color": [
+   0.45,
+   0.3,
+   0.18,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_CatDark.mat"
+ },
+ "Mat_Cloud": {
+  "base_color": [
+   1.0,
+   0.99,
+   0.97,
+   1.0
+  ],
+  "smoothness": 0.0,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Cloud.mat"
+ },
+ "Mat_Eye": {
+  "base_color": [
+   0.1,
+   0.08,
+   0.08,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Eye.mat"
+ },
+ "Mat_Fence": {
+  "base_color": [
+   0.78,
+   0.6,
+   0.4,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Fence.mat"
+ },
+ "Mat_FenceCap": {
+  "base_color": [
+   0.62,
+   0.45,
+   0.3,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_FenceCap.mat"
+ },
+ "Mat_Firefly": {
+  "base_color": null,
+  "smoothness": null,
+  "metallic": null,
+  "emission": null,
+  "surface": null,
+  "alpha_clip": null,
+  "cull": null,
+  "shader_guid": "62177a6872d73aa4f97db99b94d8e10b",
+  "file": "Mat_Firefly.mat"
+ },
+ "Mat_FishShadow": {
+  "base_color": null,
+  "smoothness": null,
+  "metallic": null,
+  "emission": null,
+  "surface": null,
+  "alpha_clip": null,
+  "cull": null,
+  "shader_guid": "556707aef8d8f6c479a513f333617ef4",
+  "file": "Mat_FishShadow.mat"
+ },
+ "Mat_FlowerCenter": {
+  "base_color": [
+   1.0,
+   0.72,
+   0.2,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_FlowerCenter.mat"
+ },
+ "Mat_Grass": {
+  "base_color": [
+   0.55,
+   0.75,
+   0.38,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Grass.mat"
+ },
+ "Mat_Gull": {
+  "base_color": [
+   0.96,
+   0.96,
+   0.95,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Gull.mat"
+ },
+ "Mat_GullGray": {
+  "base_color": [
+   0.62,
+   0.66,
+   0.72,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_GullGray.mat"
+ },
+ "Mat_GullOrange": {
+  "base_color": [
+   1.0,
+   0.6,
+   0.15,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_GullOrange.mat"
+ },
+ "Mat_GullWhite": {
+  "base_color": [
+   0.96,
+   0.96,
+   0.95,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_GullWhite.mat"
+ },
+ "Mat_Hamster": {
+  "base_color": [
+   0.88,
+   0.66,
+   0.42,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Hamster.mat"
+ },
+ "Mat_HamsterLight": {
+  "base_color": [
+   0.98,
+   0.92,
+   0.8,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_HamsterLight.mat"
+ },
+ "Mat_Hat": {
+  "base_color": [
+   0.95,
+   0.8,
+   0.25,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Hat.mat"
+ },
+ "Mat_LHDark": {
+  "base_color": [
+   0.36,
+   0.31,
+   0.33,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_LHDark.mat"
+ },
+ "Mat_LHGlass": {
+  "base_color": [
+   1.0,
+   0.9,
+   0.5,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": [
+   1.6,
+   1.36,
+   0.64000005,
+   1.6
+  ],
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_LHGlass.mat"
+ },
+ "Mat_LHRed": {
+  "base_color": [
+   0.88,
+   0.3,
+   0.28,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_LHRed.mat"
+ },
+ "Mat_LHWhite": {
+  "base_color": [
+   0.97,
+   0.95,
+   0.92,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_LHWhite.mat"
+ },
+ "Mat_Leaf": {
+  "base_color": [
+   0.55,
+   0.75,
+   0.38,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Leaf.mat"
+ },
+ "Mat_Line": {
+  "base_color": [
+   0.95,
+   0.95,
+   0.95,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Line.mat"
+ },
+ "Mat_Merchant": {
+  "base_color": [
+   0.2,
+   0.35,
+   0.6,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Merchant.mat"
+ },
+ "Mat_Pants": {
+  "base_color": [
+   0.45,
+   0.3,
+   0.18,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Pants.mat"
+ },
+ "Mat_PetalPink": {
+  "base_color": [
+   1.0,
+   0.62,
+   0.74,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_PetalPink.mat"
+ },
+ "Mat_PetalWhite": {
+  "base_color": [
+   0.98,
+   0.97,
+   0.92,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_PetalWhite.mat"
+ },
+ "Mat_PetalYellow": {
+  "base_color": [
+   1.0,
+   0.86,
+   0.35,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_PetalYellow.mat"
+ },
+ "Mat_Pink": {
+  "base_color": [
+   0.95,
+   0.65,
+   0.68,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Pink.mat"
+ },
+ "Mat_Rock": {
+  "base_color": [
+   0.64,
+   0.62,
+   0.6,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Rock.mat"
+ },
+ "Mat_RockDark": {
+  "base_color": [
+   0.47,
+   0.46,
+   0.48,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_RockDark.mat"
+ },
+ "Mat_Roof": {
+  "base_color": [
+   0.93,
+   0.5,
+   0.32,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Roof.mat"
+ },
+ "Mat_Sand": {
+  "base_color": [
+   0.96,
+   0.8,
+   0.62,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Sand.mat"
+ },
+ "Mat_Sea": {
+  "base_color": [
+   0.3,
+   0.65,
+   0.72,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "5c4b769721b076d4491762a55e1aa403",
+  "file": "Mat_Sea.mat"
+ },
+ "Mat_Shell": {
+  "base_color": [
+   0.98,
+   0.86,
+   0.8,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Shell.mat"
+ },
+ "Mat_ShirtStripe": {
+  "base_color": [
+   0.95,
+   0.95,
+   0.92,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_ShirtStripe.mat"
+ },
+ "Mat_Skin": {
+  "base_color": [
+   0.95,
+   0.75,
+   0.6,
+   1.0
+  ],
+  "smoothness": 0.5,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Skin.mat"
+ },
+ "Mat_SkyGradient": {
+  "base_color": null,
+  "smoothness": null,
+  "metallic": null,
+  "emission": null,
+  "surface": null,
+  "alpha_clip": null,
+  "cull": null,
+  "shader_guid": "bca85e7865679bc4081e86dd9ad83e4c",
+  "file": "Mat_SkyGradient.mat"
+ },
+ "Mat_Starfish": {
+  "base_color": [
+   0.96,
+   0.55,
+   0.42,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Starfish.mat"
+ },
+ "Mat_Stem": {
+  "base_color": [
+   0.36,
+   0.62,
+   0.28,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Stem.mat"
+ },
+ "Mat_Trunk": {
+  "base_color": [
+   0.48,
+   0.33,
+   0.2,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Trunk.mat"
+ },
+ "Mat_Wall": {
+  "base_color": [
+   0.95,
+   0.88,
+   0.76,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Wall.mat"
+ },
+ "Mat_Window": {
+  "base_color": [
+   0.65,
+   0.85,
+   0.95,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Window.mat"
+ },
+ "Mat_Wood": {
+  "base_color": [
+   0.55,
+   0.37,
+   0.22,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_Wood.mat"
+ },
+ "Mat_WoodDark": {
+  "base_color": [
+   0.34,
+   0.22,
+   0.13,
+   1.0
+  ],
+  "smoothness": 0.1,
+  "metallic": 0.0,
+  "emission": null,
+  "surface": 0.0,
+  "alpha_clip": 0.0,
+  "cull": 2.0,
+  "shader_guid": "933532a4fcc9baf4fa0491de14d08ed7",
+  "file": "Mat_WoodDark.mat"
+ }
+}
