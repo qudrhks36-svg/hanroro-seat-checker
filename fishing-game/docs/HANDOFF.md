@@ -21,7 +21,7 @@
 
 ## 고닷 빌드·시험·배포
 - **창 띄우지 않기(사용자 요청)**: 일반 exe를 `Start-Process -WindowStyle Hidden -Wait`로 `--headless --path godot --quit-after N --log-file <파일> -- --시험옵션`. `_console.exe`·`--write-movie`·`--no-window`는 창이 떠서 금지. 헤드리스는 그림을 못 그려서 화면 사진은 못 찍음.
-- 시험 옵션(`scripts/main.gd` `_arg`): `--auto=1 --timescale=20 --freeze=1 --clock=초 --pos=x,z --yaw=도 --nosave=1 --npc=N --give=N --money=N --act=sell,rod --travel=1|2 --bottle=N --gull=1 --decorbuy=0,1,… --fcheck=1 --catalog=N --sens=X --goalcheck=1 --contest=cm,… --contestbest=N --ckey=1 --mute=1 --photosave=폴더 --lifecheck=1 --splashcheck=1 --weather=rain 등`. 테스트 중 저장 파일(`%APPDATA%\Godotpp_userdata\BOTTLE ISLAND\save.json`)이 생기니 끝나면 지울 것.
+- 시험 옵션(`scripts/main.gd` `_arg`): `--auto=1 --timescale=20 --freeze=1 --clock=초 --pos=x,z --yaw=도 --nosave=1 --npc=N --give=N --money=N --act=sell,rod --travel=1|2 --bottle=N --gull=1 --decorbuy=0,1,… --fcheck=1 --catalog=N --sens=X --goalcheck=1 --contest=cm,… --contestbest=N --ckey=1 --mute=1 --photosave=폴더 --lifecheck=1 --splashcheck=1 --weather=rain 등`. 테스트 중 저장 파일(`%APPDATA%\Godot\app_userdata\BOTTLE ISLAND\save.json`)이 생기니 끝나면 지울 것.
 - 웹 내보내기: `--headless --path godot --export-release "Web"` → `../../fishing-game-build/godot-web`(저장소 밖). 설정은 `godot/export_presets.cfg`(스레드 끔, `data/*.json` 포함, `web/*` 제외, 캔버스 크기 정책 0 — 페이지 셸이 크기를 정함), 페이지 틀 `godot/web/shell.html`. `preview.png`는 내보내기가 복사 안 하니 `godot/web/preview.png`를 배포 폴더에 직접 복사.
 - 시험 배포: `fishing-game-build/godot-web`에서 `npx vercel@latest deploy --prod --yes --scope bottlepipe`(프로젝트 `fishing-game-godot`).
 - **공개 주소 배포**: 그 파일들(`index*`, `preview.png`)을 임시 폴더에 복사하고 `fishing-game-build/webgl/.vercel/project.json`을 `.vercel/`에 넣어 같은 명령으로 배포(프로젝트 `fishing-game-web`).
