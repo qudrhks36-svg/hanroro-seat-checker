@@ -1,7 +1,7 @@
 extends CanvasLayer
 # NPC 대화·상점 (포팅 6단계, 유니티 ShopNPC + TalkNPC + DialogView, GDD 3·9번): 바틀이(상점: 팔기·낚싯대), 끼룩이·모카(짧은 대사), 돌쇠(노을에만, 1.2배로 삼).
 # 3m 안에서 바라보고 E → 대화창. 열려 있는 동안 시간이 멈추고 마우스가 보임. 왼쪽 클릭 = 물고기 모두 팔기, 오른쪽 클릭 = 낚싯대 업그레이드(바틀이), E/Esc = 닫기.
-# 집 꾸미기(F)·낚시 대회(C) 키는 7·8단계에서 붙임. 대사·값은 data/dialog.json, data/fishing.json(낚싯대 값).
+# 집 꾸미기(F, 7단계)·낚시 대회(C, 8단계) 키는 바틀이에게서만. 대사·값은 data/dialog.json, data/fishing.json(낚싯대 값).
 
 const Game := preload("res://scripts/game_state.gd")
 const ThemeUI := preload("res://scripts/ui_theme.gd")
@@ -20,6 +20,7 @@ const INK := Color(0.22, 0.15, 0.10)
 static var is_open := false
 var debug := false                   # 시험용: 상태를 로그로 찍음
 var decor_shop                       # 꾸미기 창 (main이 넣어 줌)
+var contest                          # 낚시 대회 (main이 넣어 줌)
 
 var cam: Camera3D
 var world: Node3D
@@ -123,6 +124,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		if is_open:
 			if event.keycode == KEY_F and npcs[current]["shop"] and decor_shop != null:
 				decor_shop.open()
+				get_viewport().set_input_as_handled()
+			elif event.keycode == KEY_C and npcs[current]["shop"] and contest != null and contest.can_start():
+				close(true)
+				contest.begin()
 				get_viewport().set_input_as_handled()
 			elif event.keycode == KEY_E:
 				close(true)
@@ -256,6 +261,8 @@ func _refresh() -> void:
 				info += "   —   다음: %s %d원" % [nx["name"], int(nx["cost"])]
 				hints.append(["오른쪽 클릭", "낚싯대 %d원" % int(nx["cost"])])
 		if shop:
+			if contest != null and contest.can_start():
+				hints.append(["C", "대회 3분"])
 			hints.append(["F", "꾸미기"])
 	hints.append(["E / Esc", "닫기"])
 	info_label.text = info

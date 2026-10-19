@@ -59,6 +59,7 @@ var guide2: Label
 var toast: PanelContainer
 var toast_label: Label
 var result_card                        # 결과 카드 (main이 넣어 줌)
+var fx                                 # 물보라·물결 (main이 넣어 줌)
 var bang: Label
 var reel_root: Control
 var zone_rect: ColorRect
@@ -212,6 +213,12 @@ func _unhandled_input(event: InputEvent) -> void:
 func _select_bait(i: int) -> void:
 	selected_bait = i
 
+func is_idle() -> bool:
+	return state == S.IDLE
+
+func is_hooked() -> bool:   # 입질 중이거나 릴 감는 중 (낚시 대회는 이 한 마리까지만 끝내고 마감)
+	return state == S.BITING or state == S.REELING
+
 # ---- 매 프레임 ----
 func _process(delta: float) -> void:
 	if FarSeaScript.busy:
@@ -290,6 +297,8 @@ func _land() -> void:
 		var w: Array = Game.baits[cast_bait]["wait_sec"]
 		bite_timer = randf_range(float(w[0]), float(w[1]))   # 미끼마다 다름 (GDD 6번)
 		SfxScript.play("splash")
+		if fx != null:
+			fx.splash(end_pos, false)   # 찌가 물에 닿는 물보라 (GDD 9번 낚시 연출)
 	else:
 		_set_casting(false)   # 육지: 회수
 
@@ -297,6 +306,8 @@ func _start_bite() -> void:
 	state = S.BITING
 	bite_timer = BITE_WINDOW
 	SfxScript.play("bite")
+	if fx != null:
+		fx.ring(end_pos, 1.1)   # 입질 물결
 
 # 입질 타이밍 성공 → 물고기를 정하고 릴 감기 시작
 func _hook() -> void:
@@ -337,14 +348,20 @@ func _catch() -> void:
 	var cm := Game.roll_size(hooked)
 	var was_new: bool = Game.counts[hooked] == 0   # 처음 잡은 물고기인지 (NEW)
 	var record := Game.register(hooked, cm)
+	var goal_done := Game.goal_on_catch()   # 오늘의 목표 (GDD 9번)
+	Game.contest_on_catch(hooked, cm)       # 진행 중인 낚시 대회의 최고 크기
 	catches += 1
 	SfxScript.play("catch")
 	if was_new:
 		SfxScript.play("new_fish")
+	if goal_done:
+		SfxScript.play("goal_done")
+	if fx != null:
+		fx.splash(end_pos, true)
 	var f: Dictionary = Game.fish[hooked]
 	SaveScript.save_game()
 	if result_card != null:
-		result_card.show_result(hooked, was_new, cm, record, cam.unproject_position(bobber.global_position))
+		result_card.show_result(hooked, was_new, cm, record, cam.unproject_position(bobber.global_position), goal_done)
 	print("[FG] catch #", catches, " ", f["name"], " ", cm, "cm ", f["rarity"], " period=", TimeScript.period, " bait=", cast_bait)
 	_end_reel()
 
@@ -387,7 +404,7 @@ func _update_guide() -> void:
 		match state:
 			S.IDLE:
 				a = "왼쪽 클릭: 바다 쪽으로 낚싯대 던지기"
-				b = "E: 배 가까이에서 부두로 돌아가기 · 1·2·3 미끼 · Tab 도감 · O 설정" if FarSeaScript.active else "WASD 이동 · 마우스 시점 · 1·2·3 미끼 · Tab 도감 · O 설정"
+				b = "E: 배 가까이에서 부두로 돌아가기 · 1·2·3 미끼 · Tab 도감 · P 사진 · M 소리 · O 설정" if FarSeaScript.active else "WASD 이동 · 마우스 시점 · 1·2·3 미끼 · Tab 도감 · E 말 걸기 · P 사진 · M 소리 · O 설정"
 			S.FLOATING:
 				a = "찌를 지켜보세요… 느낌표(!)가 뜨면 바로 왼쪽 클릭!"
 				b = "기다리다 마음이 바뀌면 왼쪽 클릭: 낚싯대 거두기"

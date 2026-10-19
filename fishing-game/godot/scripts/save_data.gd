@@ -1,7 +1,7 @@
 extends RefCounted
 # 저장 (GDD 8번): 도감·가진 물고기·최고 기록·소지금·낚싯대 단계를 user://save.json 하나에 저장/불러오기(웹은 브라우저 저장소).
 # 칸 이름은 유니티 SaveData와 같음(collection, inventory, best, money, rod, goal, notes, decor, cabin, contestBest).
-# 아직 고닷에 없는 칸(goal·notes·decor·cabin·contestBest)은 읽은 그대로 보존해서 다시 쓴다(나중 단계가 붙어도 옛 저장이 안전).
+# 고닷이 모르는 칸은 읽은 그대로 보존해서 다시 쓴다(옛 저장이 안전).
 # 시간대·날씨·미끼·위치는 저장하지 않음. 저장은 낚을 때·사고팔 때 부른다.
 
 const Game := preload("res://scripts/game_state.gd")
@@ -21,6 +21,8 @@ static func save_game() -> void:
 	d["notes"] = Game.notes_found
 	d["decor"] = Game.decor_mask
 	d["cabin"] = Game.cabin_level
+	d["goal"] = Game.goal_progress
+	d["contestBest"] = Game.contest_best
 	var f := FileAccess.open(PATH, FileAccess.WRITE)
 	if f == null:
 		push_warning("저장하지 못했어요: %s" % error_string(FileAccess.get_open_error()))
@@ -45,8 +47,10 @@ static func load_game() -> void:
 	Game.decor_mask = int(d.get("decor", 0)) & ((1 << Game.home_items.size()) - 1)
 	Game.cabin_level = clampi(int(d.get("cabin", 0)), 0, Game.cabins.size() - 1)
 	Game.mouse_scale = clampf(float(d.get("mouseSens", 1.0)), 0.3, 3.0)   # 옛 저장에는 없음 → 1.0
+	Game.goal_progress = clampi(int(d.get("goal", 0)), 0, Game.goal_target - 1)
+	Game.contest_best = maxi(0, int(d.get("contestBest", 0)))
 	extra = d.duplicate()
-	for k in ["collection", "inventory", "best", "money", "rod", "mouseSens", "notes", "decor", "cabin"]:
+	for k in ["collection", "inventory", "best", "money", "rod", "mouseSens", "notes", "decor", "cabin", "goal", "contestBest"]:
 		extra.erase(k)
 
 # 물고기 종류 수가 바뀐 저장 파일도 읽을 수 있게 짧은 쪽에 맞춰 복사, 음수는 0으로

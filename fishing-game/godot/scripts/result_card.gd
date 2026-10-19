@@ -25,6 +25,7 @@ var chip_text: Label
 var price_text: Label
 var new_badge: Panel
 var new_text: Label
+var goal_badge: Panel
 var jumper: TextureRect
 var sparks: Array = []
 var textures: Array = []
@@ -43,7 +44,7 @@ func _now() -> float:
 	return Time.get_ticks_msec() / 1000.0
 
 # 낚았을 때 FishingRod가 부른다. bobber_screen = 찌의 화면 위치(튀어오르는 시작 자리).
-func show_result(fish_index: int, is_new: bool, cm: int, is_record: bool, bobber_screen: Vector2) -> void:
+func show_result(fish_index: int, is_new: bool, cm: int, is_record: bool, bobber_screen: Vector2, goal_done: bool = false) -> void:
 	var f: Dictionary = Game.fish[fish_index]
 	var rc := ThemeUI.rarity_color(Game.rarity_index(fish_index))
 	ThemeUI.set_box_color(icon_bg, rc)
@@ -56,7 +57,8 @@ func show_result(fish_index: int, is_new: bool, cm: int, is_record: bool, bobber
 	size_text.text = "%dcm" % cm if cm > 0 else ""
 	new_text.text = "NEW! 도감 등록" if is_new else "기록 갱신!"
 	new_badge.visible = is_new or is_record
-	show_sparks = is_new or is_record or Game.rarity_index(fish_index) == 2
+	goal_badge.visible = goal_done
+	show_sparks = is_new or is_record or goal_done or Game.rarity_index(fish_index) == 2
 	jump_from = bobber_screen
 	for s in sparks:
 		s.visible = false
@@ -151,6 +153,14 @@ func _build() -> void:
 	new_text = ThemeUI.text("NEW! 도감 등록", 24, Color.WHITE)
 	new_badge.add_child(new_text)
 	ThemeUI.at(new_text, Vector2(190, 42), 0, 0, 190, 42)
+
+	goal_badge = ThemeUI.box(Color(1.0, 0.82, 0.28), 14, Color(0.55, 0.38, 0.08), 2)   # 목표를 채웠을 때만 카드 아래에 붙는 금색 띠
+	card.add_child(goal_badge)
+	ThemeUI.at(goal_badge, CARD, 0, -CARD.y * 0.5 - 30.0, 360, 44)
+	var goal_text := ThemeUI.text("오늘의 목표 달성!  +%d원" % Game.goal_reward, 26, Color(0.22, 0.15, 0.10))
+	goal_badge.add_child(goal_text)
+	ThemeUI.at(goal_text, Vector2(360, 44), 0, 0, 360, 44)
+	goal_badge.visible = false
 
 	for i in 12:   # 반짝이는 조각(마름모)
 		var s := ThemeUI.box(Color(1.0, 0.92, 0.5), 2)

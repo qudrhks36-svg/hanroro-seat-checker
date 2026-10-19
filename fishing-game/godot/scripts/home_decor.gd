@@ -303,7 +303,7 @@ func _clear_near(i: int) -> void:
 			continue
 		var p: Array = it["pos"]
 		if absf(p[0] - box[0]) < box[2] and absf(p[2] - box[1]) < box[3]:
-			var n = world.nodes_by_path.get(it["path"], null)
+			var n = it.get("_node", null)
 			if n != null:
 				n.visible = false
 				hidden += 1

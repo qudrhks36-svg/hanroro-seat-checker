@@ -181,7 +181,8 @@ func build() -> void:
 		add_child(node)
 		apply_materials(node)
 		models_by_parent[it["parent"]] = node
-		nodes_by_path[it["path"]] = node
+		nodes_by_path[it["path"]] = node   # 같은 경로가 여러 개면(풀·꽃 …) 마지막 것만 남으므로, 개별로 찾을 때는 항목의 "_node"를 씀
+		it["_node"] = node
 		add_colliders(node, it)
 		spawned += 1
 	add_sea_body()

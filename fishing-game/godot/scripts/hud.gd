@@ -1,6 +1,5 @@
 extends CanvasLayer
-# 상태창 (GDD 9번 [확정]): 시간대·날씨·미끼·소지금·도감을 왼쪽 아래 크림색 둥근 판 하나에 `아이콘 + 글자` 줄로 모아 보여준다.
-# 오늘의 목표 줄은 목표 기능(8단계)과 함께 붙는다.
+# 상태창 (GDD 9번 [확정]): 시간대·날씨·미끼·소지금·도감·오늘의 목표를 왼쪽 아래 크림색 둥근 판 하나에 `아이콘 + 글자` 줄로 모아 보여준다.
 
 const Game := preload("res://scripts/game_state.gd")
 const ThemeUI := preload("res://scripts/ui_theme.gd")
@@ -8,7 +7,7 @@ const IconScript := preload("res://scripts/icons.gd")
 const TimeScript := preload("res://scripts/time_of_day.gd")
 const WeatherScript := preload("res://scripts/weather.gd")
 
-const ROWS := 4
+const ROWS := 5
 const ROW_H := 46
 const PAD := 12
 const PANEL_W := 300
@@ -24,6 +23,8 @@ var bait_icon
 var bait_text: Label
 var money_text: Label
 var dex_text: Label
+var goal_text: Label
+var shown_goal := -1
 var shown_period := -1
 var shown_weather := -1
 var shown_bait := -1
@@ -54,6 +55,9 @@ func _ready() -> void:
 	var book = _icon(panel, 3)
 	book.set_kind("book")
 	dex_text = _text(panel, 3, 200)
+	var flag = _icon(panel, 4)
+	flag.set_kind("flag")
+	goal_text = _text(panel, 4, 230)
 
 func _icon(parent: Control, row: int):
 	var ic = IconScript.new()
@@ -94,3 +98,6 @@ func _process(_delta: float) -> void:
 		var done := found >= Game.fish.size()
 		dex_text.text = "도감 완성!" if done else "도감 %d/%d" % [found, Game.fish.size()]
 		dex_text.add_theme_color_override("font_color", Color(0.88, 0.52, 0.1) if done else ThemeUI.INK)
+	if Game.goal_progress != shown_goal:
+		shown_goal = Game.goal_progress
+		goal_text.text = "목표 %d/%d (+%d원)" % [shown_goal, Game.goal_target, Game.goal_reward]

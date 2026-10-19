@@ -24,6 +24,13 @@ static var decor_open := false       # 꾸미기 창이 열려 있나 (바틀이
 static var home_items: Array = []    # economy.json home.items (이름·값·설명)
 static var cabins: Array = []        # economy.json home.cabins
 static var mouse_scale := 1.0        # 마우스 감도 배율 (설정 창, 기본 1.0 = 0.1도/픽셀)
+static var goal_progress := 0        # 오늘의 목표: 지금까지 낚은 마릿수 (저장됨)
+static var goal_target := 3
+static var goal_reward := 50
+static var contest_best := 0         # 낚시 대회 최고 기록(cm, 저장됨)
+static var contest_active := false   # 대회 진행 중
+static var contest_cm := 0           # 이번 대회에서 가장 큰 물고기 크기
+static var contest_fish := -1        # 그 물고기 번호
 static var _loaded := false
 
 static func ensure_loaded() -> void:
@@ -36,6 +43,9 @@ static func ensure_loaded() -> void:
 	var e: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ECONOMY_JSON))["home"]
 	home_items = e["items"]
 	cabins = e["cabins"]
+	var g: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(ECONOMY_JSON))["goal"]
+	goal_target = int(g["target_catches"])
+	goal_reward = int(g["reward"])
 	rods = f["rods"]
 	counts.resize(fish.size())
 	best_cm.resize(fish.size())
@@ -86,6 +96,21 @@ static func register(i: int, cm: int) -> bool:
 		best_cm[i] = cm
 	inventory[i] += 1
 	return record
+
+# 오늘의 목표 (GDD 9번 [확정]): 한 마리 낚을 때마다 부른다. 목표를 채우면 상금을 주고 true, 바로 다음 목표가 시작.
+static func goal_on_catch() -> bool:
+	goal_progress += 1
+	if goal_progress < goal_target:
+		return false
+	goal_progress = 0
+	money += goal_reward
+	return true
+
+# 낚시 대회 (GDD 9번 [확정]): 대회 중 낚은 물고기 중 가장 큰 것만 기억
+static func contest_on_catch(i: int, cm: int) -> void:
+	if contest_active and (contest_fish < 0 or cm > contest_cm):
+		contest_fish = i
+		contest_cm = cm
 
 # ---- 집 꾸미기 (GDD 9번 [확정]: 장식 5종 + 오두막 3단계) ----
 static func owns(i: int) -> bool:

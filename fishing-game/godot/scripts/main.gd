@@ -18,6 +18,11 @@ const FarSeaScript := preload("res://scripts/far_sea.gd")
 const SeaEventsScript := preload("res://scripts/sea_events.gd")
 const HomeDecorScript := preload("res://scripts/home_decor.gd")
 const DecorShopScript := preload("res://scripts/decor_shop.gd")
+const ContestScript := preload("res://scripts/contest.gd")
+const PhotoScript := preload("res://scripts/photo_mode.gd")
+const SoundScript := preload("res://scripts/sound.gd")
+const SplashScript := preload("res://scripts/splash_fx.gd")
+const LifeScript := preload("res://scripts/life.gd")
 const Game := preload("res://scripts/game_state.gd")
 const ResultCardScript := preload("res://scripts/result_card.gd")
 
@@ -118,6 +123,11 @@ func _ready() -> void:
 	fishing.name = "Fishing"
 	add_child(fishing)
 	fishing.setup(player.cam, world)
+	var splash := Node3D.new()   # 물보라·물결 (8단계)
+	splash.set_script(SplashScript)
+	splash.name = "SplashFx"
+	add_child(splash)
+	fishing.fx = splash
 	# 상태창·결과 카드·도감 (5단계)
 	var hud := CanvasLayer.new()
 	hud.set_script(HudScript)
@@ -133,6 +143,11 @@ func _ready() -> void:
 	catalog.set_script(CatalogScript)
 	catalog.name = "Catalog"
 	add_child(catalog)
+	var contest := CanvasLayer.new()   # 낚시 대회: 바틀이에게서 C (8단계)
+	contest.set_script(ContestScript)
+	contest.name = "Contest"
+	add_child(contest)
+	contest.setup(fishing)
 	var far_sea := Node3D.new()   # 먼 바다 낚시터: 배 2척, E로 이동 (7-1)
 	far_sea.set_script(FarSeaScript)
 	far_sea.name = "FarSea"
@@ -179,6 +194,7 @@ func _ready() -> void:
 	dialog.name = "Dialog"
 	add_child(dialog)
 	dialog.setup(player.cam, world)
+	dialog.contest = contest
 	if _arg("nearcheck", "") != "":   # 시험용: 마우스 잠금 없이 "바라보면 E 안내" 판정만 확인
 		dialog.debug = true
 		dialog.assume_captured = true
@@ -245,6 +261,30 @@ func _ready() -> void:
 	settings.name = "Settings"
 	add_child(settings)
 	print("[FG] mouse_scale=", Game.mouse_scale)
+	var life := Node3D.new()   # 살아 있는 섬: 바람 흔들림·반딧불·구름·물고기 그림자 (8단계)
+	life.set_script(LifeScript)
+	life.name = "Life"
+	add_child(life)
+	life.setup(world)
+	var photo := CanvasLayer.new()   # 사진 찍기 P (8단계). 다른 화면을 꺼야 하므로 맨 마지막에 만든다
+	photo.set_script(PhotoScript)
+	photo.name = "PhotoMode"
+	add_child(photo)
+	var sound := CanvasLayer.new()   # 배경음악과 음소거 M (8단계)
+	sound.set_script(SoundScript)
+	sound.name = "Sound"
+	add_child(sound)
+	_run_step8_tests(contest, photo, sound, dialog)
+	if _arg("lifecheck", "") != "":   # 시험용: 흔들림 대상 수와 반딧불·구름·그림자 (밤이면 --clock=450 --freeze=1)
+		print("[FG] life sways=", life.sways.size(), " boats=", life.boats.size(), " clouds=", life.clouds.size(), " puffs=", life.clouds[0].get_child_count(), " fish=", life.fish.size())
+		await get_tree().create_timer(2.0).timeout
+		print("[FG] life night=", TimeScript.night, " fireflies emitting=", life.fireflies.emitting, " alpha=", life.fireflies.color.a, " cloud0.x=", life.clouds[0].position.x, " fish0=", life.fish[0]["node"].position)
+	if _arg("splashcheck", "") != "":   # 시험용: 물보라와 물결 고리가 만들어졌다가 사라지는지
+		splash.splash(Vector3(20, -0.1, 0), true)
+		splash.ring(Vector3(20, -0.1, 3), 1.1)
+		print("[FG] splash rings=", splash.rings.size(), " children=", splash.get_child_count())
+		await get_tree().create_timer(3.0).timeout
+		print("[FG] splash after 3s rings=", splash.rings.size(), " children=", splash.get_child_count())
 	if _arg("sens", "") != "":   # 시험용: 설정 창을 열어 감도를 바꾸고 닫는다(저장됨)
 		settings.set_open(true, false)
 		settings.set_sensitivity(float(_arg("sens", "1.0")))
@@ -324,3 +364,46 @@ func _process(_delta: float) -> void:
 	frames += 1
 	if _arg("log", "") != "" and frames % 10 == 0:
 		print("[FG] frame ", frames, " player=", player.position, " floor=", player.is_on_floor(), " hit=", player.dbg)
+
+# 8단계 시험용 명령줄: --goalcheck=1 --contest=cm,cm,... (0 = 한 마리도 못 잡음; --contestbest=N 이전 기록) --photo=1 --photosave=폴더 --mute=1 --ckey=1
+func _run_step8_tests(contest: Node, photo: Node, sound: Node, dialog: Node) -> void:
+	if _arg("goalcheck", "") != "":
+		for i in 7:
+			var before := Game.money
+			var done := Game.goal_on_catch()
+			print("[FG] goal #", i + 1, " done=", done, " progress=", Game.goal_progress, " money+=", Game.money - before)
+	if _arg("contest", "") != "":
+		Game.contest_best = int(_arg("contestbest", "0"))
+		var before := Game.money
+		contest.begin()
+		print("[FG] contest started active=", Game.contest_active, " can_start_again=", contest.can_start())
+		for s in _arg("contest", "").split(",", false):
+			if int(s) > 0:
+				Game.contest_on_catch(0, int(s))
+		contest.time_left = 0.0
+		contest.finish()
+		print("[FG] contest after: money+=", Game.money - before, " best=", Game.contest_best, " active=", Game.contest_active)
+	if _arg("ckey", "") != "":   # 바틀이 대화 중 C → 대화창 닫히고 대회 시작, 낚싯대가 거둬져 있지 않으면 안 됨
+		dialog.debug = true
+		dialog.open(0)
+		var ck := InputEventKey.new()
+		ck.pressed = true
+		ck.keycode = KEY_C
+		dialog._unhandled_input(ck)
+		print("[FG] ckey -> contest_active=", Game.contest_active, " dialog_open=", dialog.is_open, " time_left=", contest.time_left)
+	if _arg("photosave", "") != "":   # 합성 이미지를 PC 저장 경로에 저장
+		PhotoScript.save_dir_override = _arg("photosave", "")
+		var img := Image.create(64, 36, false, Image.FORMAT_RGBA8)
+		img.fill(Color(0.2, 0.6, 0.9))
+		print("[FG] photosave ok=", PhotoScript._save(img))
+	if _arg("photo", "") != "":
+		photo.assume_captured = true
+		await photo.shoot()
+		print("[FG] photo layers restored=", $Hud.visible, " busy=", photo.busy)
+	if _arg("mute", "") != "":
+		var bus := AudioServer.get_bus_index("Master")
+		print("[FG] mute start=", AudioServer.is_bus_mute(bus))
+		sound.toggle()
+		print("[FG] mute after M=", AudioServer.is_bus_mute(bus), " label=", sound.muted)
+		sound.toggle()
+		print("[FG] mute after M again=", AudioServer.is_bus_mute(bus))
