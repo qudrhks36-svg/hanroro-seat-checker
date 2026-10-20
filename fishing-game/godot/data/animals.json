@@ -2,9 +2,9 @@
   "gift_money": [30, 60, 100],
   "pet_cooldown_sec": 8.0,
   "animals": [
-    {"name": "뭉치", "kind": "rabbit", "color": [0.97, 0.95, 0.92], "speed": 0.9, "sound": "chime", "pitch": 2.2, "start": [2.5, -1.0]},
-    {"name": "보리", "kind": "rabbit", "color": [0.72, 0.52, 0.34], "speed": 1.0, "sound": "chime", "pitch": 1.9, "start": [-1.5, 6.5]},
-    {"name": "치즈", "kind": "cat", "color": [0.95, 0.66, 0.30], "speed": 0.8, "sound": "voice_cat", "pitch": 1.0, "start": [5.5, 4.0]},
-    {"name": "솔이", "kind": "deer", "color": [0.72, 0.50, 0.30], "speed": 0.7, "sound": "voice_cat", "pitch": 0.55, "start": [-2.0, -5.5]}
+    {"name": "뭉치", "kind": "rabbit", "scale": 0.9, "color": [0.97, 0.95, 0.92], "speed": 0.9, "sound": "chime", "pitch": 2.2, "start": [2.5, -1.0]},
+    {"name": "보리", "kind": "rabbit", "scale": 0.9, "color": [0.72, 0.52, 0.34], "speed": 1.0, "sound": "chime", "pitch": 1.9, "start": [-1.5, 6.5]},
+    {"name": "치즈", "kind": "cat", "scale": 0.9, "color": [0.95, 0.66, 0.30], "speed": 0.8, "sound": "voice_cat", "pitch": 1.0, "start": [5.5, 4.0]},
+    {"name": "솔이", "kind": "deer", "scale": 0.8, "color": [0.72, 0.50, 0.30], "speed": 0.7, "sound": "voice_cat", "pitch": 0.55, "start": [-2.0, -5.5]}
   ]
 }

@@ -217,7 +217,7 @@ func _scatter() -> void:
 	for i in 13:
 		var p: Variant = _pick(1.6, 4.0, 9.0)
 		if p != null:
-			_tree(Vector3(p.x, GROUND_Y, p.y), rng.randf_range(0.9, 1.25), i)
+			_tree(Vector3(p.x, GROUND_Y, p.y), rng.randf_range(0.9, 1.25) * float(world.obj_scale["meadow_tree"]), i)
 	for i in 9:
 		var p: Variant = _pick(0.9, 3.0, 9.4)
 		if p != null:
@@ -280,7 +280,7 @@ func _prop(file: String, pos: Vector3, s: float) -> void:
 	var n: Node3D = ps.instantiate()
 	n.position = pos
 	n.rotation.y = rng.randf() * TAU
-	n.scale = Vector3.ONE * s
+	n.scale = Vector3.ONE * s * float(world.obj_scale["meadow_prop"])
 	add_child(n)
 	SmoothScript.smooth_node(n, world.smooth_angle)
 	world.apply_materials(n)

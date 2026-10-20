@@ -65,7 +65,7 @@ func setup(camera: Camera3D, world_node: Node3D) -> void:
 		var c: Array = n["color"]
 		npcs.append({
 			"name": n["name"], "color": Color(c[0], c[1], c[2]), "data": n, "shop": is_shop,
-			"pos": Vector3(p[0], p[1], -p[2]), "up": 0.7 if is_shop else 0.5,
+			"pos": Vector3(p[0], p[1], -p[2]), "up": 0.6 if is_shop else 0.43,   # 바라보는 높이 (NPC 크기 0.85배)
 			"model": world.models_by_parent.get(NPC_PATHS[n["name"]], null),
 		})
 	_add_shop_collider(0)
@@ -73,16 +73,16 @@ func setup(camera: Camera3D, world_node: Node3D) -> void:
 	box.visible = false
 	prompt.visible = false
 
-# 바틀이는 부딪혀서 못 지나감(유니티: 캡슐 충돌 반지름 0.4, 높이 1.3, 중심 y 0.65)
+# 바틀이는 부딪혀서 못 지나감(유니티: 캡슐 충돌 반지름 0.4, 높이 1.3, 중심 y 0.65 → 0.85배 크기로 반지름 0.34, 높이 1.1, 중심 y 0.55)
 func _add_shop_collider(i: int) -> void:
 	var body := StaticBody3D.new()
 	var shape := CollisionShape3D.new()
 	var cap := CapsuleShape3D.new()
-	cap.radius = 0.4
-	cap.height = 1.3
+	cap.radius = 0.34   # 크기 0.85배
+	cap.height = 1.1
 	shape.shape = cap
 	body.add_child(shape)
-	body.position = npcs[i]["pos"] + Vector3(0, 0.65, 0)
+	body.position = npcs[i]["pos"] + Vector3(0, 0.55, 0)
 	world.add_child(body)
 
 # ---- 매 프레임: 바라보는 NPC 찾기 / 돌쇠는 노을에만 보임 ----

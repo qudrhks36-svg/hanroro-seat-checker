@@ -1,0 +1,10 @@
+{
+  "prefix": {
+    "Island/Bartle": 0.85, "Island/Cat": 0.85, "Island/Merchant": 0.85, "Island/Seagull": 0.85,
+    "Island/PalmTree": 0.8, "Landmarks/Palms": 0.8, "Landmarks/Lighthouse": 0.8,
+    "Decor/Bushes": 0.8, "Decor/Rocks": 0.8, "Decor/Grass": 0.85, "Decor/Flowers": 0.8, "Decor/Beach": 0.85
+  },
+  "meadow_tree": 0.85,
+  "meadow_prop": 0.8,
+  "rule": "GDD 8번 3인칭 2단계: 오브젝트 크기를 길 이름(path) 앞부분으로 골라 곱함. 자리는 그대로(모델 바닥 기준으로 줄어듦). 집·부두는 위치 연동이 많아 다음 단계."
+}

@@ -7,6 +7,7 @@ const MODEL_FIX := Basis(Vector3.UP, PI)   # 모델에 곱하는 보정 (Y축 18
 const SmoothScript := preload("res://scripts/mesh_smooth.gd")
 const SCENE_JSON := "res://data/scene.json"
 const MATERIALS_JSON := "res://data/materials.json"
+const SCALE_JSON := "res://data/scale.json"
 const CUSTOM_SHADER_MATS := ["Mat_Sea", "Mat_SkyGradient"]   # 따로 셰이더로 만드는 것(2-3)
 
 var items: Array = []
@@ -18,6 +19,7 @@ var mat_defs: Dictionary = {}
 var mat_cache: Dictionary = {}
 var unmatched: Dictionary = {}
 var skipped_child := 0
+var obj_scale: Dictionary = {}           # 길 이름 앞부분 → 크기 배율 (data/scale.json)
 var smooth_angle := 55.0                # 이 각도 미만으로 만나는 면은 부드럽게 이음(0 = 끔). 시험용 --smooth=도
 
 static func to_godot_pos(p: Array) -> Vector3:
@@ -42,6 +44,13 @@ static func tint_c_materials(root: Node, roughness: float = 0.9) -> void:
 			m.albedo_color = col
 			m.roughness = roughness
 			mi.set_surface_override_material(i, m)
+
+# 이 항목의 크기 배율(data/scale.json의 길 이름 앞부분과 맞는 것, 없으면 1)
+func scale_of(path: String) -> float:
+	for k in obj_scale["prefix"]:
+		if path.begins_with(k):
+			return float(obj_scale["prefix"][k])
+	return 1.0
 
 static func model_path(source: String) -> String:
 	# 유니티 Assets/Models/X.fbx → assets/models/X.fbx, Assets/Resources/Models/Y.fbx → assets/models/extra/Y.fbx
@@ -162,6 +171,7 @@ func build() -> void:
 	var t0 := Time.get_ticks_msec()
 	var mf := FileAccess.open(MATERIALS_JSON, FileAccess.READ)
 	mat_defs = JSON.parse_string(mf.get_as_text())
+	obj_scale = JSON.parse_string(FileAccess.get_file_as_string(SCALE_JSON))
 	var f := FileAccess.open(SCENE_JSON, FileAccess.READ)
 	var data: Dictionary = JSON.parse_string(f.get_as_text())
 	items = data["items"]
@@ -183,7 +193,7 @@ func build() -> void:
 		node.name = it["name"]
 		var s: Array = it["scale"]
 		var basis := to_godot_basis(it["quat"]) * MODEL_FIX
-		node.transform = Transform3D(basis.scaled(Vector3(s[0], s[1], s[2])), to_godot_pos(it["pos"]))
+		node.transform = Transform3D(basis.scaled(Vector3(s[0], s[1], s[2]) * scale_of(it["path"])), to_godot_pos(it["pos"]))
 		add_child(node)
 		SmoothScript.smooth_node(node, smooth_angle)   # 각진 면을 부드럽게 이어 보이게 (10단계)
 		apply_materials(node)

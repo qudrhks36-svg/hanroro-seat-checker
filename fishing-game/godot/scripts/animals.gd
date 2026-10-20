@@ -125,6 +125,7 @@ func _spawn(i: int, def: Dictionary) -> void:
 	var c: Array = def["color"]
 	var body := _make_model(def["kind"], Color(c[0], c[1], c[2]))
 	root.add_child(body)
+	root.scale = Vector3.ONE * float(def.get("scale", 1.0))
 	var st: Array = def["start"]
 	root.position = Vector3(st[0], GROUND_Y, st[1])
 	list.append({"node": root, "body": body, "def": def, "state": "idle", "t": rng.randf_range(0.5, 3.0), "target": Vector3.ZERO, "last_pet": -999.0})
