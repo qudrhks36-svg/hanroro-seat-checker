@@ -5,6 +5,8 @@ extends Node3D
 
 const SmoothScript := preload("res://scripts/mesh_smooth.gd")
 const AnimalsScript := preload("res://scripts/animals.gd")
+const FruitScript := preload("res://scripts/fruit_trees.gd")
+const CANOPY := [[Vector3(0, 2.2, 0), 1.0], [Vector3(0.55, 1.9, 0.25), 0.88], [Vector3(-0.5, 2.0, -0.3), 0.76]]   # 나무 잎 공 3개(중심, 반지름)
 
 const CENTER := Vector3(4, 0, 58)
 const BRIDGE_X := 4.0
@@ -28,6 +30,8 @@ var trees := 0
 var props := 0
 var blocked: Array = []          # 동물이 피할 곳 [Vector2 (섬 안쪽 x,z), 반지름]: 연못·나무·바위
 var animals: Node3D
+var tree_nodes: Array = []
+var fruit: Node3D
 
 func setup(world_node: Node3D, camera: Camera3D) -> void:
 	world = world_node
@@ -42,6 +46,11 @@ func setup(world_node: Node3D, camera: Camera3D) -> void:
 	animals.name = "Animals"
 	add_child(animals)
 	animals.setup(camera, blocked)
+	fruit = Node3D.new()   # 과일나무 (3단계)
+	fruit.set_script(FruitScript)
+	fruit.name = "FruitTrees"
+	add_child(fruit)
+	fruit.setup(camera, tree_nodes, CANOPY)
 	print("[FG] meadow built: trees=", trees, " props=", props, " bridge z ", BRIDGE_Z0, "..", BRIDGE_Z1)
 
 static func _mat(c: Color, rough: float = 0.9) -> StandardMaterial3D:
@@ -242,11 +251,11 @@ func _tree(pos: Vector3, s: float, i: int) -> void:
 	for k in 3:
 		var sp := MeshInstance3D.new()
 		var sm := SphereMesh.new()
-		sm.radius = 1.0 - k * 0.12
+		sm.radius = CANOPY[k][1]
 		sm.height = sm.radius * 1.8
 		sp.mesh = sm
 		sp.material_override = _mat(green.lightened(0.06 * k))
-		sp.position = [Vector3(0, 2.2, 0), Vector3(0.55, 1.9, 0.25), Vector3(-0.5, 2.0, -0.3)][k]
+		sp.position = CANOPY[k][0]
 		t.add_child(sp)
 	var body := StaticBody3D.new()   # 줄기 충돌
 	var sh := CollisionShape3D.new()
@@ -258,6 +267,7 @@ func _tree(pos: Vector3, s: float, i: int) -> void:
 	body.position = Vector3(0, 0.9, 0)
 	t.add_child(body)
 	blocked.append([Vector2(pos.x, pos.z), 0.35 * s + 0.2])
+	tree_nodes.append(t)
 	trees += 1
 
 func _prop(file: String, pos: Vector3, s: float) -> void:

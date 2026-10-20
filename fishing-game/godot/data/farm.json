@@ -2,9 +2,14 @@
   "crops": [
     {"name": "당근", "seed_price": 20, "sell_price": 50, "waterings": 2, "color": [1.0, 0.55, 0.15]},
     {"name": "옥수수", "seed_price": 30, "sell_price": 90, "waterings": 3, "color": [1.0, 0.85, 0.25]},
-    {"name": "딸기", "seed_price": 50, "sell_price": 180, "waterings": 4, "color": [0.9, 0.2, 0.3]}
+    {"name": "딸기", "seed_price": 50, "sell_price": 180, "waterings": 4, "color": [0.9, 0.2, 0.3]},
+    {"name": "사과", "sell_price": 30, "fruit": true, "color": [0.9, 0.2, 0.2]},
+    {"name": "귤", "sell_price": 45, "fruit": true, "color": [1.0, 0.6, 0.1]},
+    {"name": "복숭아", "sell_price": 70, "fruit": true, "color": [1.0, 0.7, 0.65]}
   ],
   "plots": [[-3.0, 10.2], [-1.5, 10.2], [0.0, 10.2], [-3.0, 11.8], [-1.5, 11.8], [0.0, 11.8]],
   "clear_box": {"x": [-3.8, 0.8], "z": [9.5, 12.5]},
-  "rule": "plots=밭 중심 (유니티 x,z). 물 주면 즉시 한 단계, 하루(시계 한 바퀴)에 한 번. 수확은 다 자란 뒤 E."
+  "fruit_regrow_days": 1,
+  "fruit_trees": 6,
+  "rule": "plots=밭 중심 (유니티 x,z). 물 주면 즉시 한 단계, 하루(시계 한 바퀴)에 한 번. 수확은 다 자란 뒤 E. fruit:true 항목은 씨앗이 아니라 풀섬 과일나무 열매(앞쪽 3개만 씨앗 창에 나옴), 딴 뒤 fruit_regrow_days 날 지나면 다시 열림."
 }

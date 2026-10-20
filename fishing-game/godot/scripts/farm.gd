@@ -304,7 +304,7 @@ func _seed_input(event: InputEvent) -> void:
 	elif event.keycode == KEY_E:
 		close_seeds(true)
 		get_viewport().set_input_as_handled()
-	elif event.keycode >= KEY_1 and event.keycode < KEY_1 + Game.crop_defs.size():
+	elif event.keycode >= KEY_1 and event.keycode < KEY_1 + Game.seed_count:
 		plant(seed_plot, event.keycode - KEY_1)
 		get_viewport().set_input_as_handled()
 
@@ -344,7 +344,7 @@ func _build_seed_window() -> void:
 	var title := ThemeUI.text("씨앗 고르기", 34, BROWN, HORIZONTAL_ALIGNMENT_LEFT)
 	seed_panel.add_child(title)
 	ThemeUI.at(title, size, -200, 150, 220, 50)
-	for i in Game.crop_defs.size():
+	for i in Game.seed_count:
 		var d: Dictionary = Game.crop_defs[i]
 		var row := ThemeUI.box(Color(1, 1, 1, 0.55), 14)
 		row.mouse_filter = Control.MOUSE_FILTER_STOP

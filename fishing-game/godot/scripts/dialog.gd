@@ -252,6 +252,14 @@ func _gift_fish(who: int) -> int:
 			best = i
 	return best
 
+# 선물로 줄 열매(가장 싼 것). 없으면 -1
+func _gift_fruit() -> int:
+	var best := -1
+	for i in Game.crops.size():
+		if Game.crop_defs[i].get("fruit", false) and Game.crops[i] > 0 and (best < 0 or int(Game.crop_defs[i]["sell_price"]) < int(Game.crop_defs[best]["sell_price"])):
+			best = i
+	return best
+
 func give_gift() -> void:
 	if current < 0:
 		return
@@ -265,13 +273,22 @@ func give_gift() -> void:
 		_refresh()
 		return
 	var idx := _gift_fish(who)
-	if idx < 0:
+	var fruit := -1
+	if idx < 0 or idx != _favorite_index(who):   # 가장 좋아하는 물고기가 아니면 열매를 먼저 줌
+		fruit = _gift_fruit()
+	if idx < 0 and fruit < 0:
 		return
-	var love := idx == _favorite_index(who)
-	Game.inventory[idx] -= 1
+	var love := fruit < 0 and idx == _favorite_index(who)
+	var gname := ""
+	if fruit >= 0:
+		Game.crops[fruit] -= 1
+		gname = Game.crop_defs[fruit]["name"]
+	else:
+		Game.inventory[idx] -= 1
+		gname = Game.fish[idx]["name"]
 	var up := _add_friend(who, 3 if love else 1)
 	var lines: Array = g["love"] if love else g["like"]
-	message = String(lines[randi() % lines.size()]).replace("{fish}", Game.fish[idx]["name"])
+	message = String(lines[randi() % lines.size()]).replace("{fish}", gname)
 	var now := Game.friend_level(who)
 	if up != "":
 		message = up
@@ -282,7 +299,7 @@ func give_gift() -> void:
 	sold = true
 	_refresh()
 	if debug:
-		print("[FG] gift ", n["name"], " fish=", Game.fish[idx]["name"], " love=", love, " points=", Game.friend[who], " level=", now)
+		print("[FG] gift ", n["name"], " item=", gname, " love=", love, " points=", Game.friend[who], " level=", now)
 
 # 친밀도 점수를 더한다. ♥ 단계가 오르면 그 단계 대사 + 작은 선물 문장을, 아니면 ""를 돌려줌
 func _add_friend(who: int, points: int) -> String:
@@ -458,7 +475,7 @@ func _refresh() -> void:
 			hints.append(["F", "꾸미기"])
 	if _quest_ready(current):
 		hints.append(["Q", "부탁"])
-	if _inventory_count() > 0 and Game.friend_level(current) < 3:
+	if (_inventory_count() > 0 or _gift_fruit() >= 0) and Game.friend_level(current) < 3:
 		hints.append(["G", "선물"])
 	hints.append(["E / Esc", "닫기"])
 	var lv := Game.friend_level(current)

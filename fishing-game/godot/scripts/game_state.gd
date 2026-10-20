@@ -44,6 +44,9 @@ static var plot_pos: Array = []             # 밭 6칸 자리 (유니티 x,z)
 static var clear_box: Dictionary = {}       # 밭 자리에서 치울 소품 범위
 static var crops: Array = [0, 0, 0]         # 수확한 작물 가방(종류별, 저장됨)
 static var plots: Array = []                # 밭 칸마다 [작물 번호(-1 비어 있음), 물 준 횟수, 마지막으로 물 준 날]
+static var seed_count := 0                  # 씨앗으로 심는 작물 수(열매 제외, farm.json 앞쪽)
+static var fruit_day: Array = []           # 과일나무마다 열매를 딴 날(-1000 = 아직 안 땀, 저장됨)
+static var fruit_regrow_days := 1          # 딴 뒤 다시 열리기까지 날 수(farm.json)
 static var farm_day := 0                    # 날짜(하루 시계가 한 바퀴 돌 때마다 +1, 저장됨)
 static var _loaded := false
 
@@ -66,6 +69,12 @@ static func ensure_loaded() -> void:
 	crop_defs = fm["crops"]
 	plot_pos = fm["plots"]
 	clear_box = fm["clear_box"]
+	for c in crop_defs:
+		if not c.get("fruit", false):
+			seed_count += 1
+	fruit_regrow_days = int(fm.get("fruit_regrow_days", 1))
+	fruit_day.resize(int(fm.get("fruit_trees", 6)))
+	fruit_day.fill(-1000)
 	crops.resize(crop_defs.size())
 	crops.fill(0)
 	plots.clear()

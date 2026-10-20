@@ -325,6 +325,19 @@ func _ready() -> void:
 		for k in 16:
 			meadow.animals.pet(2, true)
 		print("[FG] petcheck love=", Game.animal_love, " money=", Game.money)
+	if _arg("fruitcheck", "") != "":   # 시험용: 열매 따기 → 하루 뒤 다시 열림 → 팔기·선물 (--fruitcheck=1)
+		meadow.fruit.debug = true
+		var ft: Node3D = meadow.fruit
+		print("[FG] fruit trees=", ft.trees.size(), " ready=", ft.trees.map(func(t): return ft.ready_for(ft.trees.find(t))), " seeds=", Game.seed_count, " defs=", Game.crop_defs.size())
+		ft.pick(0)
+		ft.pick(1)
+		print("[FG] fruit after pick ready0=", ft.ready_for(0), " visible0=", (ft.trees[0]["fruits"][0] as Node3D).visible)
+		Game.farm_day += 1
+		await get_tree().create_timer(0.3).timeout
+		print("[FG] fruit next day ready0=", ft.ready_for(0), " visible0=", (ft.trees[0]["fruits"][0] as Node3D).visible, " bag=", Game.crops, " value=", Game.crop_value())
+		dialog.open(0)
+		dialog.give_gift()
+		print("[FG] fruit gift bag=", Game.crops, " friend=", Game.friend)
 	if _arg("meadowcheck", "") != "":   # 시험용: 땅·다리 높이와 걸어서 건너기 (--pos=4,10 --yaw=180 --walk=0,1)
 		await get_tree().create_timer(float(_arg("meadowcheck", "1"))).timeout
 		var dss := get_world_3d().direct_space_state
