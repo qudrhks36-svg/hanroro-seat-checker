@@ -39,7 +39,7 @@ static func color_of(a: Array) -> Color:
 	return Color(a[0], a[1], a[2])
 
 # 발이 y=0에 닿는 키 약 1.8m 캐릭터 (앞이 -z)
-static func build(o: Dictionary) -> Node3D:
+static func build(o: Dictionary, arms: bool = true) -> Node3D:
 	var root := Node3D.new()
 	var top := color_of(o["top"])
 	var bottom := color_of(o["bottom"])
@@ -55,9 +55,10 @@ static func build(o: Dictionary) -> Node3D:
 	else:
 		for x in [-0.12, 0.12]:
 			_part(root, _capsule(0.1, 0.75), bottom, Vector3(x, 0.4, 0))
-	for x in [-0.34, 0.34]:   # 팔: 소매 + 손
-		_part(root, _capsule(0.08, 0.62), top, Vector3(x, 1.1, 0))
-		_part(root, _sphere(0.075), SKIN, Vector3(x, 0.76, 0))
+	if arms:   # 팔: 소매 + 손 (3인칭 플레이어는 팔을 outfit_view.gd가 따로 그려서 끔)
+		for x in [-0.34, 0.34]:
+			_part(root, _capsule(0.08, 0.62), top, Vector3(x, 1.1, 0))
+			_part(root, _sphere(0.075), SKIN, Vector3(x, 0.76, 0))
 	_part(root, _sphere(0.24), SKIN, Vector3(0, 1.78, 0))   # 머리
 	for x in [-0.09, 0.09]:
 		_part(root, _sphere(0.03), Color(0.15, 0.1, 0.1), Vector3(x, 1.8, -0.21))

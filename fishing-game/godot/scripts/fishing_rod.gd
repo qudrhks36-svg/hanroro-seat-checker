@@ -26,7 +26,8 @@ const FISH_SPEED := [0.3, 0.5, 0.75]   # 흔함/보통/희귀
 const BAR_W := 600.0
 const ROD_LENGTH := [1.0, 1.15, 1.3]   # 낚싯대 단계별 길이 배율 (모델 길이도 1.4 / 1.61 / 1.82)
 
-var cam: Camera3D
+var cam: Camera3D                       # 눈(판정용)
+var view_cam: Camera3D                  # 화면 카메라(3인칭): 화면 좌표 계산용
 var world: Node3D
 var state := S.IDLE
 var selected_bait := 0
@@ -275,7 +276,7 @@ func _process(delta: float) -> void:
 	_update_guide()
 	if state == S.BITING:
 		bang.visible = true
-		var sp := cam.unproject_position(bobber.global_position + Vector3.UP * 0.8)
+		var sp := (view_cam if view_cam != null else cam).unproject_position(bobber.global_position + Vector3.UP * 0.8)
 		bang.position = sp - bang.size * 0.5
 
 func _cast() -> void:
@@ -373,7 +374,7 @@ func _catch() -> void:
 	var f: Dictionary = Game.fish[hooked]
 	SaveScript.save_game()
 	if result_card != null:
-		result_card.show_result(hooked, was_new, cm, record, cam.unproject_position(bobber.global_position), goal_done)
+		result_card.show_result(hooked, was_new, cm, record, (view_cam if view_cam != null else cam).unproject_position(bobber.global_position), goal_done)
 	print("[FG] catch #", catches, " ", f["name"], " ", cm, "cm ", f["rarity"], " period=", TimeScript.period, " bait=", cast_bait)
 	_end_reel()
 

@@ -25,6 +25,7 @@ const SplashScript := preload("res://scripts/splash_fx.gd")
 const CabinScript := preload("res://scripts/cabin.gd")
 const WardrobeScript := preload("res://scripts/wardrobe.gd")
 const OutfitViewScript := preload("res://scripts/outfit_view.gd")
+const PlayerBodyScript := preload("res://scripts/player_body.gd")
 const FarmScript := preload("res://scripts/farm.gd")
 const LifeScript := preload("res://scripts/life.gd")
 const MeadowScript := preload("res://scripts/meadow.gd")
@@ -117,6 +118,12 @@ func _ready() -> void:
 	player.position = Vector3(0, 1.1, 0)
 	add_child(player)
 	weather.follow = player.cam
+	var pbody := Node3D.new()   # 3인칭 캐릭터 몸 (12단계)
+	pbody.set_script(PlayerBodyScript)
+	pbody.name = "Body"
+	player.add_child(pbody)
+	pbody.setup(player)
+	player.body = pbody
 	_apply_test_args()
 
 	# 저장 불러오기(도감·보유·기록·소지금), 낚시: 낚싯대·찌·줄·안내 판·릴 화면 (4단계)
@@ -127,6 +134,7 @@ func _ready() -> void:
 	fishing.set_script(FishingScript)
 	fishing.name = "Fishing"
 	add_child(fishing)
+	fishing.view_cam = player.view   # 화면 좌표(!/결과 카드)는 3인칭 카메라 기준
 	fishing.setup(player.cam, world)
 	var splash := Node3D.new()   # 물보라·물결 (8단계)
 	splash.set_script(SplashScript)
@@ -419,6 +427,8 @@ func _apply_test_args() -> void:
 		var e: Vector3 = DEBUG_CAMS[key][1]
 		player.position = Vector3(p.x, p.y - player.EYE_HEIGHT, -p.z)
 		player.look(-e.y, -e.x)   # 유니티 오일러(x 숙임, y 좌우)를 고닷으로: 숙임은 -x, 좌우는 z 반전이라 부호 반대
+	if _arg("fpv", "") != "":   # 시험용: 옛 1인칭 화면
+		player.set_fpv(true)
 	var yaw := _arg("yaw", "")            # 시험용: 바라보는 방향(도, 0=유니티 +Z, 90=왼쪽(유니티 -X))
 	if yaw != "":
 		player.look(float(yaw), float(_arg("pitch", "0")))   # 시험용 --pitch=도(아래로 숙임은 음수)

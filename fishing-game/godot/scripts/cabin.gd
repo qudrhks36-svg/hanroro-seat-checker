@@ -204,7 +204,8 @@ func enter() -> void:
 		return
 	busy = true
 	await _fade(0.0, 1.0)
-	player.global_position = ROOM + Vector3(0, STAND_HEIGHT, ROOM_D * 0.5 - 1.1)
+	player.global_position = ROOM + Vector3(0, STAND_HEIGHT, ROOM_D * 0.5 - 1.9)   # 문에서 1.9m 안쪽 (3인칭 카메라가 뒤로 물러날 자리)
+	player.view_back = 1.7
 	player.velocity = Vector3.ZERO
 	player.look(0.0, 0.0)   # 방 안쪽(북)을 봄
 	player.reset_physics_interpolation()
@@ -222,6 +223,7 @@ func leave() -> void:
 	busy = true
 	await _fade(0.0, 1.0)
 	inside = false
+	player.view_back = player.VIEW_BACK
 	var y := _ground_y(STAND_OUT.x, STAND_OUT.z) + STAND_HEIGHT
 	player.global_position = Vector3(STAND_OUT.x, y, STAND_OUT.z)
 	player.velocity = Vector3.ZERO

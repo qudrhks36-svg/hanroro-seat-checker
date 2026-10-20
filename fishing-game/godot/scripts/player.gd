@@ -1,16 +1,26 @@
 extends CharacterBody3D
 # 플레이어 (포팅 2-2): WASD 이동, 마우스 시점, 중력. 유니티 PlayerController와 같은 값(속도 4, 감도 0.1도/픽셀, 중력 -20).
-# 몸(캡슐) 중심이 땅에서 약 1.02 위, 눈은 몸 중심에서 0.7 위(유니티: 몸 y 1.1, 눈 y 1.8).
+# 몸(캡슐) 중심이 땅에서 약 1.02 위. 3인칭(GDD 8번 [확정]): cam은 머리 높이(몸 중심 위 0.42)의 보이지 않는 "눈"으로 조준·말 걸기·낚시 판정이 그대로 쓰고,
+# 화면에 보이는 카메라 view는 어깨 뒤에서 따라오며 눈이 보는 방향의 15m 앞 한 점을 바라본다(십자 = 실제 조준).
 
 const Game := preload("res://scripts/game_state.gd")
 
 const SPEED := 4.0
 const GRAVITY := 20.0
 const MOUSE_SENS := 0.1          # 도/픽셀
-const EYE_HEIGHT := 0.7
+const EYE_HEIGHT := 0.42
+const VIEW_BACK := 3.2           # 3인칭 카메라: 눈에서 뒤로
+const VIEW_SIDE := 0.55          # 오른쪽으로
+const VIEW_UP := 0.35            # 위로
+const VIEW_AIM := 15.0           # 카메라가 바라볼 눈 앞 거리
+const VIEW_MIN := 0.9            # 이보다 가까우면 몸을 숨김
 const STEP_HEIGHT := 0.4        # 유니티 CharacterController: 계단 0.3 + 몸 표면 여유 0.08 → 모래 끝(-0.06)에서 부두 바닥(0.3)까지 오를 수 있음
 
-var cam: Camera3D
+var cam: Camera3D                # 눈(보이지 않음, 판정용)
+var view: Camera3D               # 화면 카메라(3인칭)
+var body: Node3D                 # 3인칭 몸(main.gd가 정함)
+var view_back := VIEW_BACK       # 지금 카메라 거리(집 안은 좁아서 cabin.gd가 줄임)
+var fpv := false                 # 시험용 --fpv=1: 옛 1인칭 화면
 var pitch := 0.0                 # 위아래 각도(도)
 var dbg := ""                    # 시험용: 지금 닿은 것들
 var test_walk := Vector2.ZERO    # 시험용: 키 대신 이 방향으로 걷게 함(x=오른쪽, y=앞)
@@ -25,9 +35,14 @@ func _ready() -> void:
 	floor_snap_length = STEP_HEIGHT + 0.1   # 계단·부두 끝에서 내려올 때 바닥에 붙어서 떨어지지 않게
 	cam = Camera3D.new()
 	cam.position = Vector3(0, EYE_HEIGHT, 0)
-	cam.current = true
+	cam.current = false
 	cam.fov = 60.0                  # 유니티 카메라 시야각(세로 60도). 고닷 기본은 75도
 	add_child(cam)
+	view = Camera3D.new()
+	view.top_level = true
+	view.current = true
+	view.fov = 60.0
+	add_child(view)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -72,3 +87,26 @@ func _physics_process(delta: float) -> void:
 	for i in get_slide_collision_count():
 		var c := get_slide_collision(i)
 		dbg += "%s n=%s | " % [(c.get_collider() as Node).name if c.get_collider() else "?", c.get_normal()]
+
+func set_fpv(on: bool) -> void:
+	fpv = on
+	cam.current = on
+	view.current = not on
+
+func _process(_delta: float) -> void:
+	var head := cam.global_position
+	var fwd := -cam.global_transform.basis.z
+	var desired := head + cam.global_transform.basis * Vector3(VIEW_SIDE, VIEW_UP, view_back)
+	var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(head, desired, 0xFFFFFFFF, [get_rid()]))
+	var pos := desired
+	if not hit.is_empty():   # 벽·나무에 닿으면 그 앞으로 당김
+		pos = hit.position + (head - desired).normalized() * 0.25
+	var target := head + fwd * VIEW_AIM
+	if (target - pos).length() > 0.01 and absf((target - pos).normalized().dot(Vector3.UP)) < 0.999:
+		view.look_at_from_position(pos, target, Vector3.UP)
+	else:
+		view.global_position = pos
+	var far_enough := pos.distance_to(head) > VIEW_MIN
+	if body != null:
+		body.visible = not fpv and far_enough
+	cam.visible = fpv or far_enough   # 낚싯대·팔도 카메라가 너무 가까우면 숨김

@@ -19,8 +19,8 @@ func setup(fishing_node) -> void:
 	hand_mat = StandardMaterial3D.new()
 	hand_mat.roughness = 1.0
 	hand_mat.albedo_color = CharacterScript.SKIN
-	# 오른손은 손잡이 가까이, 왼손은 낚싯대 가운데쯤
-	for spec in [[0.22, Vector3(0.62, -0.85, 0.30)], [0.5, Vector3(0.02, -0.9, 0.30)]]:
+	# 오른손은 손잡이 가까이, 왼손은 낚싯대 가운데쯤. 팔은 어깨(눈 기준 아래 0.3, 좌우 0.26)에서 시작(3인칭)
+	for spec in [[0.22, Vector3(0.26, -0.30, 0.0)], [0.5, Vector3(-0.26, -0.30, 0.0)]]:
 		var arm := MeshInstance3D.new()
 		var cm := CylinderMesh.new()
 		cm.top_radius = 0.045
