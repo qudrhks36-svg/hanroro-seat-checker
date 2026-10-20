@@ -367,7 +367,7 @@ func _level_reward(who: int, level: int) -> String:
 	for p in f["periods"]:
 		times.append(names[p])
 	var when := "하루 종일" if times.size() == 3 else "·".join(times)
-	var where := "먼 바다에서" if bool(f["far_sea"]) else ("풀섬 연못에서" if bool(f.get("pond", false)) else "섬 근처에서")
+	var where := "먼 바다에서" if bool(f["far_sea"]) else ("풀섬 연못에서" if bool(f.get("pond", false)) else ("눈 섬 얼음 호수에서" if bool(f.get("ice", false)) else "섬 근처에서"))
 	var nm: String = f["name"]
 	var eun := "은" if (nm.unicode_at(nm.length() - 1) - 0xAC00) % 28 != 0 else "는"
 	return "\n" + String(npcs[who]["data"]["hint_prefix"]) + "%s%s %s %s 나온대." % [nm, eun, when, where]

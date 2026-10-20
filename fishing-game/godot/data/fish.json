@@ -342,6 +342,80 @@
       "price": 100,
       "image": "Fish_20",
       "image_file": "Fish_20_Koi.png"
+    },
+    {
+      "id": 21,
+      "name": "빙어",
+      "rarity": "common",
+      "periods": [
+        "day",
+        "sunset",
+        "night"
+      ],
+      "far_sea": false,
+      "ice": true,
+      "size_cm": {
+        "min": 10,
+        "max": 25
+      },
+      "price": 10,
+      "image": "Fish_21",
+      "image_file": "Fish_21_Smelt.png"
+    },
+    {
+      "id": 22,
+      "name": "대구",
+      "rarity": "common",
+      "periods": [
+        "day",
+        "sunset"
+      ],
+      "far_sea": false,
+      "ice": true,
+      "size_cm": {
+        "min": 30,
+        "max": 60
+      },
+      "price": 10,
+      "image": "Fish_22",
+      "image_file": "Fish_22_Cod.png"
+    },
+    {
+      "id": 23,
+      "name": "연어",
+      "rarity": "uncommon",
+      "periods": [
+        "day",
+        "sunset",
+        "night"
+      ],
+      "far_sea": false,
+      "ice": true,
+      "size_cm": {
+        "min": 40,
+        "max": 80
+      },
+      "price": 30,
+      "image": "Fish_23",
+      "image_file": "Fish_23_Salmon.png"
+    },
+    {
+      "id": 24,
+      "name": "오로라고기",
+      "rarity": "rare",
+      "periods": [
+        "sunset",
+        "night"
+      ],
+      "far_sea": false,
+      "ice": true,
+      "size_cm": {
+        "min": 40,
+        "max": 90
+      },
+      "price": 100,
+      "image": "Fish_24",
+      "image_file": "Fish_24_Aurora.png"
     }
   ]
 }

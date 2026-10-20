@@ -16,6 +16,8 @@ const SettingsScript := preload("res://scripts/settings_ui.gd")
 const DialogScript := preload("res://scripts/dialog.gd")
 const FarSeaScript := preload("res://scripts/far_sea.gd")
 const SeaEventsScript := preload("res://scripts/sea_events.gd")
+const SnowIslandScript := preload("res://scripts/snow_island.gd")
+const TripScript := preload("res://scripts/island_trip.gd")
 const StoryScript := preload("res://scripts/story.gd")
 const HomeDecorScript := preload("res://scripts/home_decor.gd")
 const DecorShopScript := preload("res://scripts/decor_shop.gd")
@@ -175,6 +177,26 @@ func _ready() -> void:
 			await get_tree().create_timer(1.6, true, false, true).timeout
 			far_sea.debug = true
 			far_sea.travel(false)
+	var snow_island := Node3D.new()   # 눈 섬 + 섬 여행 배 (13단계)
+	snow_island.set_script(SnowIslandScript)
+	snow_island.name = "SnowIsland"
+	add_child(snow_island)
+	snow_island.setup(world, player)
+	var trip := Node3D.new()
+	trip.set_script(TripScript)
+	trip.name = "IslandTrip"
+	add_child(trip)
+	trip.setup(player.cam, player, fishing)
+	if _arg("trip", "") != "":   # 시험용: --trip=1 눈 섬으로 이동(+ --auto=1 호수 낚시), --trip=2 갔다가 부두로 돌아오기. --rodlevel=1 이상 필요
+		trip.debug = true
+		trip.travel(true)
+		if _arg("trip", "") == "3":   # 호수 가장자리(남쪽 5.5m)에서 호수를 보고 서기
+			await get_tree().create_timer(1.5).timeout
+			player.global_position = SnowIslandScript.CENTER + Vector3(2.8, 1.3, 4.8)
+			player.look(0.0, 0.0)
+		if _arg("trip", "") == "2":
+			await get_tree().create_timer(1.5).timeout
+			trip.travel(false)
 	var sea_events := Node3D.new()   # 병 쪽지와 갈매기 (7-2)
 	sea_events.set_script(SeaEventsScript)
 	sea_events.name = "SeaEvents"
@@ -385,7 +407,7 @@ func _ready() -> void:
 		dialog.give_gift()
 		print("[FG] fruit gift bag=", Game.crops, " friend=", Game.friend)
 	if _arg("pondcheck", "") != "":   # 시험용: 연못 가에서 연못 쪽으로 던져 연못 물고기만 나오는지 (--pos=연못 가 --yaw=연못 쪽 --auto=1 --timescale=20)
-		print("[FG] pond pos=", Game.pond_pos, " r=", Game.pond_r, " fish=", Game.fish.size())
+		print("[FG] fishing spots=", Game.spots, " fish=", Game.fish.size())
 		var names := {}
 		for k in 400:
 			names[Game.fish[Game.pick(k % 3, 0, false, true)]["name"]] = true

@@ -112,8 +112,7 @@ func _build_pond() -> void:
 	body.add_child(sh)
 	body.position = POND + Vector3(0, -0.19, 0)
 	add_child(body)
-	Game.pond_pos = CENTER + POND
-	Game.pond_r = POND_R
+	Game.spots.append([CENTER + POND, POND_R])
 	spots.append([Vector2(POND.x, POND.z), POND_R + 0.9])
 	blocked.append([Vector2(POND.x, POND.z), POND_R])
 
