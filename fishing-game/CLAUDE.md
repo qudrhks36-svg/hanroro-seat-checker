@@ -13,7 +13,7 @@
 - 검수 담당: 결과물을 보고 통과/반려만 결정해요. 직접 고치지 않아요.
 
 ## 현재 상태
-- 원본 Unity 6.3(`fish game/`), 포팅 Godot 4.7.2(`godot/`). 고닷 1~9단계 완료, 공개 주소 fishing-game-web.vercel.app = 고닷판.
+- 원본 Unity 6.3(`fish game/`), 포팅 Godot 4.7.2(`godot/`). 고닷 1~9단계 완료 + 집 안·농장·NPC 친밀도·풀섬(동물·과일나무·연못 낚시)·3인칭·크기 줄이기까지 반영. 공개 주소 fishing-game-web.vercel.app = 고닷판 최신.
 - 자세한 것: `docs/GODOT_PORT.md`(포팅 기록·시험 방법), `docs/HANDOFF.md`(인수인계), 변경 기록 `changelog/2026-10-12.md`.
 
 ## 고닷 실행·시험 (창을 띄우지 말 것 — 사용자가 업무 중에 거슬려 함)
