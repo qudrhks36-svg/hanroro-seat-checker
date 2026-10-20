@@ -340,6 +340,23 @@ func _ready() -> void:
 			player.rotation_degrees.y = 0.0
 			player.turn(Vector2(100, 0))
 			print("[FG] lookcheck scale=", sc, " yaw=", player.rotation_degrees.y)
+	if _arg("keycheck", "") != "":   # 시험용: 방향키로 도감 칸 고르기, ← → 로 감도 바꾸기 (마우스 없이)
+		catalog.set_open(true, false)
+		for kc in [KEY_RIGHT, KEY_RIGHT, KEY_DOWN, KEY_LEFT]:
+			var ek := InputEventKey.new()
+			ek.pressed = true
+			ek.keycode = kc
+			catalog._unhandled_input(ek)
+		print("[FG] keycheck catalog selected=", catalog.selected, " (기대 5)")
+		catalog.set_open(false, false)
+		settings.set_open(true, false)
+		for kc in [KEY_RIGHT, KEY_RIGHT, KEY_LEFT]:
+			var sk := InputEventKey.new()
+			sk.pressed = true
+			sk.keycode = kc
+			settings._unhandled_input(sk)
+		print("[FG] keycheck sens slider=", snappedf(settings.slider.value, 0.01), " scale=", snappedf(Game.mouse_scale, 0.01), " (기대 1.1)")
+		settings.set_open(false, false)
 	if _arg("catalog", "") != "":   # 시험용: 도감을 열고 이 번호 칸을 고른다
 		catalog.debug = true
 		catalog.selected = int(_arg("catalog", "0"))

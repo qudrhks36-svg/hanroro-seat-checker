@@ -281,9 +281,8 @@ func _open_seeds(i: int) -> void:
 	seed_plot = i
 	seed_open = true
 	Game.modal = "seeds"
-	get_tree().paused = true
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	seed_msg.text = "돈 %d원 · 숫자 키나 클릭으로 심어요" % Game.money
+	get_tree().paused = true   # 마우스는 잠근 채로 둠(숫자 키로 심기)
+	seed_msg.text = "돈 %d원 · 숫자 키로 심어요" % Game.money
 	seed_root.visible = true
 	_place_seed_panel()
 
@@ -374,7 +373,7 @@ func _build_seed_window() -> void:
 	seed_msg = ThemeUI.text("", 22, BROWN)
 	seed_panel.add_child(seed_msg)
 	ThemeUI.at(seed_msg, size, 0, -150, 580, 34)
-	var hint := ThemeUI.text("Esc / E: 닫기", 20, Color(0.4, 0.3, 0.22))
+	var hint := ThemeUI.text("E / Esc: 닫기", 20, Color(0.4, 0.3, 0.22))
 	seed_panel.add_child(hint)
 	ThemeUI.at(hint, size, 0, -178, 400, 28)
 	seed_root.visible = false

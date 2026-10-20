@@ -30,6 +30,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.keycode == KEY_O:
 		set_open(not is_open, true)
 		get_viewport().set_input_as_handled()
+	elif is_open and (event.keycode == KEY_LEFT or event.keycode == KEY_RIGHT):   # ← → 로 감도 바꾸기(마우스를 잠근 채로 쓰게)
+		slider.value = clampf(slider.value + (0.1 if event.keycode == KEY_RIGHT else -0.1), SENS_MIN, SENS_MAX)
+		get_viewport().set_input_as_handled()
 	elif event.keycode == KEY_ESCAPE:
 		set_open(not is_open, false)   # Esc는 브라우저가 이미 마우스 잠금을 풀었으므로 다시 잠그지 않고 클릭으로 시작하게 둠
 		get_viewport().set_input_as_handled()
@@ -42,8 +45,7 @@ func set_open(open: bool, relock: bool) -> void:
 	root.visible = open
 	get_tree().paused = open
 	if open:
-		slider.value = Game.mouse_scale
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		slider.value = Game.mouse_scale   # 마우스는 잠근 채로 둠
 	else:
 		SaveScript.save_game()
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if relock else Input.MOUSE_MODE_VISIBLE
@@ -121,6 +123,6 @@ func _build() -> void:
 	slider.drag_ended.connect(_on_drag_ended)
 	set_sensitivity(Game.mouse_scale)
 
-	var hint := ThemeUI.text("작게 = 천천히, 크게 = 빠르게      Esc / O: 닫기", 20, Color(0.4, 0.3, 0.22))
+	var hint := ThemeUI.text("작게 = 천천히, 크게 = 빠르게      ← → 로 바꾸기      O / Esc: 닫기", 20, Color(0.4, 0.3, 0.22))
 	panel.add_child(hint)
 	ThemeUI.at(hint, PANEL, 0, -115, 520, 30)

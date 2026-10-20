@@ -56,6 +56,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_ESCAPE and is_open:
 			set_open(false, false)   # Esc는 브라우저가 이미 마우스 잠금을 풀었으므로 다시 잠그지 않고 클릭으로 시작하게 둠
 			get_viewport().set_input_as_handled()
+		elif is_open and event.keycode in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN]:   # 방향키로 칸 고르기(마우스를 잠근 채로 쓰게)
+			var n := Game.fish.size()
+			match event.keycode:
+				KEY_LEFT: selected = (selected + n - 1) % n
+				KEY_RIGHT: selected = (selected + 1) % n
+				KEY_UP: selected = (selected + n - 4) % n
+				KEY_DOWN: selected = (selected + 4) % n
+			_refresh()
+			get_viewport().set_input_as_handled()
 
 func set_open(open: bool, relock: bool) -> void:
 	is_open = open
@@ -63,8 +72,7 @@ func set_open(open: bool, relock: bool) -> void:
 	root.visible = open
 	get_tree().paused = open
 	if open:
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		_refresh()
+		_refresh()   # 마우스는 잠근 채로 둠(방향키로 고르기 → 닫은 뒤 다시 클릭할 필요 없음)
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if relock else Input.MOUSE_MODE_VISIBLE
 
@@ -104,7 +112,7 @@ func _refresh() -> void:
 	price_value.text = "%d원" % Game.price(selected) if seen else "—"
 	if debug:
 		print("[FG] catalog selected=", selected, " name=", name_text.text, " found=", count_text.text, " caught=", caught_value.text, " best=", best_value.text, " price=", price_value.text)
-	hint_text.text = "칸을 클릭하면 물고기를 볼 수 있어요      Tab / Esc: 닫기" if seen else "아직 못 잡았어요. 낚아서 도감을 채워 보세요      Tab / Esc: 닫기"
+	hint_text.text = "방향키로 물고기를 골라 봐요      Tab / Esc: 닫기" if seen else "아직 못 잡았어요. 낚아서 도감을 채워 보세요      Tab / Esc: 닫기"
 
 func _on_cell_input(event: InputEvent, i: int) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

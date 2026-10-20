@@ -158,8 +158,7 @@ func open(i: int) -> void:
 	current = i
 	is_open = true
 	Game.modal = "dialog"
-	get_tree().paused = true
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	get_tree().paused = true   # 마우스는 잠근 채로 둔다(클릭으로 팔기·업그레이드는 잠금 중에도 됨 → 닫은 뒤 다시 클릭할 필요 없음)
 	prompt.visible = false
 	sold = false
 	var n: Dictionary = npcs[i]["data"]

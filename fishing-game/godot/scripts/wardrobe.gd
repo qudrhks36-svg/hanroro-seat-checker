@@ -32,8 +32,7 @@ func open() -> void:
 		return
 	is_open = true
 	Game.modal = "wardrobe"
-	get_tree().paused = true
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	get_tree().paused = true   # 마우스는 잠근 채로 둠(숫자 키로 입기, 닫은 뒤 다시 클릭할 필요 없음)
 	root.visible = true
 	panel.position = (get_viewport().get_visible_rect().size - PANEL) * 0.5
 	_refresh()
@@ -163,6 +162,6 @@ func _build() -> void:
 	sun.light_energy = 0.8
 	sv.add_child(sun)
 
-	var hint := ThemeUI.text("숫자 키 또는 클릭: 입기      Esc / E: 닫기", 22, Color(0.4, 0.3, 0.22))
+	var hint := ThemeUI.text("숫자 키: 입기      E / Esc: 닫기", 22, Color(0.4, 0.3, 0.22))
 	panel.add_child(hint)
 	ThemeUI.at(hint, PANEL, 0, -240, 800, 34)
