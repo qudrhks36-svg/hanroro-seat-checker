@@ -57,7 +57,7 @@ static func load_game() -> void:
 	Game.mouse_scale = clampf(float(d.get("mouseSens", 1.0)), 0.3, 3.0)   # 옛 저장에는 없음 → 1.0
 	var fr = d.get("friend")
 	if fr is Array:
-		for i in mini(4, fr.size()):
+		for i in mini(Game.friend.size(), fr.size()):
 			Game.friend[i] = clampi(int(fr[i]), 0, Game.FRIEND_LEVELS[2])
 	var fd = d.get("fruit")
 	if fd is Array:
@@ -88,7 +88,7 @@ static func load_game() -> void:
 					Game.plots[i] = [int(pl[0]), maxi(0, int(pl[1])), int(pl[2])]
 	var qs = d.get("quests")
 	if qs is Array:
-		for i in mini(4, qs.size()):
+		for i in mini(Game.quests.size(), qs.size()):
 			var q = qs[i]
 			if q is Array and q.size() == 2 and int(q[0]) >= 0 and int(q[0]) < Game.fish.size() and int(q[1]) >= 1:
 				Game.quests[i] = [int(q[0]), int(q[1])]

@@ -16,7 +16,7 @@ const TALK_DISTANCE := 3.0
 const LOOK_DOT := 0.8
 const W := 1080.0
 const NPC_PATHS := {"바틀이": "Island/Bartle", "끼룩이": "Island/Seagull", "모카": "Island/Cat", "돌쇠": "Island/Merchant"}
-const VOICES := {"끼룩이": "voice_seagull", "모카": "voice_cat", "돌쇠": "voice_merchant"}
+const VOICES := {"끼룩이": "voice_seagull", "모카": "voice_cat", "돌쇠": "voice_merchant", "뽀로": "voice_seagull"}
 const INK := Color(0.22, 0.15, 0.10)
 
 static var is_open := false
@@ -55,18 +55,29 @@ func setup(camera: Camera3D, world_node: Node3D) -> void:
 	Game.ensure_loaded()
 	Game.ensure_quests()
 	var d: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(DIALOG_JSON))
+	var snow := get_parent().get_node_or_null("SnowIsland")   # 눈 섬 주민(뽀로)은 장면 목록에 없고 눈 섬이 직접 세움
 	for n in d["npcs"]:
-		var item: Dictionary
-		for it in world.items:
-			if it["path"] == NPC_PATHS[n["name"]]:
-				item = it
-		var p: Array = item["pos"]
+		var pos: Vector3
+		var model = null
+		if NPC_PATHS.has(n["name"]):
+			var item: Dictionary
+			for it in world.items:
+				if it["path"] == NPC_PATHS[n["name"]]:
+					item = it
+			var p: Array = item["pos"]
+			pos = Vector3(p[0], p[1], -p[2])
+			model = world.models_by_parent.get(NPC_PATHS[n["name"]], null)
+		elif snow != null:
+			pos = snow.penguin_pos
+			model = snow.penguin
+		else:
+			continue
 		var is_shop: bool = n["name"] == "바틀이"
 		var c: Array = n["color"]
 		npcs.append({
 			"name": n["name"], "color": Color(c[0], c[1], c[2]), "data": n, "shop": is_shop,
-			"pos": Vector3(p[0], p[1], -p[2]), "up": 0.6 if is_shop else 0.43,   # 바라보는 높이 (NPC 크기 0.85배)
-			"model": world.models_by_parent.get(NPC_PATHS[n["name"]], null),
+			"pos": pos, "up": 0.6 if is_shop else 0.43,   # 바라보는 높이 (NPC 크기 0.85배)
+			"model": model,
 		})
 	_add_shop_collider(0)
 	_build()

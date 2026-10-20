@@ -21,6 +21,8 @@ var rng := RandomNumberGenerator.new()
 var snow: CPUParticles3D
 var spots: Array = []
 var trees := 0
+var penguin: Node3D            # 눈 섬 주민 뽀로 (dialog.gd가 가져다 씀)
+var penguin_pos := Vector3.ZERO   # 뽀로 서 있는 자리(세계 좌표, 발 기준)
 
 func setup(world_node: Node3D, player_node: CharacterBody3D) -> void:
 	world = world_node
@@ -29,6 +31,7 @@ func setup(world_node: Node3D, player_node: CharacterBody3D) -> void:
 	position = CENTER
 	_build_island()
 	_build_lake()
+	_build_penguin()   # 먼저 세워서 나무가 그 자리를 피함
 	_scatter()
 	_build_snow()
 	Game.spots.append([CENTER + LAKE, LAKE_R])   # 낚싯줄이 호수 안에 떨어지게 조준할 때 씀(fishing_rod.gd)
@@ -256,6 +259,34 @@ func _rock(file: String, pos: Vector3, s: float) -> void:
 	SmoothScript.smooth_node(n, world.smooth_angle)
 	for mi in n.find_children("*", "MeshInstance3D", true, false):
 		(mi as MeshInstance3D).material_override = _mat(Color(0.86, 0.9, 0.96))
+
+# 펭귄 상인 뽀로(키 약 1.0, 임시 도형). 배에서 올라오는 길 옆에 서서 남쪽(배 쪽)을 봄. 대화는 dialog.gd
+func _build_penguin() -> void:
+	var local := Vector3(-2.0, GROUND_Y, 7.2)
+	penguin = Node3D.new()
+	penguin.name = "Penguin"
+	penguin.position = local
+	penguin.rotation.y = PI   # 앞(-z)이 남쪽(+z, 배 쪽)을 보게
+	add_child(penguin)
+	penguin_pos = CENTER + local
+	var dark := Color(0.16, 0.19, 0.3)
+	_part(penguin, _sph(0.42), dark, Vector3(0, 0.5, 0), Vector3(1.0, 1.15, 0.95))
+	_part(penguin, _sph(0.3), Color(0.97, 0.98, 1.0), Vector3(0, 0.48, -0.17), Vector3(1.0, 1.15, 0.6))   # 하얀 배
+	_part(penguin, _sph(0.3), dark, Vector3(0, 1.0, 0), Vector3(1.0, 0.95, 0.95))   # 머리
+	for x in [-0.12, 0.12]:
+		_part(penguin, _sph(0.045), Color.WHITE, Vector3(x, 1.04, -0.25), Vector3(1, 1.2, 0.6))
+		_part(penguin, _sph(0.022), Color(0.05, 0.05, 0.08), Vector3(x, 1.04, -0.285))
+	_part(penguin, _cone(0.07, 0.22), Color(1.0, 0.6, 0.15), Vector3(0, 0.97, -0.34)).rotation_degrees = Vector3(-90, 0, 0)   # 부리
+	for x in [-0.46, 0.46]:   # 날개
+		_part(penguin, _sph(0.14), dark, Vector3(x, 0.55, 0), Vector3(0.35, 1.3, 0.8))
+	for x in [-0.16, 0.16]:   # 발
+		_part(penguin, _sph(0.1), Color(1.0, 0.6, 0.15), Vector3(x, 0.05, -0.1), Vector3(1.0, 0.4, 1.4))
+	_part(penguin, _sph(0.2), Color(0.9, 0.25, 0.3), Vector3(0, 0.78, -0.02), Vector3(1.9, 0.3, 1.9))   # 빨간 목도리
+	var cap := CapsuleShape3D.new()
+	cap.radius = 0.4
+	cap.height = 1.1
+	_static_body(penguin, cap, Vector3(0, 0.55, 0))
+	spots.append([Vector2(local.x, local.z), 1.0])
 
 # 섬 위(플레이어가 섬 가까이 있을 때만) 눈이 내림
 func _build_snow() -> void:
