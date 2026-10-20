@@ -1,4 +1,4 @@
-# 다른 PC에서 이어 하기 (2026-10-19 기준)
+# 다른 PC에서 이어 하기 (2026-10-20 기준)
 
 ## 준비
 - **Godot 4.7.2 (GL Compatibility)**: 포팅 프로젝트는 `godot/`. 일반 exe로 열면 됨(콘솔 exe는 창이 떠서 쓰지 않음). 내보내기 템플릿 4.7.2 설치 필요(웹).
@@ -6,7 +6,16 @@
 - 블렌더 5.2 (모델 만들 때만). 스크립트는 `blender/make_*.py`, 작업 파일은 `blender/fishing_island.blend`.
 - 규칙·기획의 기준: `CLAUDE.md`, `docs/GDD.md`. 클로드에게 "CLAUDE.md, GDD.md, docs/HANDOFF.md, changelog/2026-10-12.md 읽고 이어서 해줘"라고 하면 돼요.
 
-## 현재 상태 (2026-10-19 갱신: 고닷 포팅 완료)
+## 현재 상태 (2026-10-20 갱신: 고닷판에 풀섬·3인칭 추가, 공개 주소 반영)
+- **공개 주소 https://fishing-game-web.vercel.app = 고닷판 최신(커밋 `950147f`까지)**. 시험 주소 fishing-game-godot.vercel.app도 같은 빌드. 푸시는 사용자가 직접(로컬 커밋이 쌓여 있음).
+- **10~11단계(포팅 뒤 추가, 모두 사용자 플레이 확인)**: 집 안·잠자기·옷장, 미니 농장, NPC 대사·친밀도·부탁, 둥근 모델(블렌더 `round_models.py`·`make_cabin.py`), 끊김 없는 BGM, 창 닫은 뒤 클릭 없애기. 기록은 `changelog/2026-10-12.md`.
+- **옆 섬 "풀섬"(GDD 8번, 4단계 모두 끝)**: ① 섬·나무다리(32m)·연못·나무·꽃 `scripts/meadow.gd` ② 동물 4마리 쓰다듬기·선물 `animals.gd`+`data/animals.json` ③ 과일나무 열매 따기(사과·귤·복숭아, 하루 뒤 다시 열림) `fruit_trees.gd`, 열매는 `farm.json`의 `"fruit":true`로 작물 가방·판매·선물에 붙음 ④ 연못 낚시: 연못("Pond" 충돌)에서 민물고기 4종(`fish.json` 17~20, 그림은 `blender/make_fish.py`), 도감 20종 5줄.
+- **3인칭 시점(GDD 8번, 1~5단계 끝)**: 화면 카메라 `player.view`는 어깨 뒤, 판정용 보이지 않는 눈 `player.cam`은 그대로(조준·E·말 걸기 모두 눈 기준). 몸 `player_body.gd`(옷장 옷, 0.8배, 걷는 방향으로 돌고 다리 흔들림), 팔·낚싯대는 `outfit_view.gd`/눈 아래. 몸이 카메라와 35도 넘게 어긋나면 낚싯대·팔 숨김. 시험 `--fpv=1` = 옛 1인칭.
+- **크기 줄이기**: `godot/data/scale.json`(길 이름 앞부분 → 배율, 숫자 또는 [x,y,z])을 `world.gd` `scale_of`가 적용: NPC 0.85, 야자수·덤불·꽃 0.8, 집 0.8, 부두는 길이 그대로 폭·높이 0.8 등. 집을 줄이면 `cabin.gd`(문 자리)·`home_decor.gd`(`CAB_K`, `_cab()`)도 같이 맞춰야 함.
+- 아직 못 한 것·후보: 방 가구 늘리기, 농장 확장, 땅(섬·바다)·울타리·집 안 방 크기 줄이기, 풀섬 나무·풀 바람 흔들림(`life.gd`), 동물·열매 블렌더 모델. 크롬에서 3인칭 카메라 거리·낚싯대 숨김 방식·다리 흔들림 느낌은 사용자 확인 중.
+- ⚠ `tools/export_assets_for_godot.py`를 다시 돌리면 `godot/assets/models/`의 둥글게 만든 모델(Palm·Cabin·Pier·Boat·Props/*)이 유니티 원본으로 덮여요. 돌리지 말 것(필요하면 `blender/round_models.py`·`make_cabin.py`로 다시 내보내기).
+
+## 이전 상태 (2026-10-19, 고닷 포팅 완료 시점)
 - **공개 주소 https://fishing-game-web.vercel.app 은 이제 고닷판**이에요(9단계 끝, 사용자가 크롬에서 확인 후 교체). 유니티판은 https://fishing-game-rb0zr6mcu-bottlepipe.vercel.app 에 남아 있어요(되돌리려면 Vercel `fishing-game-web` 프로젝트에서 그 배포를 운영으로 올림). 시험용 고닷 주소 https://fishing-game-godot.vercel.app 도 그대로.
 - **고닷 포팅 1~9단계 모두 끝**: 섬·이동·하늘·바다, 시간대·날씨, 낚시, 도감·결과 카드·상태창·저장, NPC·대화·낚싯대 업그레이드, 설정 창(마우스 감도), 먼 바다·병 쪽지·갈매기·집 꾸미기, 오늘의 목표·낚시 대회·사진·BGM·음소거·물보라·반딧불·구름·바람, 웹 페이지 틀. 각 단계 결과와 시험 방법은 `docs/GODOT_PORT.md` 2-1~2-11, 변경 기록은 `changelog/2026-10-12.md`(고닷 1~9단계).
 - 고닷 저장 칸은 유니티와 같아서 옛 저장이 읽혀요(`mouseSens`만 고닷이 더함).
@@ -21,8 +30,9 @@
 
 ## 고닷 빌드·시험·배포
 - **창 띄우지 않기(사용자 요청)**: 일반 exe를 `Start-Process -WindowStyle Hidden -Wait`로 `--headless --path godot --quit-after N --log-file <파일> -- --시험옵션`. `_console.exe`·`--write-movie`·`--no-window`는 창이 떠서 금지. 헤드리스는 그림을 못 그려서 화면 사진은 못 찍음.
-- 시험 옵션(`scripts/main.gd` `_arg`): `--auto=1 --timescale=20 --freeze=1 --clock=초 --pos=x,z --yaw=도 --nosave=1 --npc=N --give=N --money=N --act=sell,rod --travel=1|2 --bottle=N --gull=1 --decorbuy=0,1,… --fcheck=1 --catalog=N --sens=X --goalcheck=1 --contest=cm,… --contestbest=N --ckey=1 --mute=1 --photosave=폴더 --lifecheck=1 --splashcheck=1 --weather=rain 등`. 테스트 중 저장 파일(`%APPDATA%\Godot\app_userdata\BOTTLE ISLAND\save.json`)이 생기니 끝나면 지울 것.
+- 시험 옵션(`scripts/main.gd` `_arg`): `--auto=1 --timescale=20 --freeze=1 --clock=초 --pos=x,z --yaw=도 --nosave=1 --npc=N --give=N --money=N --act=sell,rod --travel=1|2 --bottle=N --gull=1 --decorbuy=0,1,… --fcheck=1 --catalog=N --sens=X --goalcheck=1 --contest=cm,… --contestbest=N --ckey=1 --mute=1 --photosave=폴더 --lifecheck=1 --splashcheck=1 --weather=rain` 그리고 이후 추가: `--talktest=NPC --friend=NPC:점수 --givefish=번호:N --givecrop=번호:N --setquest=NPC:물고기:N --dex=N --rodlevel=N --cabin=enter,target,sleep,wear:N,exit --cabincheck=1 --farm=plant:i:c,water:i,day,harvest:i --farmcheck=1 --meadowcheck=초 --petcheck=초 --fruitcheck=1 --pondcheck=1 --bodycheck=초 --fpv=1 --smooth=도 등`. 테스트 중 저장 파일(`%APPDATA%\Godot\app_userdata\BOTTLE ISLAND\save.json`)이 생기니 끝나면 지울 것.
 - 웹 내보내기: `--headless --path godot --export-release "Web"` → `../../fishing-game-build/godot-web`(저장소 밖). 설정은 `godot/export_presets.cfg`(스레드 끔, `data/*.json` 포함, `web/*` 제외, 캔버스 크기 정책 0 — 페이지 셸이 크기를 정함), 페이지 틀 `godot/web/shell.html`. `preview.png`는 내보내기가 복사 안 하니 `godot/web/preview.png`를 배포 폴더에 직접 복사.
+- 화면 사진: 빌드 폴더를 임시 폴더에 복사해 `index.html`의 `"args":[]`를 `"args":["--","--pos=…","--yaw=…"]`로 바꾸고 `python -m http.server`로 연 뒤 앱 안 브라우저로 본다(창 안 뜸). 도감·집 안처럼 `paused`로 시작하는 옵션(`--catalog`)은 로딩 카드가 안 걷혀서 쓰지 말고 로딩 뒤 Tab 키를 누를 것.
 - 시험 배포: `fishing-game-build/godot-web`에서 `npx vercel@latest deploy --prod --yes --scope bottlepipe`(프로젝트 `fishing-game-godot`).
 - **공개 주소 배포**: 그 파일들(`index*`, `preview.png`)을 임시 폴더에 복사하고 `fishing-game-build/webgl/.vercel/project.json`을 `.vercel/`에 넣어 같은 명령으로 배포(프로젝트 `fishing-game-web`).
 - Vercel 로그인이 풀리면 `npx vercel@latest login`을 사용자가 직접(브라우저 승인).
