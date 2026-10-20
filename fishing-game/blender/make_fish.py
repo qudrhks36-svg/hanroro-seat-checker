@@ -233,7 +233,66 @@ def whale():
     cone((0.9, 0, 0.78), (0, 0, 0), 0.08, 0.35, (0.75, 0.9, 1.0), 5)         # 숨구멍 물줄기
     render("Fish_16_StarWhale.png")
 
+# ---------- 연못 물고기 17~20 (풀섬 4단계) ----------
+def crucian():
+    clear(); setup(0.0, 4.6, -0.2)
+    olive = (0.6, 0.55, 0.28); gold = (0.92, 0.82, 0.5); fin = (0.78, 0.62, 0.3)
+    o = sphere((0.0, 0, 0), (1.2, 0.5, 0.82), olive, 3); two_tone(o, olive, gold, -0.15)
+    tail_fin((-1.1, 0, 0.12), 120, 0.5, 1.0, fin); tail_fin((-1.1, 0, -0.12), 60, 0.5, 1.0, fin)
+    fin_up(-0.1, 0.78, 0.5, 0.8, fin)
+    tail_fin((0.25, -0.4, -0.5), -30, 0.2, 0.55, fin, 0.18)
+    sphere((1.05, -0.36, 0.16), (0.17, 0.06, 0.17), (1, 1, 1), 1)
+    sphere((1.1, -0.41, 0.16), (0.09, 0.04, 0.09), (0.08, 0.08, 0.12), 1)
+    sphere((1.18, -0.28, -0.1), (0.12, 0.05, 0.08), (1.0, 0.65, 0.6), 1)
+    render("Fish_17_Crucian.png")
+
+def frog():
+    clear(); setup(0.0, 4.2, 0.0)
+    green = (0.45, 0.78, 0.3); dark = (0.32, 0.62, 0.24); belly = (0.92, 0.95, 0.6)
+    sphere((0.0, 0, -0.1), (1.1, 0.78, 0.72), green, 3)
+    sphere((0.35, -0.2, -0.3), (0.6, 0.55, 0.42), belly, 2)
+    sphere((0.85, 0, 0.12), (0.6, 0.6, 0.45), green, 2)
+    for y in (-0.38, 0.38):
+        sphere((0.95, y, 0.55), (0.24, 0.2, 0.24), green, 1)
+        sphere((1.02, y * 1.15, 0.58), (0.14, 0.1, 0.14), (1, 1, 1), 1)
+        sphere((1.08, y * 1.2, 0.6), (0.08, 0.06, 0.08), (0.08, 0.08, 0.12), 1)
+    sphere((-0.55, -0.5, -0.4), (0.65, 0.2, 0.34), dark, 2)
+    cone((-1.15, -0.5, -0.78), (0, math.radians(90), 0), 0.2, 0.5, dark, 4)
+    sphere((0.5, -0.5, -0.6), (0.16, 0.12, 0.42), dark, 1)
+    sphere((1.3, -0.25, 0.02), (0.12, 0.06, 0.07), (1.0, 0.6, 0.65), 1)
+    for (x, z) in ((-0.2, 0.45), (0.1, 0.55), (-0.5, 0.25)):
+        sphere((x, -0.28, z), (0.12, 0.04, 0.1), dark, 1)
+    render("Fish_18_Frog.png")
+
+def carp():
+    clear(); setup(0.0, 5.2, -0.3)
+    olive = (0.45, 0.5, 0.32); belly = (0.9, 0.84, 0.58); fin = (0.62, 0.5, 0.3)
+    o = sphere((0.0, 0, 0), (1.55, 0.55, 0.62), olive, 3); two_tone(o, olive, belly, -0.1)
+    tail_fin((-1.45, 0, 0.12), 118, 0.55, 1.2, fin); tail_fin((-1.45, 0, -0.12), 62, 0.55, 1.2, fin)
+    fin_up(-0.1, 0.55, 0.45, 1.1, fin)
+    tail_fin((0.35, -0.45, -0.5), -30, 0.22, 0.6, fin, 0.16)
+    for sy in (-1.0, 1.0):
+        cone((1.55, sy * 0.15, -0.12), (0, math.radians(90) * 1.0, 0), 0.05, 0.45, (0.9, 0.8, 0.45), 4)
+    sphere((1.1, -0.45, 0.14), (0.18, 0.06, 0.18), (1, 1, 1), 1)
+    sphere((1.16, -0.5, 0.14), (0.1, 0.04, 0.1), (0.08, 0.08, 0.12), 1)
+    sphere((1.5, -0.2, -0.08), (0.14, 0.06, 0.1), (1.0, 0.65, 0.6), 1)
+    render("Fish_19_Carp.png")
+
+def koi():
+    clear(); setup(0.0, 5.2, -0.3)
+    white = (0.98, 0.96, 0.92); orange = (1.0, 0.52, 0.16); red = (0.92, 0.22, 0.18); fin = (1.0, 0.85, 0.6)
+    o = sphere((0.0, 0, 0), (1.5, 0.55, 0.64), orange, 3); two_tone(o, orange, white, -0.05)
+    for (x, z, s) in ((-0.5, 0.45, 0.3), (0.25, 0.5, 0.26), (-0.05, 0.1, 0.2), (0.75, 0.3, 0.2)):
+        sphere((x, -0.05, z), (s, 0.42, s * 0.8), red, 1)
+    tail_fin((-1.4, 0, 0.12), 118, 0.6, 1.3, fin); tail_fin((-1.4, 0, -0.12), 62, 0.6, 1.3, fin)
+    fin_up(-0.1, 0.58, 0.45, 1.0, fin)
+    tail_fin((0.3, -0.5, -0.5), -30, 0.24, 0.7, fin, 0.16)
+    sphere((1.08, -0.45, 0.16), (0.18, 0.06, 0.18), (1, 1, 1), 1)
+    sphere((1.14, -0.5, 0.16), (0.1, 0.04, 0.1), (0.08, 0.08, 0.12), 1)
+    sphere((1.45, -0.2, -0.08), (0.13, 0.06, 0.1), (1.0, 0.65, 0.65), 1)
+    render("Fish_20_Koi.png")
+
 which = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["seahorse", "jelly", "moonfish", "rainbow", "tuna", "marlin", "angler", "whale"]
 for w in which:
-    {"seahorse": seahorse, "jelly": jelly, "moonfish": moonfish, "rainbow": rainbow, "tuna": tuna, "marlin": marlin, "angler": angler, "whale": whale}[w]()
+    {"seahorse": seahorse, "jelly": jelly, "moonfish": moonfish, "rainbow": rainbow, "tuna": tuna, "marlin": marlin, "angler": angler, "whale": whale, "crucian": crucian, "frog": frog, "carp": carp, "koi": koi}[w]()
 print("FISH DONE")

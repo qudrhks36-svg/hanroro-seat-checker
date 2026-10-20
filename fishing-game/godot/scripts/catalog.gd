@@ -30,6 +30,7 @@ var big_picture: TextureRect
 var rarity_chip: Panel
 var rarity_chip_text: Label
 var far_chip: Panel
+var far_text: Label
 var cells: Array = []          # 칸(Panel)
 var cell_icons: Array = []
 var cell_texts: Array = []
@@ -102,11 +103,13 @@ func _refresh() -> void:
 	big_picture.modulate = Color.WHITE if seen else SILHOUETTE
 	name_text.text = f["name"] if seen else "???"
 	rarity_chip.visible = seen
-	far_chip.visible = seen and bool(f["far_sea"])
+	var pond: bool = bool(f.get("pond", false))
+	far_chip.visible = seen and (bool(f["far_sea"]) or pond)
+	far_text.text = "연못" if pond else "먼 바다"
 	if seen:
 		ThemeUI.set_box_color(rarity_chip, rc.lerp(Color.WHITE, 0.1))
 		rarity_chip_text.text = ThemeUI.rarity_name(Game.rarity_index(selected))
-		ThemeUI.at(rarity_chip, Vector2(360, 410), -62.0 if bool(f["far_sea"]) else 0.0, -68.0, 96, 32)   # 먼 바다 칩이 없으면 등급 칩이 가운데
+		ThemeUI.at(rarity_chip, Vector2(360, 410), -62.0 if (bool(f["far_sea"]) or pond) else 0.0, -68.0, 96, 32)   # 먼 바다 칩이 없으면 등급 칩이 가운데
 	caught_value.text = "%d마리" % Game.counts[selected] if seen else "—"
 	best_value.text = "%dcm" % Game.best_cm[selected] if seen else "—"
 	price_value.text = "%d원" % Game.price(selected) if seen else "—"
@@ -171,7 +174,7 @@ func _build() -> void:
 	far_chip = ThemeUI.box(Color(0.35, 0.5, 0.72), 14)
 	card.add_child(far_chip)
 	ThemeUI.at(far_chip, card_size, 80, -68, 110, 32)
-	var far_text := ThemeUI.text("먼 바다", 20, Color.WHITE)
+	far_text = ThemeUI.text("먼 바다", 20, Color.WHITE)
 	far_chip.add_child(far_text)
 	ThemeUI.at(far_text, Vector2(110, 32), 0, 0, 110, 34)
 	var labels := ["잡은 수", "최고 기록", "판매 값"]
@@ -191,28 +194,28 @@ func _build() -> void:
 			1: best_value = val
 			_: price_value = val
 
-	# 오른쪽 칸(4열 4줄)
+	# 오른쪽 칸(4열 5줄)
 	for i in Game.fish.size():
 		var cx := 12.5 + (i % 4) * 117.0
-		var cy := 138.0 - (i / 4) * 102.0
+		var cy := 160.0 - (i / 4) * 84.0
 		var cell := ThemeUI.box(UNKNOWN_BORDER, 16)
 		cell.mouse_filter = Control.MOUSE_FILTER_STOP
 		cell.gui_input.connect(_on_cell_input.bind(i))
 		panel.add_child(cell)
-		ThemeUI.at(cell, PANEL, cx, cy, 105, 92)
+		ThemeUI.at(cell, PANEL, cx, cy, 105, 78)
 		var inner := ThemeUI.box(Color(1, 0.98, 0.93), 14)
 		cell.add_child(inner)
-		ThemeUI.at(inner, Vector2(105, 92), 0, 0, 97, 84)
+		ThemeUI.at(inner, Vector2(105, 78), 0, 0, 97, 70)
 		var icon := TextureRect.new()
 		icon.texture = textures[i]
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		inner.add_child(icon)
-		ThemeUI.at(icon, Vector2(97, 84), 0, 12, 82, 50)
+		ThemeUI.at(icon, Vector2(97, 70), 0, 10, 74, 42)
 		var lt := ThemeUI.text("", 18, INK)
 		inner.add_child(lt)
-		ThemeUI.at(lt, Vector2(97, 84), 0, -29, 97, 24)
+		ThemeUI.at(lt, Vector2(97, 70), 0, -25, 97, 24)
 		cells.append(cell)
 		cell_icons.append(icon)
 		cell_texts.append(lt)

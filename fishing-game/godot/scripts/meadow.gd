@@ -3,6 +3,7 @@ extends Node3D
 # 모양은 임시 도형(코드로 만든 둥근 모양). 동물·과일나무·연못 낚시는 다음 단계.
 # 좌표는 고닷 기준(유니티 (x,z) → 고닷 (x,-z)). 섬 중심 CENTER, 섬 안쪽 좌표는 중심에서 잰 (x, z)이고 +z가 먼 바다 쪽(남쪽), 다리는 -z 쪽에서 들어옴.
 
+const Game := preload("res://scripts/game_state.gd")
 const SmoothScript := preload("res://scripts/mesh_smooth.gd")
 const AnimalsScript := preload("res://scripts/animals.gd")
 const FruitScript := preload("res://scripts/fruit_trees.gd")
@@ -102,7 +103,7 @@ func _build_pond() -> void:
 	add_child(water)
 	# 물 위를 걷게 하는 얇은 바닥(바다와 같은 방식): 구덩이에 빠져 못 나오는 일 방지
 	var body := StaticBody3D.new()
-	body.name = "PondFloor"
+	body.name = "Pond"   # 낚시: 이 이름의 바닥에 떨어지면 연못 물고기가 나옴(fishing_rod.gd)
 	var sh := CollisionShape3D.new()
 	var cs := CylinderShape3D.new()
 	cs.radius = POND_R
@@ -111,6 +112,8 @@ func _build_pond() -> void:
 	body.add_child(sh)
 	body.position = POND + Vector3(0, -0.19, 0)
 	add_child(body)
+	Game.pond_pos = CENTER + POND
+	Game.pond_r = POND_R
 	spots.append([Vector2(POND.x, POND.z), POND_R + 0.9])
 	blocked.append([Vector2(POND.x, POND.z), POND_R])
 

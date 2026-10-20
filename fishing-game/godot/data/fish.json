@@ -267,6 +267,81 @@
       "price": 150,
       "image": "Fish_16",
       "image_file": "Fish_16_StarWhale.png"
+    },
+    {
+      "id": 17,
+      "name": "붕어",
+      "rarity": "common",
+      "periods": [
+        "day",
+        "sunset",
+        "night"
+      ],
+      "far_sea": false,
+      "pond": true,
+      "size_cm": {
+        "min": 15,
+        "max": 35
+      },
+      "price": 10,
+      "image": "Fish_17",
+      "image_file": "Fish_17_Crucian.png"
+    },
+    {
+      "id": 18,
+      "name": "개구리",
+      "rarity": "common",
+      "periods": [
+        "day",
+        "sunset"
+      ],
+      "far_sea": false,
+      "pond": true,
+      "size_cm": {
+        "min": 5,
+        "max": 12
+      },
+      "price": 10,
+      "image": "Fish_18",
+      "image_file": "Fish_18_Frog.png"
+    },
+    {
+      "id": 19,
+      "name": "잉어",
+      "rarity": "uncommon",
+      "periods": [
+        "day",
+        "sunset",
+        "night"
+      ],
+      "far_sea": false,
+      "pond": true,
+      "size_cm": {
+        "min": 40,
+        "max": 80
+      },
+      "price": 30,
+      "image": "Fish_19",
+      "image_file": "Fish_19_Carp.png"
+    },
+    {
+      "id": 20,
+      "name": "황금잉어",
+      "rarity": "rare",
+      "periods": [
+        "day",
+        "sunset",
+        "night"
+      ],
+      "far_sea": false,
+      "pond": true,
+      "size_cm": {
+        "min": 40,
+        "max": 90
+      },
+      "price": 100,
+      "image": "Fish_20",
+      "image_file": "Fish_20_Koi.png"
     }
   ]
 }

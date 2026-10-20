@@ -31,6 +31,7 @@ var world: Node3D
 var state := S.IDLE
 var selected_bait := 0
 var cast_bait := 0
+var cast_pond := false    # 이번에 던진 찌가 풀섬 연못에 떨어졌나
 var click_pending := false
 var auto := false                      # 시험용: 스스로 던지고 낚음
 
@@ -286,6 +287,10 @@ func _cast() -> void:
 	cast_bait = selected_bait
 	start_pos = tip.global_position
 	end_pos = Vector3(start_pos.x, WATER_Y, start_pos.z) + dir * CAST_DISTANCE
+	var to_pond := Game.pond_pos - Vector3(start_pos.x, 0.0, start_pos.z)   # 연못이 조준선 앞에 있으면 연못 안에 떨어지게 (연못은 반지름 3이라 12m 던지면 지나쳐 버림)
+	var along := to_pond.dot(dir)
+	if Game.pond_r > 0.0 and along > 0.0 and along <= CAST_DISTANCE and (to_pond - dir * along).length() < Game.pond_r - 0.3:
+		end_pos = Vector3(start_pos.x, WATER_Y, start_pos.z) + dir * along
 	t = 0.0
 	state = S.FLYING
 	_set_casting(true)
@@ -296,7 +301,9 @@ func _land() -> void:
 	# 위에서 아래로 쏴서 바다가 먼저 맞으면 물 위, 섬·부두·배가 맞으면 육지.
 	var from := Vector3(end_pos.x, 20.0, end_pos.z)
 	var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 40.0))
-	var water: bool = not hit.is_empty() and (hit.collider as Node).name == "Sea"
+	var hit_name: String = (hit.collider as Node).name if not hit.is_empty() else ""
+	var water: bool = hit_name == "Sea" or hit_name == "Pond"
+	cast_pond = hit_name == "Pond"
 	if water:
 		state = S.FLOATING
 		var w: Array = Game.baits[cast_bait]["wait_sec"]
@@ -316,7 +323,7 @@ func _start_bite() -> void:
 
 # 입질 타이밍 성공 → 물고기를 정하고 릴 감기 시작
 func _hook() -> void:
-	hooked = Game.pick(TimeScript.period, cast_bait, FarSeaScript.active)   # 먼 바다에서는 먼 바다 전용 물고기만
+	hooked = Game.pick(TimeScript.period, cast_bait, FarSeaScript.active, cast_pond)   # 먼 바다에서는 먼 바다 전용 물고기만
 	bang.visible = false
 	zone_pos = 0.5
 	fish_pos = 0.5

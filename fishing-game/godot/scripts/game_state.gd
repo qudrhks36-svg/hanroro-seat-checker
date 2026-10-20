@@ -44,6 +44,8 @@ static var plot_pos: Array = []             # 밭 6칸 자리 (유니티 x,z)
 static var clear_box: Dictionary = {}       # 밭 자리에서 치울 소품 범위
 static var crops: Array = [0, 0, 0]         # 수확한 작물 가방(종류별, 저장됨)
 static var plots: Array = []                # 밭 칸마다 [작물 번호(-1 비어 있음), 물 준 횟수, 마지막으로 물 준 날]
+static var pond_pos := Vector3.ZERO           # 풀섬 연못 가운데(고닷 좌표, meadow.gd가 정함). 낚싯줄이 연못 안에 떨어지게 조준할 때 씀
+static var pond_r := 0.0                   # 연못 반지름(0 = 연못 없음)
 static var seed_count := 0                  # 씨앗으로 심는 작물 수(열매 제외, farm.json 앞쪽)
 static var fruit_day: Array = []           # 과일나무마다 열매를 딴 날(-1000 = 아직 안 땀, 저장됨)
 static var fruit_regrow_days := 1          # 딴 뒤 다시 열리기까지 날 수(farm.json)
@@ -98,14 +100,14 @@ static func zone_width() -> float:
 
 # 시간대·미끼에 맞는 물고기 하나 뽑기. 등급 확률은 미끼마다 다르고, 같은 등급 안에서는 균등.
 # 그 시간대에 보통/희귀 물고기가 없으면 그 확률은 흔함으로 합침 (GDD 7번). 섬 근처와 먼 바다는 서로 다른 물고기.
-static func pick(period: int, bait: int, far_sea: bool) -> int:
+static func pick(period: int, bait: int, far_sea: bool, pond: bool = false) -> int:
 	ensure_loaded()
 	var wd: Dictionary = baits[bait]["tier_weights_percent"]
 	var w := [float(wd["common"]), float(wd["uncommon"]), float(wd["rare"])]
 	var pool := [[], [], []]
 	for i in fish.size():
 		var f: Dictionary = fish[i]
-		if bool(f["far_sea"]) == far_sea and f["periods"].has(PERIOD_NAMES[period]):
+		if bool(f["far_sea"]) == far_sea and bool(f.get("pond", false)) == pond and f["periods"].has(PERIOD_NAMES[period]):
 			pool[rarity_index(i)].append(i)
 	for t in [1, 2]:
 		if pool[t].is_empty():
@@ -166,7 +168,7 @@ static func new_quest(who: int) -> void:
 	var pool: Array = []
 	var any_ok: Array = []   # 겹침을 허용하는 후보(처음엔 흔한 물고기가 3종뿐이라 NPC 4명이 다 다르기 어려움)
 	for i in fish.size():
-		var ok: bool = counts[i] > 0 or (rarity_index(i) == 0 and not bool(fish[i]["far_sea"]))
+		var ok: bool = counts[i] > 0 or (rarity_index(i) == 0 and not bool(fish[i]["far_sea"]) and not bool(fish[i].get("pond", false)))
 		if ok and i != last:
 			any_ok.append(i)
 			if not taken.has(i):

@@ -338,6 +338,12 @@ func _ready() -> void:
 		dialog.open(0)
 		dialog.give_gift()
 		print("[FG] fruit gift bag=", Game.crops, " friend=", Game.friend)
+	if _arg("pondcheck", "") != "":   # 시험용: 연못 가에서 연못 쪽으로 던져 연못 물고기만 나오는지 (--pos=연못 가 --yaw=연못 쪽 --auto=1 --timescale=20)
+		print("[FG] pond pos=", Game.pond_pos, " r=", Game.pond_r, " fish=", Game.fish.size())
+		var names := {}
+		for k in 400:
+			names[Game.fish[Game.pick(k % 3, 0, false, true)]["name"]] = true
+		print("[FG] pond pick names=", names.keys())
 	if _arg("meadowcheck", "") != "":   # 시험용: 땅·다리 높이와 걸어서 건너기 (--pos=4,10 --yaw=180 --walk=0,1)
 		await get_tree().create_timer(float(_arg("meadowcheck", "1"))).timeout
 		var dss := get_world_3d().direct_space_state
