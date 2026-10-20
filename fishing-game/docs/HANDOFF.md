@@ -1,4 +1,4 @@
-# 다른 PC에서 이어 하기 (2026-10-20 기준)
+# 다른 PC에서 이어 하기 (2026-10-20 기준, 마지막 커밋 뽀로)
 
 ## 준비
 - **Godot 4.7.2 (GL Compatibility)**: 포팅 프로젝트는 `godot/`. 일반 exe로 열면 됨(콘솔 exe는 창이 떠서 쓰지 않음). 내보내기 템플릿 4.7.2 설치 필요(웹).
@@ -13,6 +13,7 @@
 - **3인칭 시점(GDD 8번, 1~5단계 끝)**: 화면 카메라 `player.view`는 어깨 뒤, 판정용 보이지 않는 눈 `player.cam`은 그대로(조준·E·말 걸기 모두 눈 기준). 몸 `player_body.gd`(옷장 옷, 0.8배, 걷는 방향으로 돌고 다리 흔들림), 팔·낚싯대는 `outfit_view.gd`/눈 아래. 몸이 카메라와 35도 넘게 어긋나면 낚싯대·팔 숨김. 시험 `--fpv=1` = 옛 1인칭.
 - **크기 줄이기**: `godot/data/scale.json`(길 이름 앞부분 → 배율, 숫자 또는 [x,y,z])을 `world.gd` `scale_of`가 적용: NPC 0.85, 야자수·덤불·꽃 0.8, 집 0.8, 부두는 길이 그대로 폭·높이 0.8 등. 집을 줄이면 `cabin.gd`(문 자리)·`home_decor.gd`(`CAB_K`, `_cab()`)도 같이 맞춰야 함.
 - **병 속 이야기 편지**(GDD 8번): `story.gd`+`data/story.json`(스포일러, 사용자가 스포 없이 플레이하길 원해 플레이 전엔 열지 말 것). 일반 쪽지 3장 후 리본 병, 12통, 챕터 끝 답장(1~3), 하루 뒤 다음 병. 시험 `--storytest=1`.
+- **눈 섬 주민 뽀로**(펭귄 상인, 5번째 주민): `dialog.json` 5번째 항목, `snow_island.gd` `_build_penguin`, 물고기 ×1.25로 사 줌, `Game.friend`·`quests` 5칸. 시험 `--npc=4`.
 - **섬 여행 1단계 눈 섬**(GDD 8번): `snow_island.gd`·`island_trip.gd`(부두 북쪽 배, 낚싯대 1단계 필요), 얼음 호수 낚시 물고기 4종(`fish.json` 21~24 `"ice":true`), `Game.spots`로 연못·호수 조준 보조. 시험 `--trip=1|2|3 --rodlevel=1`.
 - 아직 못 한 것·후보: 방 가구 늘리기, 농장 확장, 땅(섬·바다)·울타리·집 안 방 크기 줄이기, 풀섬 나무·풀 바람 흔들림(`life.gd`), 동물·열매 블렌더 모델. 크롬에서 3인칭 카메라 거리·낚싯대 숨김 방식·다리 흔들림 느낌은 사용자 확인 중.
 - ⚠ `tools/export_assets_for_godot.py`를 다시 돌리면 `godot/assets/models/`의 둥글게 만든 모델(Palm·Cabin·Pier·Boat·Props/*)이 유니티 원본으로 덮여요. 돌리지 말 것(필요하면 `blender/round_models.py`·`make_cabin.py`로 다시 내보내기).
