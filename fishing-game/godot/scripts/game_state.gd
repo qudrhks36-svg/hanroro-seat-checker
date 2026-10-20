@@ -46,6 +46,9 @@ static var crops: Array = [0, 0, 0]         # 수확한 작물 가방(종류별,
 static var plots: Array = []                # 밭 칸마다 [작물 번호(-1 비어 있음), 물 준 횟수, 마지막으로 물 준 날]
 static var pond_pos := Vector3.ZERO           # 풀섬 연못 가운데(고닷 좌표, meadow.gd가 정함). 낚싯줄이 연못 안에 떨어지게 조준할 때 씀
 static var pond_r := 0.0                   # 연못 반지름(0 = 연못 없음)
+static var story_stage := 0                 # 읽은 이야기 편지 수(0~12, 저장됨) — 글은 data/story.json
+static var story_replies: Array = [-1, -1, -1]   # 챕터 1~3 끝에서 고른 답(0~2, -1 = 아직, 저장됨)
+static var story_wait_day := -1            # 이 날(farm_day)부터 다음 이야기 병이 옴(저장됨)
 static var seed_count := 0                  # 씨앗으로 심는 작물 수(열매 제외, farm.json 앞쪽)
 static var fruit_day: Array = []           # 과일나무마다 열매를 딴 날(-1000 = 아직 안 땀, 저장됨)
 static var fruit_regrow_days := 1          # 딴 뒤 다시 열리기까지 날 수(farm.json)

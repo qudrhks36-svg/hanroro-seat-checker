@@ -27,6 +27,8 @@ var cam: Camera3D
 var player: CharacterBody3D
 var notes: Array = []
 var bottle: Node3D
+var bottle_story := false        # 지금 병이 리본 달린 이야기 병인가
+var story: Node                  # story.gd (main.gd가 정함)
 var gem: Node3D
 var bottle_bob := 0.0
 var bottle_timer := 0.0
@@ -82,9 +84,10 @@ func _process(delta: float) -> void:
 func _update_bottle(delta: float) -> void:
 	if bottle == null:
 		bottle_timer -= delta
-		if bottle_timer <= 0.0 and spawn_bottle():
+		var want: bool = story != null and story.wants_bottle()
+		if bottle_timer <= 0.0 and spawn_bottle(want):
 			toast_t0 = _now()
-			toast_label.text = "해변에 병이 떠밀려 왔어요!"
+			toast_label.text = "해변에 리본 달린 병이 떠밀려 왔어요!" if want else "해변에 병이 떠밀려 왔어요!"
 		prompt.visible = false
 		return
 	bottle_bob += delta
@@ -105,6 +108,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func pick_up() -> void:
+	if bottle_story and story != null:   # 이야기 병: 편지 창(story.gd)이 글과 보상을 맡음
+		SfxScript.play("new_fish")
+		bottle.queue_free()
+		bottle = null
+		gem = null
+		bottle_story = false
+		bottle_timer = randf_range(NEXT_MIN, NEXT_MAX)
+		story.open_letter()
+		return
 	var idx := _pick_note_index()
 	var fresh := ((Game.notes_found >> idx) & 1) == 0
 	Game.notes_found |= 1 << idx
@@ -135,13 +147,13 @@ func show_note(idx: int, reward: int, fresh: bool) -> void:
 		print("[FG] note idx=", idx, " fresh=", fresh, " reward=", reward, " found=", found_count(), " money=", Game.money, " text=", notes[idx])
 
 # 해변(반지름 15.3~16.3, 모래밭)의 비어 있는 자리를 찾아 병을 놓는다
-func spawn_bottle() -> bool:
+func spawn_bottle(is_story: bool = false) -> bool:
 	for tries in 30:
 		var a := randf() * TAU
 		var r := randf_range(15.3, 16.3)
 		var p = _try_ground(Vector3(cos(a) * r, 0.0, sin(a) * r))
 		if p != null:
-			_place_bottle(p)
+			_place_bottle(p, is_story)
 			return true
 	bottle_timer = 30.0   # 자리를 못 찾으면 잠시 뒤 다시
 	return false
@@ -165,7 +177,8 @@ func _try_ground(xz_unity: Vector3):
 		return null
 	return hit.position
 
-func _place_bottle(ground: Vector3) -> void:
+func _place_bottle(ground: Vector3, is_story: bool = false) -> void:
+	bottle_story = is_story
 	bottle = Node3D.new()
 	bottle.name = "Bottle"
 	add_child(bottle)
@@ -178,6 +191,31 @@ func _place_bottle(ground: Vector3) -> void:
 	WorldScript.tint_c_materials(model)
 	gem = model.find_child("Gem", true, false)   # 모델의 "Gem"이 위에서 떠서 도는 반짝이
 	bottle_bob = 0.0
+	if is_story:   # 리본 + 멀리서도 보이는 분홍 빛기둥
+		var ribbon := MeshInstance3D.new()
+		var tm := TorusMesh.new()
+		tm.inner_radius = 0.07
+		tm.outer_radius = 0.12
+		ribbon.mesh = tm
+		var rm := StandardMaterial3D.new()
+		rm.albedo_color = Color(1.0, 0.5, 0.68)
+		ribbon.material_override = rm
+		ribbon.position = Vector3(0, 0.38, 0)
+		bottle.add_child(ribbon)
+		var beam := MeshInstance3D.new()
+		var cm := CylinderMesh.new()
+		cm.top_radius = 0.05
+		cm.bottom_radius = 0.22
+		cm.height = 3.0
+		beam.mesh = cm
+		var bm := StandardMaterial3D.new()
+		bm.albedo_color = Color(1.0, 0.6, 0.78, 0.42)
+		bm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		bm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		beam.material_override = bm
+		beam.position = Vector3(0, 1.5, 0)
+		beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		bottle.add_child(beam)
 	if debug:
 		print("[FG] bottle at ", ground, " r=", Vector2(ground.x, ground.z).length(), " gem=", gem != null)
 

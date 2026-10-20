@@ -16,6 +16,7 @@ const SettingsScript := preload("res://scripts/settings_ui.gd")
 const DialogScript := preload("res://scripts/dialog.gd")
 const FarSeaScript := preload("res://scripts/far_sea.gd")
 const SeaEventsScript := preload("res://scripts/sea_events.gd")
+const StoryScript := preload("res://scripts/story.gd")
 const HomeDecorScript := preload("res://scripts/home_decor.gd")
 const DecorShopScript := preload("res://scripts/decor_shop.gd")
 const ContestScript := preload("res://scripts/contest.gd")
@@ -179,6 +180,42 @@ func _ready() -> void:
 	sea_events.name = "SeaEvents"
 	add_child(sea_events)
 	sea_events.setup(player.cam, player)
+	var story := CanvasLayer.new()   # 병 속 이야기 편지 (12단계)
+	story.set_script(StoryScript)
+	story.name = "Story"
+	add_child(story)
+	story.setup()
+	sea_events.story = story
+	if _arg("storytest", "") != "":   # 시험용: 이야기를 처음부터 끝까지(--storytest=1): 일반 쪽지 3장 읽음 → 편지 12통 + 답 3번 + 기다리는 날
+		story.debug = true
+		Game.notes_found = 7
+		print("[FG] story wants(day0)=", story.wants_bottle())
+		var picks := [1, 0, 2]
+		for n in 12:
+			if not story.wants_bottle():
+				print("[FG] story waiting: day=", Game.farm_day, " wait=", Game.story_wait_day, " due=", story.reply_due())
+				Game.farm_day = Game.story_wait_day
+			story.open_letter()
+			story.opened_at = -999.0
+			story.close_letter()
+			if story.mode == "reply":
+				story.choose(picks[Game.story_stage / 3 - 1])
+		print("[FG] story final stage=", Game.story_stage, " replies=", Game.story_replies, " wants=", story.wants_bottle())
+	if _arg("storybottle", "") != "":   # 시험용: 시작 자리 앞 5m에 리본 달린 이야기 병을 놓는다(모양 사진용)
+		sea_events._place_bottle(Vector3(0, 0.05, -5), true)
+	if _arg("storyshow", "") != "":   # 시험용: 이 번호(1~12)의 편지 창을 화면에 연 채로 둠(사진용, --storyshow=번호 --storyreplies=a,b,c)
+		story.debug = true
+		var sr := _arg("storyreplies", "0,0,0").split(",")
+		for i in 3:
+			Game.story_replies[i] = int(sr[i])
+		Game.story_stage = int(_arg("storyshow", "1")) - 1
+		await get_tree().create_timer(float(_arg("storydelay", "0"))).timeout   # 로딩이 끝난 뒤에 열기(일시정지로 시작하면 로딩 카드가 안 걷힘)
+		if _arg("storyshow", "") == "3" or _arg("storyshow", "") == "6":
+			story.open_letter()
+			story.opened_at = -999.0
+			story.close_letter()   # 챕터 끝이면 답장 창이 열림
+		else:
+			story.open_letter()
 	if _arg("bottle", "") != "":   # 시험용: 병을 N번 놓고 줍는다(쪽지 첫 읽기/반복, 돈)
 		sea_events.debug = true
 		for i in int(_arg("bottle", "1")):
