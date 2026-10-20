@@ -4,6 +4,7 @@ extends Node3D
 # 좌표는 고닷 기준(유니티 (x,z) → 고닷 (x,-z)). 섬 중심 CENTER, 섬 안쪽 좌표는 중심에서 잰 (x, z)이고 +z가 먼 바다 쪽(남쪽), 다리는 -z 쪽에서 들어옴.
 
 const SmoothScript := preload("res://scripts/mesh_smooth.gd")
+const AnimalsScript := preload("res://scripts/animals.gd")
 
 const CENTER := Vector3(4, 0, 58)
 const BRIDGE_X := 4.0
@@ -25,8 +26,10 @@ var rng := RandomNumberGenerator.new()
 var spots: Array = []            # 이미 차지한 자리 [Vector2 (섬 안쪽 x,z), 반지름]
 var trees := 0
 var props := 0
+var blocked: Array = []          # 동물이 피할 곳 [Vector2 (섬 안쪽 x,z), 반지름]: 연못·나무·바위
+var animals: Node3D
 
-func setup(world_node: Node3D) -> void:
+func setup(world_node: Node3D, camera: Camera3D) -> void:
 	world = world_node
 	rng.seed = 20261020
 	position = CENTER
@@ -34,6 +37,11 @@ func setup(world_node: Node3D) -> void:
 	_build_pond()
 	_build_bridge()
 	_scatter()
+	animals = Node3D.new()   # 풀섬 동물 (2단계)
+	animals.set_script(AnimalsScript)
+	animals.name = "Animals"
+	add_child(animals)
+	animals.setup(camera, blocked)
 	print("[FG] meadow built: trees=", trees, " props=", props, " bridge z ", BRIDGE_Z0, "..", BRIDGE_Z1)
 
 static func _mat(c: Color, rough: float = 0.9) -> StandardMaterial3D:
@@ -95,6 +103,7 @@ func _build_pond() -> void:
 	body.position = POND + Vector3(0, -0.19, 0)
 	add_child(body)
 	spots.append([Vector2(POND.x, POND.z), POND_R + 0.9])
+	blocked.append([Vector2(POND.x, POND.z), POND_R])
 
 # ── 다리 ──
 func _build_bridge() -> void:
@@ -206,6 +215,7 @@ func _scatter() -> void:
 		var q := Vector2(POND.x, POND.z) + Vector2(cos(a), sin(a)) * (POND_R + 0.35)
 		if q.length() < 9.6:
 			_prop("RockA" if i % 2 == 0 else "RockB", Vector3(q.x, GROUND_Y, q.y), rng.randf_range(0.7, 1.0))
+			blocked.append([q, 0.7])
 	var names := ["FlowerPink", "FlowerWhite", "FlowerYellow"]
 	for i in 36:
 		var p: Variant = _pick(0.35, 2.0, 9.6)
@@ -247,6 +257,7 @@ func _tree(pos: Vector3, s: float, i: int) -> void:
 	body.add_child(sh)
 	body.position = Vector3(0, 0.9, 0)
 	t.add_child(body)
+	blocked.append([Vector2(pos.x, pos.z), 0.35 * s + 0.2])
 	trees += 1
 
 func _prop(file: String, pos: Vector3, s: float) -> void:

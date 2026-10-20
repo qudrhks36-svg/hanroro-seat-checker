@@ -313,7 +313,18 @@ func _ready() -> void:
 	meadow.set_script(MeadowScript)
 	meadow.name = "Meadow"
 	add_child(meadow)
-	meadow.setup(world)
+	meadow.setup(world, player.cam)
+	if _arg("petcheck", "") != "":   # 시험용: 동물이 걷는지(막힌 곳이 아닌지)와 쓰다듬기·친밀도·선물 (--petcheck=초 --money=N)
+		meadow.animals.debug = true
+		if _arg("money", "") != "":
+			Game.money = int(_arg("money", "0"))
+		await get_tree().create_timer(float(_arg("petcheck", "5"))).timeout
+		for a in meadow.animals.list:
+			var np: Vector3 = (a["node"] as Node3D).position
+			print("[FG] animal ", a["def"]["name"], " pos=", np, " state=", a["state"], " blocked=", meadow.animals._is_blocked(Vector2(np.x, np.z), 0.0))
+		for k in 16:
+			meadow.animals.pet(2, true)
+		print("[FG] petcheck love=", Game.animal_love, " money=", Game.money)
 	if _arg("meadowcheck", "") != "":   # 시험용: 땅·다리 높이와 걸어서 건너기 (--pos=4,10 --yaw=180 --walk=0,1)
 		await get_tree().create_timer(float(_arg("meadowcheck", "1"))).timeout
 		var dss := get_world_3d().direct_space_state

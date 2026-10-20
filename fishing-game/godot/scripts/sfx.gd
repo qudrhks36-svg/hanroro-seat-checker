@@ -8,7 +8,7 @@ const MASTER := 0.5   # 유니티 Sfx.Volume. 낚시·판매 같은 기본 효�
 static var host: Node
 static var cache: Dictionary = {}
 
-static func play(sound_name: String, volume: float = -1.0) -> void:
+static func play(sound_name: String, volume: float = -1.0, pitch: float = 1.0) -> void:
 	if host == null:
 		return
 	if not cache.has(sound_name):
@@ -16,6 +16,7 @@ static func play(sound_name: String, volume: float = -1.0) -> void:
 	var p := AudioStreamPlayer.new()
 	p.stream = cache[sound_name]
 	p.volume_db = linear_to_db(maxf(MASTER if volume < 0.0 else volume, 0.0001))
+	p.pitch_scale = pitch
 	p.process_mode = Node.PROCESS_MODE_ALWAYS
 	host.add_child(p)
 	p.finished.connect(p.queue_free)

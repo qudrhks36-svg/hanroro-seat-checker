@@ -22,6 +22,7 @@ static func save_game() -> void:
 	d["decor"] = Game.decor_mask
 	d["cabin"] = Game.cabin_level
 	d["friend"] = Game.friend
+	d["animals"] = Game.animal_love
 	d["outfit"] = Game.outfit
 	d["crops"] = Game.crops
 	d["farm"] = {"day": Game.farm_day, "plots": Game.plots}
@@ -56,6 +57,10 @@ static func load_game() -> void:
 	if fr is Array:
 		for i in mini(4, fr.size()):
 			Game.friend[i] = clampi(int(fr[i]), 0, Game.FRIEND_LEVELS[2])
+	var an = d.get("animals")
+	if an is Array:
+		for i in mini(Game.animal_love.size(), an.size()):
+			Game.animal_love[i] = clampi(int(an[i]), 0, Game.FRIEND_LEVELS[2])
 	Game.outfit = clampi(int(d.get("outfit", 0)), 0, Game.outfits.size() - 1)
 	_copy_counts(d.get("crops"), Game.crops)
 	var fm = d.get("farm")
@@ -76,7 +81,7 @@ static func load_game() -> void:
 	Game.goal_progress = clampi(int(d.get("goal", 0)), 0, Game.goal_target - 1)
 	Game.contest_best = maxi(0, int(d.get("contestBest", 0)))
 	extra = d.duplicate()
-	for k in ["collection", "inventory", "best", "money", "rod", "mouseSens", "notes", "decor", "cabin", "goal", "contestBest", "friend", "quests", "outfit", "crops", "farm"]:
+	for k in ["collection", "inventory", "best", "money", "rod", "mouseSens", "notes", "decor", "cabin", "goal", "contestBest", "friend", "animals", "quests", "outfit", "crops", "farm"]:
 		extra.erase(k)
 
 # 물고기 종류 수가 바뀐 저장 파일도 읽을 수 있게 짧은 쪽에 맞춰 복사, 음수는 0으로
