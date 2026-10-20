@@ -7,8 +7,11 @@ const Game := preload("res://scripts/game_state.gd")
 const WorldScript := preload("res://scripts/world.gd")
 const TimeScript := preload("res://scripts/time_of_day.gd")
 
-const ITEM_POS := [[-9.8, 2.4], [-4.6, 1.0], [-6.0, 2.85], [-7.5, -1.2], [-11.4, -3.5]]   # 화분·파라솔·풍경·모닥불·해먹 (유니티 x, z)
-const CHIME_Y := 3.45                      # 풍경은 처마 끝에 걸림
+const ITEM_POS := [[-9.8, 2.4], [-4.6, 1.0], [-6.4, 3.48], [-7.5, -1.2], [-11.4, -3.5]]   # 화분·파라솔·풍경·모닥불·해먹 (유니티 x, z)
+const CHIME_Y := 2.76                      # 풍경은 처마 끝에 걸림 (집 0.8배)
+const CAB_K := 0.8                          # 집을 줄인 배율 (data/scale.json "Island/Cabin"과 같아야 함)
+const CAB_C := Vector3(-8.0, 0.0, 6.0)      # 집 중심 (유니티 좌표) — 집에 붙은 것들은 이 점을 기준으로 줄임
+const DECOR_K := 0.85                       # 집 옆 장식(화분·파라솔·모닥불·해먹) 크기
 const CLEAR_ZONES := [[-9.8, 2.4, 0.6, 0.6], [-4.6, 1.0, 1.5, 1.5], null, [-7.5, -1.2, 1.0, 1.0], [-11.4, -3.5, 1.0, 2.0]]   # {x, z, 반폭 x, 반폭 z}
 const MODELS := ["Home_Pot", "Home_Parasol", "Home_Chime", "Home_Fire", "Home_Hammock"]
 const ROOF_NEW := Color(0.28, 0.58, 0.66)
@@ -42,6 +45,10 @@ var dot_texture: Texture2D
 static func _g(p: Vector3) -> Vector3:   # 유니티 좌표 → 고닷 좌표
 	return Vector3(p.x, p.y, -p.z)
 
+# 집 원래 크기 기준 유니티 좌표를 집 0.8배 기준으로 (집 중심에 가까워지고 높이도 줄어듦)
+static func _cab(p: Vector3) -> Vector3:
+	return Vector3(CAB_C.x + (p.x - CAB_C.x) * CAB_K, p.y * CAB_K, CAB_C.z + (p.z - CAB_C.z) * CAB_K)
+
 func setup(world_node: Node3D) -> void:
 	world = world_node
 	Game.ensure_loaded()
@@ -66,7 +73,7 @@ func _build_item(i: int) -> void:
 	root.position = _g(Vector3(pos[0], CHIME_Y if i == 2 else 0.0, pos[1]))   # 땅 높이는 처음 나타날 때 잼(물리 세계가 준비된 뒤)
 	root.visible = false
 	items[i] = root
-	var model := _spawn(MODELS[i], root)
+	var model := _spawn(MODELS[i], root, CAB_K if i == 2 else DECOR_K)
 	match i:
 		2:
 			chime = model   # 모델의 원점 = 처마에 거는 점이라 통째로 흔들면 됨
@@ -158,12 +165,12 @@ func _build_cabin_extras() -> void:
 	# 1단계: 굴뚝(+ 연기)
 	chimney = Node3D.new()
 	chimney.name = "Chimney"
-	chimney.position = _g(Vector3(-9.6, 5.5, 7.4))   # 둥근 지붕 위(지붕 높이 약 5.35)
+	chimney.position = _g(_cab(Vector3(-9.6, 5.5, 7.4)))   # 둥근 지붕 위(지붕 높이 약 5.35 × 0.8)
 	add_child(chimney)
-	var cm := _spawn("Home_Chimney", chimney)
-	cm.position = Vector3(0, -0.4, 0)
+	var cm := _spawn("Home_Chimney", chimney, CAB_K)
+	cm.position = Vector3(0, -0.4 * CAB_K, 0)
 	smoke = CPUParticles3D.new()
-	smoke.position = Vector3(0, 1.0, 0)
+	smoke.position = Vector3(0, 1.0 * CAB_K, 0)
 	smoke.amount = 20
 	smoke.lifetime = 3.2
 	smoke.local_coords = false
@@ -192,19 +199,19 @@ func _build_cabin_extras() -> void:
 	# 2단계: 지붕 깃발 + 문 옆 등불 + 창문 불빛
 	flag_group = Node3D.new()
 	flag_group.name = "Flag"
-	flag_group.position = _g(Vector3(-8.0, 5.8, 6.0))   # 둥근 지붕 꼭대기(5.85)
+	flag_group.position = _g(_cab(Vector3(-8.0, 5.8, 6.0)))   # 둥근 지붕 꼭대기(5.85 × 0.8)
 	add_child(flag_group)
-	var fm := _spawn("Home_Flag", flag_group)
+	var fm := _spawn("Home_Flag", flag_group, CAB_K)
 	flag = fm.find_child("FlagCloth", true, false)   # 천(원점 = 깃대)만 살랑
 	lantern_group = Node3D.new()
 	lantern_group.name = "Lantern"
-	lantern_group.position = _g(Vector3(-6.7, 2.3, 2.8))
+	lantern_group.position = _g(_cab(Vector3(-6.7, 2.3, 2.8)))
 	add_child(lantern_group)
-	_spawn("Home_Lantern", lantern_group)
+	_spawn("Home_Lantern", lantern_group, CAB_K)
 	lantern_light = _light(lantern_group, Vector3.ZERO, LIGHT_COLOR, 7.0)
 	# 창문 앞 불빛: 유니티는 등불 기준 로컬 좌표 (-11.9+6.7, -0.7, 6-2.8)·(-3.9+6.7, -0.7, 6-2.8)
-	window_light_l = _light(lantern_group, _g(Vector3(-11.9 + 6.7, -0.7, 6.0 - 2.8)), LIGHT_COLOR, 5.0)   # 서쪽 창 앞
-	window_light_r = _light(lantern_group, _g(Vector3(-3.9 + 6.7, -0.7, 6.0 - 2.8)), LIGHT_COLOR, 5.0)    # 동쪽 창 앞
+	window_light_l = _light(lantern_group, _g(_cab(Vector3(-11.9, 1.6, 6.0)) - _cab(Vector3(-6.7, 2.3, 2.8))), LIGHT_COLOR, 5.0)   # 서쪽 창 앞
+	window_light_r = _light(lantern_group, _g(_cab(Vector3(-3.9, 1.6, 6.0)) - _cab(Vector3(-6.7, 2.3, 2.8))), LIGHT_COLOR, 5.0)    # 동쪽 창 앞
 
 func _process(delta: float) -> void:
 	for i in 5:
@@ -227,7 +234,7 @@ func _process(delta: float) -> void:
 	if items[2].visible:
 		# 유니티 Euler(wind*9, 0, sin*7)를 고닷으로: x축 회전 부호만 반대(z 반전)
 		var q := Quaternion(Vector3.RIGHT, -deg_to_rad(wind * 9.0)) * Quaternion(Vector3.BACK, deg_to_rad(sin(t * 1.3) * 7.0))
-		chime.basis = Basis(q) * WorldScript.MODEL_FIX
+		chime.basis = Basis(q) * WorldScript.MODEL_FIX * Basis.from_scale(Vector3.ONE * CAB_K)
 		chime_timer -= delta
 		if chime_timer <= 0.0:
 			chime_timer = randf_range(10.0, 22.0)
@@ -280,9 +287,9 @@ func _clear_near(i: int) -> void:
 
 # ---- 공통 ----
 # 장식 모델 (assets/models/extra/<이름>.fbx)을 부모 아래에 놓는다: 유니티 로컬 회전 없음 → 모델 보정만. 재질 이름 "C_RRGGBB"를 색으로.
-func _spawn(res: String, parent: Node3D) -> Node3D:
+func _spawn(res: String, parent: Node3D, k: float = 1.0) -> Node3D:
 	var model: Node3D = (load("res://assets/models/extra/%s.fbx" % res) as PackedScene).instantiate()
-	model.basis = WorldScript.MODEL_FIX
+	model.basis = WorldScript.MODEL_FIX * Basis.from_scale(Vector3.ONE * k)
 	parent.add_child(model)
 	WorldScript.tint_c_materials(model)
 	return model

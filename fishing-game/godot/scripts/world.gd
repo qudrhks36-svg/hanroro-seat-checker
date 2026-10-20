@@ -45,12 +45,13 @@ static func tint_c_materials(root: Node, roughness: float = 0.9) -> void:
 			m.roughness = roughness
 			mi.set_surface_override_material(i, m)
 
-# 이 항목의 크기 배율(data/scale.json의 길 이름 앞부분과 맞는 것, 없으면 1)
-func scale_of(path: String) -> float:
+# 이 항목의 크기 배율(data/scale.json의 길 이름 앞부분과 맞는 것, 없으면 1). 숫자 하나는 모든 방향, [x,y,z]는 방향별
+func scale_of(path: String) -> Vector3:
 	for k in obj_scale["prefix"]:
 		if path.begins_with(k):
-			return float(obj_scale["prefix"][k])
-	return 1.0
+			var v = obj_scale["prefix"][k]
+			return Vector3(v[0], v[1], v[2]) if v is Array else Vector3.ONE * float(v)
+	return Vector3.ONE
 
 static func model_path(source: String) -> String:
 	# 유니티 Assets/Models/X.fbx → assets/models/X.fbx, Assets/Resources/Models/Y.fbx → assets/models/extra/Y.fbx

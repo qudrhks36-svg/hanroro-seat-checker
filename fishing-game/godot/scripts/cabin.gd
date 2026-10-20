@@ -7,8 +7,8 @@ const ThemeUI := preload("res://scripts/ui_theme.gd")
 const TimeScript := preload("res://scripts/time_of_day.gd")
 const SfxScript := preload("res://scripts/sfx.gd")
 
-const DOOR_OUT := Vector3(-8.0, 1.1, -3.1)          # 오두막 문 가운데 (유니티 (-8, 1.1, 3.1))
-const STAND_OUT := Vector3(-8.0, 0.0, -1.4)         # 나왔을 때 서는 자리
+const DOOR_OUT := Vector3(-8.0, 0.88, -3.68)         # 오두막 문 가운데 (유니티 (-8, 1.1, 3.1)을 집 0.8배로 줄인 자리)
+const STAND_OUT := Vector3(-8.0, 0.0, -2.0)         # 나왔을 때 서는 자리
 const ROOM := Vector3(400, 0, 0)                     # 방 바닥 가운데 (섬 밖)
 const ROOM_W := 6.0
 const ROOM_D := 5.0
