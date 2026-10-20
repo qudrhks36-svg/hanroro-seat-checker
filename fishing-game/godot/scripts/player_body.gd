@@ -14,9 +14,11 @@ var fishing                  # 낚시 중에는 조준 방향을 봄 (main.gd가
 var face := 0.0              # 몸이 보는 방향(세계 기준 각도)
 const TURN_SPEED := 12.0     # 몸 돌리는 빠르기
 const ALIGN_DEG := 35.0      # 이 안이면 낚싯대를 들고 있는 것으로 봄
+const LEG_SWING := 0.7       # 다리 흔들림 최대 각도(라디안)
 var model: Node3D
 var shown_outfit := -1
 var t := 0.0
+var legs: Array = []        # 다리 축 노드 (character.gd의 meta "leg" = 좌우). 걸을 때 번갈아 흔듦
 
 func setup(p: CharacterBody3D) -> void:
 	player = p
@@ -30,6 +32,7 @@ func _rebuild() -> void:
 	for n in model.find_children("*", "MeshInstance3D", true, false):
 		(n as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	add_child(model)
+	legs = model.get_children().filter(func(n): return n.has_meta("leg"))
 	shown_outfit = Game.outfit
 
 func _process(delta: float) -> void:
@@ -47,4 +50,7 @@ func _process(delta: float) -> void:
 	rotation.y = face - cam_yaw
 	player.aligned = absf(angle_difference(face, cam_yaw)) < deg_to_rad(ALIGN_DEG)
 	t += delta * speed * 2.4
+	var k := clampf(speed / 4.0, 0.0, 1.0)
+	for l in legs:
+		(l as Node3D).rotation.x = lerpf((l as Node3D).rotation.x, sin(t) * LEG_SWING * k * float(l.get_meta("leg")), minf(delta * 20.0, 1.0))
 	model.position.y = absf(sin(t)) * 0.06 * clampf(speed / 4.0, 0.0, 1.0)
