@@ -222,7 +222,7 @@ func _process(_delta: float) -> void:
 	toast.modulate.a = 0.0 if tt > TOAST_HOLD + 0.5 else clampf(tt * 4.0, 0.0, 1.0) * (1.0 - clampf((tt - TOAST_HOLD) / 0.5, 0.0, 1.0))
 	current_plot = -1
 	current_action = ""
-	var free := Game.modal == "" and (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED or assume_captured)
+	var free := Game.modal == ""   # 마우스 잠금 없이도 E가 됨
 	if free and not plots_nodes.is_empty():
 		var best := LOOK_DOT
 		for i in plots_nodes.size():

@@ -92,7 +92,7 @@ func _process(_delta: float) -> void:
 	dock_lamp.light_energy = night * 1.0   # 밤엔 뱃머리 등불이 켜짐
 	far_lamp.light_energy = night * 1.0
 
-	var free := not busy and Game.modal == "" and (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED or assume_captured)
+	var free := not busy and Game.modal == ""   # 마우스 잠금 없이도 E가 됨
 	var near := free and _near(FAR_BOAT if active else DOCK_BOAT)
 	prompt.visible = near
 	if debug and near != last_near:

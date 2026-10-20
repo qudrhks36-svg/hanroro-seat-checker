@@ -6,7 +6,7 @@ extends Node3D
 const Game := preload("res://scripts/game_state.gd")
 const CharacterScript := preload("res://scripts/character.gd")
 
-const BODY_SCALE := 0.8
+const BODY_SCALE := CharacterScript.PLAYER_SCALE
 const FOOT := 1.02          # 플레이어(캡슐) 중심에서 발까지
 
 var player: CharacterBody3D

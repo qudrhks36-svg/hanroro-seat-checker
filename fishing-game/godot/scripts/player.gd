@@ -8,7 +8,8 @@ const Game := preload("res://scripts/game_state.gd")
 const SPEED := 4.0
 const GRAVITY := 20.0
 const MOUSE_SENS := 0.1          # 도/픽셀
-const EYE_HEIGHT := 0.42
+const ARROW_TURN := 100.0         # 방향키 시점 도는 빠르기(도/초)
+const EYE_HEIGHT := 0.22
 const VIEW_BACK := 3.2           # 3인칭 카메라: 눈에서 뒤로
 const VIEW_SIDE := 0.55          # 오른쪽으로
 const VIEW_UP := 0.35            # 위로
@@ -63,9 +64,15 @@ func look(yaw_deg: float, pitch_deg: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	var dir := test_walk
-	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		dir.x += (1.0 if Input.is_physical_key_pressed(KEY_D) else 0.0) - (1.0 if Input.is_physical_key_pressed(KEY_A) else 0.0)
-		dir.y += (1.0 if Input.is_physical_key_pressed(KEY_W) else 0.0) - (1.0 if Input.is_physical_key_pressed(KEY_S) else 0.0)
+	# 걷기(WASD)와 방향키 시점은 마우스 잠금이 없어도 바로 된다(브라우저는 마우스 잠금에 클릭이 한 번 필요하므로 그 전에도 움직일 수 있게). 창이 열리면 시간이 멈춰 이 함수가 안 돌아감.
+	dir.x += (1.0 if Input.is_physical_key_pressed(KEY_D) else 0.0) - (1.0 if Input.is_physical_key_pressed(KEY_A) else 0.0)
+	dir.y += (1.0 if Input.is_physical_key_pressed(KEY_W) else 0.0) - (1.0 if Input.is_physical_key_pressed(KEY_S) else 0.0)
+	var turn_x := (1.0 if Input.is_physical_key_pressed(KEY_LEFT) else 0.0) - (1.0 if Input.is_physical_key_pressed(KEY_RIGHT) else 0.0)
+	var turn_y := (1.0 if Input.is_physical_key_pressed(KEY_UP) else 0.0) - (1.0 if Input.is_physical_key_pressed(KEY_DOWN) else 0.0)
+	if turn_x != 0.0 or turn_y != 0.0:
+		rotate_y(deg_to_rad(turn_x * ARROW_TURN * delta))
+		pitch = clampf(pitch + turn_y * ARROW_TURN * 0.6 * delta, -80.0, 80.0)
+		cam.rotation_degrees.x = pitch
 	dir = dir.limit_length(1.0)
 	var move := (global_transform.basis.x * dir.x + -global_transform.basis.z * dir.y) * SPEED
 	velocity.x = move.x

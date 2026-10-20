@@ -149,7 +149,7 @@ func _process(_delta: float) -> void:
 	var t := Time.get_ticks_msec() / 1000.0
 	var tt := t - toast_t0
 	toast.modulate.a = 0.0 if tt > TOAST_HOLD + 0.5 else clampf(tt * 4.0, 0.0, 1.0) * (1.0 - clampf((tt - TOAST_HOLD) / 0.5, 0.0, 1.0))
-	var free := not busy and Game.modal == "" and (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED or assume_captured)
+	var free := not busy and Game.modal == ""   # 마우스 잠금 없이도 E가 됨
 	current_target = ""
 	var text := ""
 	if free:

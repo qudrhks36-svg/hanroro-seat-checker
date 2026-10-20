@@ -412,7 +412,8 @@ func _update_guide() -> void:
 	var a := ""
 	var b := ""
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-		a = "화면을 한 번 클릭하면 시작해요"
+		a = "화면을 클릭하면 마우스로 시점·낚시 (걷기는 바로 돼요)"
+		b = "WASD 이동 · 방향키 시점 · E 말 걸기 · Tab 도감 · O 설정"
 	else:
 		match state:
 			S.IDLE:

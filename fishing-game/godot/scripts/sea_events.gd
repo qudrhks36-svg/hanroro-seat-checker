@@ -91,7 +91,7 @@ func _update_bottle(delta: float) -> void:
 	if gem != null:
 		gem.position.y = 0.55 + 0.08 * sin(bottle_bob * 3.0)
 		gem.global_rotate(Vector3.UP, deg_to_rad(90.0) * delta)   # 월드 Y축으로 돎
-	var near := Game.modal == "" and (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED or assume_captured) and _reachable()
+	var near := Game.modal == "" and _reachable()   # 마우스 잠금 없이도 E가 됨
 	prompt.visible = near
 
 func _reachable() -> bool:

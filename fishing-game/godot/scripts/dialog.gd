@@ -95,7 +95,7 @@ func _process(_delta: float) -> void:
 		if m != null and npcs[i]["name"] == "돌쇠":
 			m.visible = _is_present(i)
 	near = -1
-	var free := Game.modal == "" and (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED or test_near >= 0 or assume_captured)
+	var free := Game.modal == ""   # 마우스 잠금 없이도 E가 됨
 	if free:
 		if test_near >= 0:
 			near = test_near
