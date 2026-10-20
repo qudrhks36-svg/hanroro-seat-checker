@@ -61,7 +61,7 @@ static func build(o: Dictionary, arms: bool = true) -> Node3D:
 	var bottom := color_of(o["bottom"])
 	var hair: Color = color_of(o["hair"]) if o.has("hair") else HAIR
 	# 몸통
-	_part(root, _capsule(0.21, 0.62), top, Vector3(0, 0.92, 0))
+	_part(root, _capsule(0.235, 0.68), top, Vector3(0, 0.93, 0))
 	_part(root, _sphere(0.13), top, Vector3(0, 1.2, 0), Vector3(1.4, 0.7, 1.0))   # 어깨선
 	if bool(o["dress"]):   # 치마
 		var sk := CylinderMesh.new()
@@ -73,8 +73,8 @@ static func build(o: Dictionary, arms: bool = true) -> Node3D:
 		for x in [-0.09, 0.09]:
 			_leg(root, SKIN, x, 0.47, 0.055)
 	else:
-		for x in [-0.1, 0.1]:
-			_leg(root, bottom, x, 0.64, 0.085)
+		for x in [-0.11, 0.11]:
+			_leg(root, bottom, x, 0.64, 0.095)
 	if arms:   # 팔: 소매 + 손 (3인칭 플레이어는 팔을 outfit_view.gd가 따로 그려서 끔)
 		for x in [-SHOULDER_X, SHOULDER_X]:
 			_part(root, _capsule(0.07, 0.5), top, Vector3(x * 1.06, 0.93, 0))

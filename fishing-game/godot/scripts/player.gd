@@ -22,6 +22,7 @@ var view: Camera3D               # 화면 카메라(3인칭)
 var body: Node3D                 # 3인칭 몸(main.gd가 정함)
 var view_back := VIEW_BACK       # 지금 카메라 거리(집 안은 좁아서 cabin.gd가 줄임)
 var aligned := true               # 몸이 카메라 앞쪽을 보고 있나(아니면 낚싯대·팔을 숨김, player_body.gd가 정함)
+var orbit := 0.0                 # 시험용 --orbit=도: 카메라를 캐릭터 둘레로 돌려 앞·옆모습을 본다(0 = 뒤)
 var fpv := false                 # 시험용 --fpv=1: 옛 1인칭 화면
 var pitch := 0.0                 # 위아래 각도(도)
 var dbg := ""                    # 시험용: 지금 닿은 것들
@@ -104,12 +105,12 @@ func set_fpv(on: bool) -> void:
 func _process(_delta: float) -> void:
 	var head := cam.global_position
 	var fwd := -cam.global_transform.basis.z
-	var desired := head + cam.global_transform.basis * Vector3(VIEW_SIDE, VIEW_UP, view_back)
+	var desired := head + Basis(Vector3.UP, deg_to_rad(orbit)) * (cam.global_transform.basis * Vector3(VIEW_SIDE if orbit == 0.0 else 0.0, VIEW_UP, view_back))
 	var hit := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(head, desired, 0xFFFFFFFF, [get_rid()]))
 	var pos := desired
 	if not hit.is_empty():   # 벽·나무에 닿으면 그 앞으로 당김
 		pos = hit.position + (head - desired).normalized() * 0.25
-	var target := head + fwd * VIEW_AIM
+	var target := head + fwd * VIEW_AIM if orbit == 0.0 else head
 	if (target - pos).length() > 0.01 and absf((target - pos).normalized().dot(Vector3.UP)) < 0.999:
 		view.look_at_from_position(pos, target, Vector3.UP)
 	else:

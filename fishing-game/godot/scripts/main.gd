@@ -431,6 +431,8 @@ func _apply_test_args() -> void:
 		var e: Vector3 = DEBUG_CAMS[key][1]
 		player.position = Vector3(p.x, p.y - player.EYE_HEIGHT, -p.z)
 		player.look(-e.y, -e.x)   # 유니티 오일러(x 숙임, y 좌우)를 고닷으로: 숙임은 -x, 좌우는 z 반전이라 부호 반대
+	if _arg("orbit", "") != "":   # 시험용: 카메라를 캐릭터 둘레로 돌려 본다(180 = 앞모습, 90/270 = 옆모습)
+		player.orbit = float(_arg("orbit", "0"))
 	if _arg("fpv", "") != "":   # 시험용: 옛 1인칭 화면
 		player.set_fpv(true)
 	var yaw := _arg("yaw", "")            # 시험용: 바라보는 방향(도, 0=유니티 +Z, 90=왼쪽(유니티 -X))

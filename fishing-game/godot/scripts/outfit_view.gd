@@ -10,7 +10,7 @@ const PlayerBodyScript := preload("res://scripts/player_body.gd")
 
 const UPPER := 0.22          # 윗팔 길이
 const FORE := 0.22           # 아랫팔 길이
-const ARM_R := 0.05
+const ARM_R := 0.058
 
 var fishing
 var sleeve_mat: StandardMaterial3D

@@ -17,6 +17,7 @@ const CAST_DISTANCE := 12.0
 const CAST_TIME := 0.8
 const ARC_HEIGHT := 3.0
 const WATER_Y := -0.1
+const ROD_OFFSET := Vector3(0.0, -0.12, -0.3)   # 3인칭: 낚싯대(와 줄 시작점)를 눈 기준 앞·아래로 내어 가슴 앞에서 들게 함(손잡이가 몸을 뚫지 않게)
 const BITE_WINDOW := 1.6              # 입질 후 클릭 가능 시간(초)
 const REEL_ZONE_SPEED := 0.7
 const REEL_START := 0.4
@@ -97,10 +98,10 @@ func _build_rod(level: int) -> void:
 	var half: float = 0.7 * float(ROD_LENGTH[level])                      # 대 길이 1.4의 절반
 	var tip_u := rod_u + qu * Vector3(0, 0, half)
 	var handle_u := rod_u - qu * Vector3(0, 0, half)
-	tip.position = Vector3(tip_u.x, tip_u.y, -tip_u.z)
+	tip.position = Vector3(tip_u.x, tip_u.y, -tip_u.z) + ROD_OFFSET
 	var scene: PackedScene = load("res://assets/models/extra/Rod_%d.fbx" % level)
 	rod_model = scene.instantiate()
-	rod_model.position = Vector3(handle_u.x, handle_u.y, -handle_u.z)
+	rod_model.position = Vector3(handle_u.x, handle_u.y, -handle_u.z) + ROD_OFFSET
 	rod_model.basis = WorldScript.to_godot_basis(q) * WorldScript.MODEL_FIX
 	cam.add_child(rod_model)
 	_tint_c_materials(rod_model)
