@@ -27,6 +27,7 @@ const WardrobeScript := preload("res://scripts/wardrobe.gd")
 const OutfitViewScript := preload("res://scripts/outfit_view.gd")
 const FarmScript := preload("res://scripts/farm.gd")
 const LifeScript := preload("res://scripts/life.gd")
+const MeadowScript := preload("res://scripts/meadow.gd")
 const Game := preload("res://scripts/game_state.gd")
 const ResultCardScript := preload("res://scripts/result_card.gd")
 
@@ -308,6 +309,18 @@ func _ready() -> void:
 	farm.name = "Farm"
 	add_child(farm)
 	farm.setup(player.cam, world)
+	var meadow := Node3D.new()   # 옆 섬 풀섬 + 나무다리 (12단계)
+	meadow.set_script(MeadowScript)
+	meadow.name = "Meadow"
+	add_child(meadow)
+	meadow.setup(world)
+	if _arg("meadowcheck", "") != "":   # 시험용: 땅·다리 높이와 걸어서 건너기 (--pos=4,10 --yaw=180 --walk=0,1)
+		await get_tree().create_timer(float(_arg("meadowcheck", "1"))).timeout
+		var dss := get_world_3d().direct_space_state
+		for pt in [Vector2(4, 30), Vector2(4, 45), Vector2(4, 58), Vector2(-0.2, 61.2), Vector2(4, 15)]:
+			var hh := dss.intersect_ray(PhysicsRayQueryParameters3D.create(Vector3(pt.x, 5, pt.y), Vector3(pt.x, -3, pt.y)))
+			print("[FG] meadow ground (", pt.x, ",", pt.y, ") y=", hh.position.y if not hh.is_empty() else "none", " ", (hh.collider as Node).name if not hh.is_empty() else "")
+		print("[FG] meadow player=", player.global_position)
 	var photo := CanvasLayer.new()   # 사진 찍기 P (8단계). 다른 화면을 꺼야 하므로 맨 마지막에 만든다
 	photo.set_script(PhotoScript)
 	photo.name = "PhotoMode"
