@@ -20,6 +20,7 @@ var cam: Camera3D                # 눈(보이지 않음, 판정용)
 var view: Camera3D               # 화면 카메라(3인칭)
 var body: Node3D                 # 3인칭 몸(main.gd가 정함)
 var view_back := VIEW_BACK       # 지금 카메라 거리(집 안은 좁아서 cabin.gd가 줄임)
+var aligned := true               # 몸이 카메라 앞쪽을 보고 있나(아니면 낚싯대·팔을 숨김, player_body.gd가 정함)
 var fpv := false                 # 시험용 --fpv=1: 옛 1인칭 화면
 var pitch := 0.0                 # 위아래 각도(도)
 var dbg := ""                    # 시험용: 지금 닿은 것들
@@ -109,4 +110,4 @@ func _process(_delta: float) -> void:
 	var far_enough := pos.distance_to(head) > VIEW_MIN
 	if body != null:
 		body.visible = not fpv and far_enough
-	cam.visible = fpv or far_enough   # 낚싯대·팔도 카메라가 너무 가까우면 숨김
+	cam.visible = fpv or (far_enough and aligned)   # 낚싯대·팔도 카메라가 너무 가까우면 숨김

@@ -134,6 +134,7 @@ func _ready() -> void:
 	fishing.set_script(FishingScript)
 	fishing.name = "Fishing"
 	add_child(fishing)
+	pbody.fishing = fishing
 	fishing.view_cam = player.view   # 화면 좌표(!/결과 카드)는 3인칭 카메라 기준
 	fishing.setup(player.cam, world)
 	var splash := Node3D.new()   # 물보라·물결 (8단계)
@@ -352,6 +353,9 @@ func _ready() -> void:
 		for k in 400:
 			names[Game.fish[Game.pick(k % 3, 0, false, true)]["name"]] = true
 		print("[FG] pond pick names=", names.keys())
+	if _arg("bodycheck", "") != "":   # 시험용: 걷는 방향으로 몸이 도는지 (--walk=1,0 처럼 옆으로 걷게 하고 --bodycheck=초)
+		await get_tree().create_timer(float(_arg("bodycheck", "2"))).timeout
+		print("[FG] body face=", snappedf(rad_to_deg(pbody.face), 0.1), " cam_yaw=", snappedf(rad_to_deg(player.rotation.y), 0.1), " aligned=", player.aligned, " rod visible=", player.cam.visible, " speed=", snappedf(Vector2(player.velocity.x, player.velocity.z).length(), 0.1))
 	if _arg("meadowcheck", "") != "":   # 시험용: 땅·다리 높이와 걸어서 건너기 (--pos=4,10 --yaw=180 --walk=0,1)
 		await get_tree().create_timer(float(_arg("meadowcheck", "1"))).timeout
 		var dss := get_world_3d().direct_space_state
