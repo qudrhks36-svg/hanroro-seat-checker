@@ -75,7 +75,7 @@ func set_open(open: bool, relock: bool) -> void:
 	if open:
 		_refresh()   # 마우스는 잠근 채로 둠(방향키로 고르기 → 닫은 뒤 다시 클릭할 필요 없음)
 	else:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if relock else Input.MOUSE_MODE_VISIBLE
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE   # 마우스 잠금은 오른쪽 버튼 끌기 중에만 (main.gd)
 
 func _refresh() -> void:
 	var found := 0

@@ -1,6 +1,6 @@
 extends Node3D
 # 낚시 (포팅 4단계, 유니티 FishingRod): 왼쪽 클릭 = 던지기 / 입질 타이밍에 낚기 / 회수. 낚기 성공 뒤엔 릴 감기(왼쪽 버튼 누르고 있기).
-# 값은 data/fishing.json (던지기 12m·0.8초·높이 3, 입질 후 1.6초 안에 클릭, 릴 감기 수치). 첫 클릭은 시작(마우스 잠금)이라 main.gd가 먹음.
+# 값은 data/fishing.json (던지기 12m·0.8초·높이 3, 입질 후 1.6초 안에 클릭, 릴 감기 수치). 마우스 잠금 없음(시점은 오른쪽 버튼 끌기, main.gd).
 
 const Game := preload("res://scripts/game_state.gd")
 const ThemeUI := preload("res://scripts/ui_theme.gd")
@@ -208,7 +208,7 @@ func _build_ui() -> void:
 
 # ---- 입력 ----
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and Game.modal == "":
 		if player != null and not player.rod_out:   # 낚싯대가 넣어져 있으면 첫 클릭은 꺼내기만 함
 			_set_rod(true)
 		else:
@@ -248,8 +248,7 @@ func _process(delta: float) -> void:
 		_build_rod(shown_rod)   # 업그레이드하거나 저장을 불러오면 낚싯대 모양을 바꿈
 	var click := click_pending
 	click_pending = false
-	var captured := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
-	var held := captured and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
+	var held := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT)
 	if auto:   # 시험용 스스로 낚기
 		click = state == S.IDLE or state == S.BITING
 		held = fish_pos > zone_pos
@@ -426,22 +425,18 @@ func _show_toast(msg: String) -> void:
 func _update_guide() -> void:
 	var a := ""
 	var b := ""
-	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-		a = "화면을 클릭하면 마우스로 시점·낚시 (걷기는 바로 돼요)"
-		b = "WASD 이동 · Space 점프 · 방향키 시점 · E 말 걸기 · Tab 도감 · O 설정"
-	else:
-		match state:
-			S.IDLE:
-				a = "왼쪽 클릭: 바다 쪽으로 낚싯대 던지기" if player.rod_out else "R 또는 왼쪽 클릭: 낚싯대 꺼내기"
-				b = "E: 배 가까이에서 부두로 돌아가기 · 1·2·3 미끼 · Tab 도감 · P 사진 · M 소리 · O 설정" if FarSeaScript.active else "WASD 이동 · Space 점프 · R 낚싯대 넣기/꺼내기 · 1·2·3 미끼 · Tab 도감 · E 말 걸기 · P 사진 · M 소리 · O 설정"
-			S.FLOATING:
-				a = "찌를 지켜보세요… 느낌표(!)가 뜨면 바로 왼쪽 클릭!"
-				b = "기다리다 마음이 바뀌면 왼쪽 클릭: 낚싯대 거두기"
-			S.BITING:
-				a = "지금! 왼쪽 클릭!"
-			S.REELING:
-				a = "왼쪽 버튼을 꾹 누르면 초록 칸이 오른쪽으로, 떼면 왼쪽으로 가요"
-				b = "주황 물고기 위에 초록 칸을 맞추세요. 노란 게이지가 가득 차면 성공!"
+	match state:
+		S.IDLE:
+			a = "왼쪽 클릭: 바다 쪽으로 낚싯대 던지기" if player.rod_out else "R 또는 왼쪽 클릭: 낚싯대 꺼내기"
+			b = "E: 배 가까이에서 부두로 돌아가기 · 1·2·3 미끼 · Tab 도감 · P 사진 · M 소리 · O 설정" if FarSeaScript.active else "WASD 이동 · Space 점프 · 오른쪽 버튼 끌기 시점 · R 낚싯대 · 1·2·3 미끼 · Tab 도감 · E 말 걸기 · P 사진 · O 설정"
+		S.FLOATING:
+			a = "찌를 지켜보세요… 느낌표(!)가 뜨면 바로 왼쪽 클릭!"
+			b = "기다리다 마음이 바뀌면 왼쪽 클릭: 낚싯대 거두기"
+		S.BITING:
+			a = "지금! 왼쪽 클릭!"
+		S.REELING:
+			a = "왼쪽 버튼을 꾹 누르면 초록 칸이 오른쪽으로, 떼면 왼쪽으로 가요"
+			b = "주황 물고기 위에 초록 칸을 맞추세요. 노란 게이지가 가득 차면 성공!"
 	guide.visible = a != ""
 	if guide1.text != a:
 		guide1.text = a

@@ -48,7 +48,7 @@ func set_open(open: bool, relock: bool) -> void:
 		slider.value = Game.mouse_scale   # 마우스는 잠근 채로 둠
 	else:
 		SaveScript.save_game()
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if relock else Input.MOUSE_MODE_VISIBLE
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE   # 마우스 잠금은 오른쪽 버튼 끌기 중에만 (main.gd)
 
 func set_sensitivity(v: float) -> void:
 	Game.mouse_scale = clampf(v, SENS_MIN, SENS_MAX)

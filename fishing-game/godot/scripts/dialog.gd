@@ -389,7 +389,7 @@ func close(relock: bool) -> void:
 	current = -1
 	box.visible = false
 	get_tree().paused = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if relock else Input.MOUSE_MODE_VISIBLE
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE   # 마우스 잠금은 오른쪽 버튼 끌기 중에만 (main.gd)
 
 # ---- 팔기·업그레이드 ----
 func _inventory_count() -> int:

@@ -526,11 +526,9 @@ func _apply_test_args() -> void:
 		player.test_walk = Vector2(float(w[0]), float(w[1]))
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED   # 첫 클릭은 시작(마우스 잠금)만 하고, 낚시가 던지기로 받지 않게 먹는다
-		get_viewport().set_input_as_handled()
-	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# 마우스 잠금은 오른쪽 버튼을 누른 채 시점을 돌리는 동안만 (커서가 화면 끝에서 멈추지 않게). 떼면 풀림.
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if event.pressed and Game.modal == "" else Input.MOUSE_MODE_VISIBLE
 
 var probed := false
 func _physics_process(_delta: float) -> void:

@@ -51,7 +51,7 @@ func _ready() -> void:
 	add_child(view)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:   # 오른쪽 버튼을 누르고 있는 동안만 잠김(main.gd)
 		turn(event.relative)
 
 # 마우스가 움직인 픽셀(relative)만큼 몸(좌우)과 카메라(위아래)를 돌린다. 감도 = 0.1도/픽셀 × 설정 창의 배율.

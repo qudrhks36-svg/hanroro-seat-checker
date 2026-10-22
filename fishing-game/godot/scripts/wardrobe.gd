@@ -44,7 +44,7 @@ func close(relock: bool) -> void:
 	Game.modal = ""
 	get_tree().paused = false
 	root.visible = false
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if relock else Input.MOUSE_MODE_VISIBLE
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE   # 마우스 잠금은 오른쪽 버튼 끌기 중에만 (main.gd)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_open or not (event is InputEventKey and event.pressed and not event.echo):
