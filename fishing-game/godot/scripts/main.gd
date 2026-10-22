@@ -353,6 +353,13 @@ func _ready() -> void:
 	settings.set_script(SettingsScript)
 	settings.name = "Settings"
 	add_child(settings)
+	var perf := CanvasLayer.new()   # 성능 점검 표시 (F3)
+	perf.set_script(preload("res://scripts/perf_overlay.gd"))
+	perf.name = "PerfOverlay"
+	add_child(perf)
+	perf.setup(player)
+	if _arg("perf", "") != "":
+		perf.label.visible = true
 	print("[FG] mouse_scale=", Game.mouse_scale)
 	var life := Node3D.new()   # 살아 있는 섬: 바람 흔들림·반딧불·구름·물고기 그림자 (8단계)
 	life.set_script(LifeScript)
