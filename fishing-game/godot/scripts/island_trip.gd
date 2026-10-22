@@ -61,6 +61,7 @@ func _make_boat(boat_name: String, pos: Vector3, yaw_deg: float) -> Node3D:
 	model.basis = WorldScript.MODEL_FIX
 	root.add_child(model)
 	WorldScript.tint_c_materials(model)
+	WorldScript.add_boat_deck(root)
 	return root
 
 func _bob(boat: Node3D, phase: float, t: float) -> void:

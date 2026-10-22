@@ -416,7 +416,7 @@ func _ready() -> void:
 	if _arg("jumpcheck", "") != "":
 		var y0 := player.global_position.y
 		await get_tree().create_timer(float(_arg("jumpcheck", "2"))).timeout
-		print("[FG] jump start y=", snappedf(y0, 0.01), " peak=", snappedf(player.peak_y, 0.01), " rise=", snappedf(player.peak_y - 0.98, 0.01))
+		print("[FG] jump start y=", snappedf(y0, 0.01), " peak=", snappedf(player.peak_y, 0.01), " rise=", snappedf(player.peak_y - 0.98, 0.01), " end=", player.global_position, " dbg=", player.dbg)
 	if _arg("bodycheck", "") != "":   # 시험용: 걷는 방향으로 몸이 도는지 (--walk=1,0 처럼 옆으로 걷게 하고 --bodycheck=초)
 		await get_tree().create_timer(float(_arg("bodycheck", "2"))).timeout
 		print("[FG] body face=", snappedf(rad_to_deg(pbody.face), 0.1), " cam_yaw=", snappedf(rad_to_deg(player.rotation.y), 0.1), " rod_out=", player.rod_out, " rod visible=", player.cam.visible, " speed=", snappedf(Vector2(player.velocity.x, player.velocity.z).length(), 0.1), " legs=", pbody.legs.map(func(l): return snappedf((l as Node3D).rotation.x, 0.01)))

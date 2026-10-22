@@ -65,6 +65,7 @@ func _make_boat(boat_name: String, pos_u: Vector3, yaw_deg: float) -> Node3D:
 	model.basis = WorldScript.MODEL_FIX
 	root.add_child(model)
 	WorldScript.tint_c_materials(model)
+	WorldScript.add_boat_deck(root)
 	var lamp := OmniLight3D.new()   # 뱃머리 등불: 밤에만 켜짐
 	lamp.name = "Lamp"
 	lamp.position = Vector3(1.35, 1.3, 0.0)

@@ -131,6 +131,19 @@ func add_colliders(node: Node3D, it: Dictionary) -> void:
 		body.add_child(shape)
 		node.add_child(body)
 
+# 노 젓는 배(Sea_Rowboat) 갑판: 바닥 + 양옆 뱃전 + 뒤판 상자 충돌. 점프(Space)로 뱃전을 넘어 올라탄다. 치수는 모델을 직접 잰 값(배 좌표, 바닥 윗면 0.21·뱃전 윗면 0.67).
+static func add_boat_deck(boat: Node3D) -> void:
+	var body := StaticBody3D.new()
+	body.name = "Deck"
+	for p in [[Vector3(2.6, 0.1, 0.9), Vector3(0, 0.16, 0)], [Vector3(2.6, 0.5, 0.23), Vector3(0, 0.42, -0.52)], [Vector3(2.6, 0.5, 0.23), Vector3(0, 0.42, 0.52)], [Vector3(0.1, 0.5, 0.95), Vector3(1.35, 0.42, 0)]]:
+		var sh := CollisionShape3D.new()
+		var bx := BoxShape3D.new()
+		bx.size = p[0]
+		sh.shape = bx
+		sh.position = p[1]
+		body.add_child(sh)
+	boat.add_child(body)
+
 static func _vec(s: String, key: String) -> Vector3:
 	var re := RegEx.create_from_string(key + r"=\(([-\d.]+), ([-\d.]+), ([-\d.]+)\)")
 	var m := re.search(s)
