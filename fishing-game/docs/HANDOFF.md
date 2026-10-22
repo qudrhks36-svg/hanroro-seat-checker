@@ -10,7 +10,7 @@
 - **공개 주소 https://fishing-game-web.vercel.app = 고닷판 최신(커밋 `950147f`까지)**. 시험 주소 fishing-game-godot.vercel.app도 같은 빌드. 푸시는 사용자가 직접(로컬 커밋이 쌓여 있음).
 - **10~11단계(포팅 뒤 추가, 모두 사용자 플레이 확인)**: 집 안·잠자기·옷장, 미니 농장, NPC 대사·친밀도·부탁, 둥근 모델(블렌더 `round_models.py`·`make_cabin.py`), 끊김 없는 BGM, 창 닫은 뒤 클릭 없애기. 기록은 `changelog/2026-10-12.md`.
 - **옆 섬 "풀섬"(GDD 8번, 4단계 모두 끝)**: ① 섬·나무다리(32m)·연못·나무·꽃 `scripts/meadow.gd` ② 동물 4마리 쓰다듬기·선물 `animals.gd`+`data/animals.json` ③ 과일나무 열매 따기(사과·귤·복숭아, 하루 뒤 다시 열림) `fruit_trees.gd`, 열매는 `farm.json`의 `"fruit":true`로 작물 가방·판매·선물에 붙음 ④ 연못 낚시: 연못("Pond" 충돌)에서 민물고기 4종(`fish.json` 17~20, 그림은 `blender/make_fish.py`), 도감 20종 5줄.
-- **3인칭 시점(GDD 8번, 1~5단계 끝)**: 화면 카메라 `player.view`는 어깨 뒤, 판정용 보이지 않는 눈 `player.cam`은 그대로(조준·E·말 걸기 모두 눈 기준). 몸 `player_body.gd`(옷장 옷, 0.8배, 걷는 방향으로 돌고 다리 흔들림), 팔·낚싯대는 `outfit_view.gd`/눈 아래. 몸이 카메라와 35도 넘게 어긋나면 낚싯대·팔 숨김. 시험 `--fpv=1` = 옛 1인칭.
+- **3인칭 시점(GDD 8번, 1~5단계 끝)**: 화면 카메라 `player.view`는 어깨 뒤, 판정용 보이지 않는 눈 `player.cam`은 그대로(조준·E·말 걸기 모두 눈 기준). 몸 `player_body.gd`(옷장 옷, 0.8배, 걷는 방향으로 돌고 다리 흔들림), 팔·낚싯대는 `outfit_view.gd`/눈 아래. 낚싯대는 R로 꺼내고 넣음(`player.rod_out`): 넣으면 몸이 걷는 방향으로 돌고 팔을 흔들며, 꺼내면 조준 방향을 보고 오른손으로 쥠(`outfit_view.gd`, 왼팔은 몸 모델이 고정). Space 점프. 시험 `--fpv=1` = 옛 1인칭.
 - **크기 줄이기**: `godot/data/scale.json`(길 이름 앞부분 → 배율, 숫자 또는 [x,y,z])을 `world.gd` `scale_of`가 적용: NPC 0.85, 야자수·덤불·꽃 0.8, 집 0.8, 부두는 길이 그대로 폭·높이 0.8 등. 집을 줄이면 `cabin.gd`(문 자리)·`home_decor.gd`(`CAB_K`, `_cab()`)도 같이 맞춰야 함.
 - **병 속 이야기 편지**(GDD 8번): `story.gd`+`data/story.json`(스포일러, 사용자가 스포 없이 플레이하길 원해 플레이 전엔 열지 말 것). 일반 쪽지 3장 후 리본 병, 12통, 챕터 끝 답장(1~3), 하루 뒤 다음 병. 시험 `--storytest=1`.
 - **눈 섬 주민 뽀로**(펭귄 상인, 5번째 주민): `dialog.json` 5번째 항목, `snow_island.gd` `_build_penguin`, 물고기 ×1.25로 사 줌, `Game.friend`·`quests` 5칸. 시험 `--npc=4`.

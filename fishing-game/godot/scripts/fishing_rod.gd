@@ -34,6 +34,7 @@ var world: Node3D
 var state := S.IDLE
 var selected_bait := 0
 var cast_bait := 0
+var player: CharacterBody3D        # rod_out(낚싯대 꺼냄) 상태를 가진 플레이어 (main.gd가 정함)
 var cast_kind := ""        # 이번에 던진 찌가 떨어진 곳: "" 바다 / "pond" 풀섬 연못 / "ice" 눈 섬 얼음 호수
 var click_pending := false
 var auto := false                      # 시험용: 스스로 던지고 낚음
@@ -208,12 +209,22 @@ func _build_ui() -> void:
 # ---- 입력 ----
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		click_pending = true
+		if player != null and not player.rod_out:   # 낚싯대가 넣어져 있으면 첫 클릭은 꺼내기만 함
+			_set_rod(true)
+		else:
+			click_pending = true
 	elif event is InputEventKey and event.pressed and not event.echo and state == S.IDLE:
 		match event.keycode:
+			KEY_R: _set_rod(not player.rod_out)
 			KEY_1: _select_bait(0)
 			KEY_2: _select_bait(1)
 			KEY_3: _select_bait(2)
+
+func _set_rod(on: bool) -> void:
+	if player == null or player.rod_out == on:
+		return
+	player.rod_out = on
+	_show_toast("낚싯대를 꺼냈어요 (R: 넣기)" if on else "낚싯대를 넣었어요 (R: 꺼내기)")
 
 func _select_bait(i: int) -> void:
 	selected_bait = i
@@ -417,12 +428,12 @@ func _update_guide() -> void:
 	var b := ""
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		a = "화면을 클릭하면 마우스로 시점·낚시 (걷기는 바로 돼요)"
-		b = "WASD 이동 · 방향키 시점 · E 말 걸기 · Tab 도감 · O 설정"
+		b = "WASD 이동 · Space 점프 · 방향키 시점 · E 말 걸기 · Tab 도감 · O 설정"
 	else:
 		match state:
 			S.IDLE:
-				a = "왼쪽 클릭: 바다 쪽으로 낚싯대 던지기"
-				b = "E: 배 가까이에서 부두로 돌아가기 · 1·2·3 미끼 · Tab 도감 · P 사진 · M 소리 · O 설정" if FarSeaScript.active else "WASD 이동 · 마우스 시점 · 1·2·3 미끼 · Tab 도감 · E 말 걸기 · P 사진 · M 소리 · O 설정"
+				a = "왼쪽 클릭: 바다 쪽으로 낚싯대 던지기" if player.rod_out else "R 또는 왼쪽 클릭: 낚싯대 꺼내기"
+				b = "E: 배 가까이에서 부두로 돌아가기 · 1·2·3 미끼 · Tab 도감 · P 사진 · M 소리 · O 설정" if FarSeaScript.active else "WASD 이동 · Space 점프 · R 낚싯대 넣기/꺼내기 · 1·2·3 미끼 · Tab 도감 · E 말 걸기 · P 사진 · M 소리 · O 설정"
 			S.FLOATING:
 				a = "찌를 지켜보세요… 느낌표(!)가 뜨면 바로 왼쪽 클릭!"
 				b = "기다리다 마음이 바뀌면 왼쪽 클릭: 낚싯대 거두기"

@@ -7,6 +7,7 @@ const Game := preload("res://scripts/game_state.gd")
 
 const SPEED := 4.0
 const GRAVITY := 20.0
+const JUMP_SPEED := 4.6          # 점프(Space): 높이 약 0.8~1m (부두·배 갑판 위로 올라서기)
 const MOUSE_SENS := 0.1          # 도/픽셀
 const ARROW_TURN := 100.0         # 방향키 시점 도는 빠르기(도/초)
 const EYE_HEIGHT := 0.22
@@ -21,11 +22,13 @@ var cam: Camera3D                # 눈(보이지 않음, 판정용)
 var view: Camera3D               # 화면 카메라(3인칭)
 var body: Node3D                 # 3인칭 몸(main.gd가 정함)
 var view_back := VIEW_BACK       # 지금 카메라 거리(집 안은 좁아서 cabin.gd가 줄임)
-var aligned := true               # 몸이 카메라 앞쪽을 보고 있나(아니면 낚싯대·팔을 숨김, player_body.gd가 정함)
+var rod_out := false             # 낚싯대를 꺼내 들고 있나(R 키, fishing_rod.gd가 바꿈). 넣어 두면 낚싯대·오른팔이 안 보이고 몸이 걷는 방향으로 돎
 var orbit := 0.0                 # 시험용 --orbit=도: 카메라를 캐릭터 둘레로 돌려 앞·옆모습을 본다(0 = 뒤)
 var fpv := false                 # 시험용 --fpv=1: 옛 1인칭 화면
 var pitch := 0.0                 # 위아래 각도(도)
 var dbg := ""                    # 시험용: 지금 닿은 것들
+var test_jump := false           # 시험용: Space 대신 계속 점프
+var peak_y := -1e9               # 시험용: 가장 높이 오른 높이
 var test_walk := Vector2.ZERO    # 시험용: 키 대신 이 방향으로 걷게 함(x=오른쪽, y=앞)
 
 func _ready() -> void:
@@ -80,6 +83,8 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move.z
 	if is_on_floor():
 		velocity.y = -2.0
+		if Input.is_physical_key_pressed(KEY_SPACE) or test_jump:
+			velocity.y = JUMP_SPEED
 	else:
 		velocity.y -= GRAVITY * delta
 	# 올라서기: 땅 위에서 앞이 막혔는데, STEP_HEIGHT만큼 올려 보면 앞이 비어 있으면 그만큼 올라선다
@@ -92,6 +97,7 @@ func _physics_process(delta: float) -> void:
 			if not test_move(raised, motion):
 				global_position.y += STEP_HEIGHT
 	move_and_slide()
+	peak_y = maxf(peak_y, global_position.y)
 	dbg = ""
 	for i in get_slide_collision_count():
 		var c := get_slide_collision(i)
@@ -118,4 +124,4 @@ func _process(_delta: float) -> void:
 	var far_enough := pos.distance_to(head) > VIEW_MIN
 	if body != null:
 		body.visible = not fpv and far_enough
-	cam.visible = fpv or (far_enough and aligned)   # 낚싯대·팔도 카메라가 너무 가까우면 숨김
+	cam.visible = fpv or (far_enough and rod_out)   # 낚싯대·팔도 카메라가 너무 가까우면 숨김

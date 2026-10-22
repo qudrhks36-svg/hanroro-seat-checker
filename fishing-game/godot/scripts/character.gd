@@ -55,6 +55,16 @@ static func _leg(root: Node3D, c: Color, x: float, hip_y: float, r: float) -> vo
 	_part(pivot, _capsule(r, h), c, Vector3(0, -h * 0.5, 0))
 	_part(pivot, _sphere(0.1), SHOE, Vector3(0, -hip_y + 0.06, -0.035), Vector3(0.95, 0.62, 1.5))   # 신발
 
+# 팔: 어깨에 축 노드를 두고 팔·손은 그 아래에 매달아, 축을 x로 돌리면 팔 흔들림이 됨(player_body.gd). meta "arm" = 좌우(-1/1)
+static func _arm(root: Node3D, c: Color, x: float) -> void:
+	var pivot := Node3D.new()
+	pivot.position = Vector3(x, SHOULDER_Y, 0)
+	pivot.rotation.z = -signf(x) * 0.08   # 살짝 벌어짐
+	pivot.set_meta("arm", signf(x))
+	root.add_child(pivot)
+	_part(pivot, _capsule(0.07, 0.5), c, Vector3(0, -0.25, 0))
+	_part(pivot, _sphere(0.075), SKIN, Vector3(0, -0.53, 0))
+
 static func build(o: Dictionary, arms: bool = true) -> Node3D:
 	var root := Node3D.new()
 	var top := color_of(o["top"])
@@ -75,10 +85,9 @@ static func build(o: Dictionary, arms: bool = true) -> Node3D:
 	else:
 		for x in [-0.11, 0.11]:
 			_leg(root, bottom, x, 0.64, 0.095)
-	if arms:   # 팔: 소매 + 손 (3인칭 플레이어는 팔을 outfit_view.gd가 따로 그려서 끔)
-		for x in [-SHOULDER_X, SHOULDER_X]:
-			_part(root, _capsule(0.07, 0.5), top, Vector3(x * 1.06, 0.93, 0))
-			_part(root, _sphere(0.075), SKIN, Vector3(x * 1.06, 0.64, 0))
+	if arms:   # 팔: 소매 + 손 (3인칭 플레이어는 낚싯대 쥔 오른팔을 outfit_view.gd가 따로 그림)
+		for x in [-SHOULDER_X * 1.06, SHOULDER_X * 1.06]:
+			_arm(root, top, x)
 	# 머리: 크고 동그랗게
 	_part(root, _sphere(0.36), SKIN, Vector3(0, 1.45, 0))
 	_part(root, _sphere(0.385), hair, Vector3(0, 1.53, 0.07), Vector3(1.0, 0.95, 1.0))        # 머리카락(뒤·위)

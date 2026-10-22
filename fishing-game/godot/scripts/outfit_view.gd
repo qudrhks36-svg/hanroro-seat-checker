@@ -1,5 +1,5 @@
 extends Node3D
-# 낚싯대를 쥔 두 팔 (포팅 10단계, GDD 3번 [확정] + 3인칭): 눈(카메라) 아래에서 어깨 → 팔꿈치 → 손으로 이어지는 팔을 낚싯대 손잡이·가운데 자리에 맞춰 그린다.
+# 낚싯대를 쥔 오른팔 한 개 (포팅 10단계, GDD 3번 [확정] + 3인칭): 눈(카메라) 아래에서 어깨 → 팔꿈치 → 손으로 이어지는 팔을 낚싯대 손잡이 쪽에 맞춰 그린다(왼팔은 몸 모델이 옆에 내려 둠).
 # 팔꿈치는 두 마디 IK(윗팔·아랫팔 길이 고정, 팔꿈치는 바깥·아래로 꺾임). 낚싯대가 너무 멀면 팔이 쭉 펴짐. 소매 색 = 입은 옷의 윗옷 색.
 # 낚싯대의 손잡이 끝(rod_model)과 끝(tip)은 눈 기준 자리라 낚싯대 단계(길이)가 바뀌어도 따라간다.
 
@@ -28,7 +28,7 @@ func setup(fishing_node) -> void:
 	# 어깨 자리(눈 기준): 몸 모델의 어깨 높이에서 눈 높이를 뺀 값. 오른손은 손잡이 가까이, 왼손은 낚싯대 가운데쯤.
 	var sy: float = CharacterScript.SHOULDER_Y * CharacterScript.PLAYER_SCALE - (PlayerBodyScript.FOOT + PlayerScript.EYE_HEIGHT)
 	var sx: float = CharacterScript.SHOULDER_X * CharacterScript.PLAYER_SCALE
-	for spec in [[0.22, 1.0], [0.5, -1.0]]:
+	for spec in [[0.3, 1.0]]:   # 한 손(오른손)만 낚싯대를 쥠
 		var side: float = spec[1]
 		arms.append({
 			"upper": _cyl(), "fore": _cyl(), "shoulder": _ball(ARM_R * 1.5, sleeve_mat), "elbow": _ball(ARM_R * 1.1, sleeve_mat),

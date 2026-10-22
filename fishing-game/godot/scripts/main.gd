@@ -138,6 +138,7 @@ func _ready() -> void:
 	fishing.name = "Fishing"
 	add_child(fishing)
 	pbody.fishing = fishing
+	fishing.player = player
 	fishing.view_cam = player.view   # 화면 좌표(!/결과 카드)는 3인칭 카메라 기준
 	fishing.setup(player.cam, world)
 	var splash := Node3D.new()   # 물보라·물결 (8단계)
@@ -412,9 +413,13 @@ func _ready() -> void:
 		for k in 400:
 			names[Game.fish[Game.pick(k % 3, 0, false, true)]["name"]] = true
 		print("[FG] pond pick names=", names.keys())
+	if _arg("jumpcheck", "") != "":
+		var y0 := player.global_position.y
+		await get_tree().create_timer(float(_arg("jumpcheck", "2"))).timeout
+		print("[FG] jump start y=", snappedf(y0, 0.01), " peak=", snappedf(player.peak_y, 0.01), " rise=", snappedf(player.peak_y - 0.98, 0.01))
 	if _arg("bodycheck", "") != "":   # 시험용: 걷는 방향으로 몸이 도는지 (--walk=1,0 처럼 옆으로 걷게 하고 --bodycheck=초)
 		await get_tree().create_timer(float(_arg("bodycheck", "2"))).timeout
-		print("[FG] body face=", snappedf(rad_to_deg(pbody.face), 0.1), " cam_yaw=", snappedf(rad_to_deg(player.rotation.y), 0.1), " aligned=", player.aligned, " rod visible=", player.cam.visible, " speed=", snappedf(Vector2(player.velocity.x, player.velocity.z).length(), 0.1), " legs=", pbody.legs.map(func(l): return snappedf((l as Node3D).rotation.x, 0.01)))
+		print("[FG] body face=", snappedf(rad_to_deg(pbody.face), 0.1), " cam_yaw=", snappedf(rad_to_deg(player.rotation.y), 0.1), " rod_out=", player.rod_out, " rod visible=", player.cam.visible, " speed=", snappedf(Vector2(player.velocity.x, player.velocity.z).length(), 0.1), " legs=", pbody.legs.map(func(l): return snappedf((l as Node3D).rotation.x, 0.01)))
 	if _arg("meadowcheck", "") != "":   # 시험용: 땅·다리 높이와 걸어서 건너기 (--pos=4,10 --yaw=180 --walk=0,1)
 		await get_tree().create_timer(float(_arg("meadowcheck", "1"))).timeout
 		var dss := get_world_3d().direct_space_state
@@ -476,6 +481,8 @@ func _ready() -> void:
 		catalog.selected = int(_arg("catalog", "0"))
 		catalog.set_open(true, false)
 	fishing.auto = _arg("auto", "") != ""
+	if fishing.auto or _arg("rodout", "") != "":   # 시험용: 낚싯대를 꺼낸 채로 시작(--rodout=1, --auto는 자동으로)
+		player.rod_out = true
 	if _arg("rodcheck", "") != "":
 		fishing.debug_rod()
 	if _arg("bait", "") != "":
@@ -484,6 +491,10 @@ func _ready() -> void:
 		Engine.time_scale = float(_arg("timescale", "1"))
 
 func _apply_test_args() -> void:
+	if _arg("jump", "") != "":   # 시험용: 계속 점프하며 가장 높이 오른 높이를 잼 (--jump=1 --jumpcheck=초)
+		player.test_jump = true
+	if _arg("rodout", "") != "" or _arg("auto", "") != "":   # 시험용: 낚싯대를 꺼낸 채로 시작(--rodout=1, --auto는 자동으로)
+		player.rod_out = true
 	var key := _arg("cam", "")
 	if DEBUG_CAMS.has(key):
 		var p: Vector3 = DEBUG_CAMS[key][0]
