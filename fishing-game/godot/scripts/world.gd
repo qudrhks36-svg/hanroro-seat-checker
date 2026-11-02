@@ -99,6 +99,16 @@ func apply_materials(root: Node) -> void:
 			elif not mat_defs.has(nm):
 				unmatched[nm] = true
 
+# 작은 소품: 그림자를 만들지 않고 멀리 있으면 그리지 않는다(그림 호출 줄이기)
+const SMALL_PROPS := ["Grass", "FlowerPink", "FlowerYellow", "FlowerWhite", "Shell", "Starfish", "Bush", "RockA", "RockB", "Rock"]
+const PROP_RANGE := 80.0
+
+static func slim_prop(node: Node) -> void:
+	for mi in node.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		m.visibility_range_end = PROP_RANGE
+
 # 유니티 충돌 모양(scene.json의 colliders)을 같은 모양으로 만든다. 메시 충돌은 모델 모양 그대로, 캡슐·상자·구는 중심/크기 문자열을 읽음.
 func add_colliders(node: Node3D, it: Dictionary) -> void:
 	if not it.has("colliders"):
@@ -215,6 +225,8 @@ func build() -> void:
 		nodes_by_path[it["path"]] = node   # 같은 경로가 여러 개면(풀·꽃 …) 마지막 것만 남으므로, 개별로 찾을 때는 항목의 "_node"를 씀
 		it["_node"] = node
 		add_colliders(node, it)
+		if SMALL_PROPS.has(String(it["source"]).get_file().get_basename()):
+			slim_prop(node)
 		spawned += 1
 	add_sea_body()
 	print("[FG] smooth angle=", smooth_angle, " meshes=", SmoothScript.cache.size(), " corners=", SmoothScript.stat_corners, " changed=", SmoothScript.stat_changed, " total ms=", Time.get_ticks_msec() - t0)

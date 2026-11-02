@@ -44,6 +44,8 @@ func setup(environment: Environment, light: DirectionalLight3D) -> void:
 	env.fog_sky_affect = 0.0           # 유니티 하늘 셰이더는 안개를 안 받음
 	env.ambient_light_energy = ambient_energy
 	sun.shadow_enabled = true
+	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_ORTHOGONAL   # 4겹 그림자는 그림 호출이 4배 → 1겹
+	sun.directional_shadow_max_distance = 50.0
 
 # 색의 밝기만 남기고 회색 쪽으로 amount만큼 섞은 뒤 dim을 곱함 (유니티 TimeOfDay.Grey)
 static func _grey(c: Color, amount: float, dim: float) -> Color:

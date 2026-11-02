@@ -283,4 +283,5 @@ func _prop(file: String, pos: Vector3, s: float) -> void:
 	add_child(n)
 	SmoothScript.smooth_node(n, world.smooth_angle)
 	world.apply_materials(n)
+	world.slim_prop(n)
 	props += 1
