@@ -10,14 +10,6 @@ export interface Balance {
   remaining: number;
 }
 
-export interface Me {
-  id: number;
-  name: string;
-  role: "staff" | "admin";
-  hire_date: string | null;
-  balance: Balance | null;
-}
-
 export interface LeaveRequest {
   id: number;
   employee_id: number;
@@ -33,14 +25,17 @@ export interface LeaveRequest {
   created_at: string;
 }
 
-export interface EmployeeRow {
+export interface Employee {
   id: number;
   name: string;
-  role: "staff" | "admin";
-  hire_date: string | null;
-  token: string;
+  hire_date: string;
   active: boolean;
-  balance: Balance | null;
+  balance: Balance;
+}
+
+export interface Overview {
+  pending_count: number;
+  employees: Employee[];
 }
 
 export const TYPE_LABEL: Record<LeaveType, string> = {
@@ -58,9 +53,7 @@ export const STATUS_LABEL: Record<Status, string> = {
 
 /** 서버(RPC)가 던지는 에러 코드를 사용자용 문장으로 바꾼다. */
 const ERROR_MESSAGE: Record<string, string> = {
-  invalid_token: "링크가 올바르지 않거나 만료되었어요. 대표님께 새 링크를 요청해 주세요.",
-  forbidden: "권한이 없어요.",
-  no_hire_date: "입사일이 등록되지 않았어요. 대표님께 문의해 주세요.",
+  invalid_token: "링크가 올바르지 않거나 만료되었어요. 새 링크를 받아서 다시 접속해 주세요.",
   bad_type: "휴가 종류가 올바르지 않아요.",
   bad_date: "날짜를 확인해 주세요.",
   past_date: "지난 날짜는 신청할 수 없어요.",
@@ -72,7 +65,7 @@ const ERROR_MESSAGE: Record<string, string> = {
   not_pending: "이미 처리된 신청이에요.",
   cannot_cancel: "취소할 수 없는 신청이에요.",
   not_found: "대상을 찾을 수 없어요.",
-  cannot_deactivate_self: "본인 계정은 비활성화할 수 없어요.",
+  bad_employee: "이름과 입사일을 입력해 주세요.",
 };
 
 export function errorMessage(err: unknown): string {

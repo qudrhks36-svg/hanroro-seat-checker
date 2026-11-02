@@ -44,3 +44,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .badge.rejected { background: #fde2dc; color: var(--danger); }
 .badge.cancelled { background: var(--bg); color: var(--muted); }
 p { margin: 0; }
+select { font: inherit; padding: 10px; border: 1px solid var(--line); border-radius: 8px; width: 100%; color: var(--text); background: #fff; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.top .count, h2 .count { margin-left: 0; }
+.roster { width: 100%; border-collapse: collapse; }
+.roster th { text-align: left; color: var(--muted); font-size: 12px; font-weight: 500; padding: 4px 6px; }
+.roster th:not(:first-child) { text-align: right; }
+.roster td { padding: 8px 6px; border-top: 1px solid var(--line); }
+.roster td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.roster td.strong { font-weight: 700; font-size: 16px; }
+.item { display: grid; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.item:last-child { border: 0; padding-bottom: 0; }
+.list li.inactive { opacity: 0.55; }
