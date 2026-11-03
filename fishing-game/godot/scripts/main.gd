@@ -471,6 +471,15 @@ func _ready() -> void:
 		settings.set_sensitivity(float(_arg("sens", "1.0")))
 		settings.set_open(false, false)
 		print("[FG] sens set -> ", Game.mouse_scale)
+	if _arg("quality", "") != "":   # 시험용: 그림 품질(0~2)·소리 크기(0~100)를 바꿔 적용되는지 (--quality=0 --volume=50, --settings=1 이면 창을 연 채로 둠)
+		settings.set_quality(int(_arg("quality", "1")))
+		settings.set_volume(float(_arg("volume", "100")))
+		var sun_on := false
+		for l in get_tree().root.find_children("*", "DirectionalLight3D", true, false):
+			sun_on = (l as DirectionalLight3D).shadow_enabled
+		print("[FG] quality=", Game.quality, " scale3d=", get_viewport().scaling_3d_scale, " shadow=", sun_on, " volume=", Game.volume, " bus_db=", snappedf(AudioServer.get_bus_volume_db(0), 0.1))
+		if _arg("settings", "") != "":
+			settings.set_open(true, false)
 	if _arg("lookcheck", "") != "":   # 시험용: 마우스를 오른쪽으로 100픽셀 움직였을 때 몇 도 도는지 (감도 1.0, 2.0 비교)
 		for sc in [1.0, 2.0, 0.5]:
 			Game.mouse_scale = sc

@@ -19,6 +19,8 @@ static func save_game() -> void:
 	d["rod"] = Game.rod_level
 	d["mouseSens"] = Game.mouse_scale
 	d["intro"] = Game.intro_seen
+	d["volume"] = Game.volume
+	d["quality"] = Game.quality
 	d["notes"] = Game.notes_found
 	d["decor"] = Game.decor_mask
 	d["cabin"] = Game.cabin_level
@@ -56,6 +58,8 @@ static func load_game() -> void:
 	Game.decor_mask = int(d.get("decor", 0)) & ((1 << Game.home_items.size()) - 1)
 	Game.cabin_level = clampi(int(d.get("cabin", 0)), 0, Game.cabins.size() - 1)
 	Game.intro_seen = bool(d.get("intro", false))
+	Game.volume = clampf(float(d.get("volume", 1.0)), 0.0, 1.0)
+	Game.quality = clampi(int(d.get("quality", 1)), 0, 2)
 	Game.mouse_scale = clampf(float(d.get("mouseSens", 1.0)), 0.3, 3.0)   # 옛 저장에는 없음 → 1.0
 	var fr = d.get("friend")
 	if fr is Array:
