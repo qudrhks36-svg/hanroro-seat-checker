@@ -25,6 +25,7 @@ static var cabin_level := 0          # 오두막 단계 0~2 (저장됨)
 static var decor_open := false       # 꾸미기 창이 열려 있나 (바틀이 대화창 위에 열림)
 static var home_items: Array = []    # economy.json home.items (이름·값·설명)
 static var cabins: Array = []        # economy.json home.cabins
+static var intro_seen := false       # 처음 조작 안내 카드를 봤나 (help_ui.gd, 저장함)
 static var mouse_scale := 1.0        # 마우스 감도 배율 (설정 창, 기본 1.0 = 0.1도/픽셀)
 static var goal_progress := 0        # 오늘의 목표: 지금까지 낚은 마릿수 (저장됨)
 static var goal_target := 3

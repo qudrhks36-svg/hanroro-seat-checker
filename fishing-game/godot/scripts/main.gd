@@ -353,6 +353,13 @@ func _ready() -> void:
 	settings.set_script(SettingsScript)
 	settings.name = "Settings"
 	add_child(settings)
+	var help := CanvasLayer.new()   # 조작 안내 카드 (처음 한 번 + H)
+	help.set_script(preload("res://scripts/help_ui.gd"))
+	help.name = "Help"
+	add_child(help)
+	help.auto_open_first_time()
+	if _arg("help", "") != "":   # 시험용: 조작 안내 카드를 바로 연다
+		help.set_open(true)
 	var guard := Node.new()   # 마우스 잠금 관리(오른쪽 버튼 끌기)
 	guard.set_script(preload("res://scripts/mouse_guard.gd"))
 	guard.name = "MouseGuard"

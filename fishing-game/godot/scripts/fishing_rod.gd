@@ -428,7 +428,7 @@ func _update_guide() -> void:
 	match state:
 		S.IDLE:
 			a = "왼쪽 클릭: 바다 쪽으로 낚싯대 던지기" if player.rod_out else "R 또는 왼쪽 클릭: 낚싯대 꺼내기"
-			b = "E: 배 가까이에서 부두로 돌아가기 · 1·2·3 미끼 · Tab 도감 · P 사진 · M 소리 · O 설정" if FarSeaScript.active else "WASD 이동 · Space 점프 · 오른쪽 버튼 끌기 시점 · R 낚싯대 · 1·2·3 미끼 · Tab 도감 · E 말 걸기 · P 사진 · O 설정"
+			b = "E: 배 가까이에서 부두로 돌아가기 · 1·2·3 미끼 · H 도움말" if FarSeaScript.active else "WASD 이동 · Space 점프 · R 낚싯대 · 1·2·3 미끼 · E 말 걸기 · H 도움말"
 		S.FLOATING:
 			a = "찌를 지켜보세요… 느낌표(!)가 뜨면 바로 왼쪽 클릭!"
 			b = "기다리다 마음이 바뀌면 왼쪽 클릭: 낚싯대 거두기"
