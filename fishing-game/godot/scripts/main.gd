@@ -353,6 +353,10 @@ func _ready() -> void:
 	settings.set_script(SettingsScript)
 	settings.name = "Settings"
 	add_child(settings)
+	var guard := Node.new()   # 마우스 잠금 관리(오른쪽 버튼 끌기)
+	guard.set_script(preload("res://scripts/mouse_guard.gd"))
+	guard.name = "MouseGuard"
+	add_child(guard)
 	var perf := CanvasLayer.new()   # 성능 점검 표시 (F3)
 	perf.set_script(preload("res://scripts/perf_overlay.gd"))
 	perf.name = "PerfOverlay"
@@ -531,11 +535,6 @@ func _apply_test_args() -> void:
 	if walk != "":
 		var w := walk.split(",")
 		player.test_walk = Vector2(float(w[0]), float(w[1]))
-
-func _input(event: InputEvent) -> void:
-	# 마우스 잠금은 오른쪽 버튼을 누른 채 시점을 돌리는 동안만 (커서가 화면 끝에서 멈추지 않게). 떼면 풀림.
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if event.pressed and Game.modal == "" else Input.MOUSE_MODE_VISIBLE
 
 var probed := false
 func _physics_process(_delta: float) -> void:

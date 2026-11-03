@@ -103,6 +103,7 @@ $GODOT_HEAD_INCLUDE
       const GODOT_CONFIG = $GODOT_CONFIG;
       const GODOT_THREADS_ENABLED = $GODOT_THREADS_ENABLED;
       var canvas = document.querySelector("#canvas");
+      canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });   // 오른쪽 버튼 끌기로 시점을 돌리므로 브라우저 메뉴를 막음
       var box = document.querySelector("#game-box");
       var title = document.querySelector("#loading-title");
       var tip = document.querySelector("#loading-tip");
